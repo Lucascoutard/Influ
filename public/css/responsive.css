@@ -1,0 +1,54 @@
+/* ===================================================
+   RESPONSIVE.CSS
+   =================================================== */
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .nav-links { gap: 2px; }
+  .nav-link  { padding: 10px 12px; font-size: 0.87rem; }
+  .hero-content { padding: 56px 44px; max-width: 500px; }
+}
+
+/* Hamburger breakpoint */
+@media (max-width: 900px) {
+  .nav-links       { display: none; }
+  .btn-connect.desktop { display: none; }
+  .menu-toggle     { display: flex; }
+
+  .hero-card  { min-height: 480px; }
+  .hero-content { padding: 48px 32px; max-width: 100%; }
+  .hero-title { font-size: 2rem; }
+
+  .hero-video-bg::after {
+    background: linear-gradient(
+      90deg,
+      rgba(30,28,45,0.9) 0%,
+      rgba(30,28,45,0.6) 50%,
+      rgba(30,28,45,0.2) 100%
+    );
+  }
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+  .hero { padding: 16px; }
+  .hero-card { min-height: 420px; }
+  .hero-content { padding: 36px 24px; }
+  .hero-title { font-size: 1.75rem; }
+  .hero-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .hero-actions .btn-primary,
+  .hero-actions .btn-secondary {
+    justify-content: center;
+    text-align: center;
+  }
+  .nav { padding: 0 16px; }
+}
+
+/* Very small */
+@media (max-width: 380px) {
+  .hero-title { font-size: 1.5rem; }
+  .hero-content { padding: 28px 20px; }
+}

@@ -1,0 +1,28 @@
+/* ===================================================
+   VARIABLES.CSS — Brand Palette & Design Tokens
+   =================================================== */
+:root {
+  --bg: #F5F2ED;
+  --surface: #FFFFFF;
+  --section: #F8F6F3;
+  --text: #0F172A;
+  --muted: #3d4e63;
+  --primary: #5E4AD0;
+  --primary-hover: #4C3BB0;
+  --border: #E3D8D2;
+  --secondary: #C96A7B;
+  --accent: #7FB7A1;
+
+  --font-display: 'Playfair Display', Georgia, serif;
+  --font-body: 'DM Sans', system-ui, sans-serif;
+
+  --radius: 16px;
+  --radius-sm: 10px;
+  --radius-lg: 24px;
+
+  --shadow-sm: 0 1px 3px rgba(15,23,42,0.04);
+  --shadow-md: 0 4px 20px rgba(15,23,42,0.06);
+  --shadow-lg: 0 8px 40px rgba(15,23,42,0.08);
+
+  --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}

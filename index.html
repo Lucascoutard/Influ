@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Influmatch — Smart Collabs. Real Impact.</title>
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
+
+  <!-- Styles -->
+  <link rel="stylesheet" href="public/css/variables.css">
+  <link rel="stylesheet" href="public/css/reset.css">
+  <link rel="stylesheet" href="public/css/header.css">
+  <link rel="stylesheet" href="public/css/hero.css">
+  <link rel="stylesheet" href="public/css/buttons.css">
+  <link rel="stylesheet" href="public/css/auth.css">
+  <link rel="stylesheet" href="public/css/contact.css">
+  <link rel="stylesheet" href="public/css/sections.css">
+  <link rel="stylesheet" href="public/css/dashboard.css">
+  <link rel="stylesheet" href="public/css/messages.css">
+  <link rel="stylesheet" href="public/css/calendar.css">
+  <link rel="stylesheet" href="public/css/responsive.css">
+</head>
+<body>
+
+  <div id="app"></div>
+
+  <!-- Config -->
+  <script src="config/app.config.js"></script>
+
+  <!-- Models -->
+  <script src="app/models/UserModel.js"></script>
+
+  <!-- Views: Components -->
+  <script src="app/views/components/Header.js"></script>
+  <script src="app/views/components/MobileNav.js"></script>
+
+  <!-- Views: Pages -->
+  <script src="app/views/pages/HomePage.js"></script>
+  <script src="app/views/pages/AuthPage.js"></script>
+  <script src="app/views/pages/ContactPage.js"></script>
+  <script src="app/views/pages/ClientDashboard.js"></script>
+  <script src="app/views/pages/AdminDashboard.js"></script>
+
+  <!-- Controllers -->
+  <script src="app/controllers/MessagesController.js"></script>
+  <script src="app/controllers/CalendarController.js"></script>
+  <script src="app/controllers/AppController.js"></script>
+  <script src="app/controllers/NavigationController.js"></script>
+
+  <!-- Router & Bootstrap -->
+  <script src="routes/router.js"></script>
+  <script src="public/js/main.js"></script>
+</body>
+</html>
