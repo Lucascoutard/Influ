@@ -1,0 +1,18 @@
+/* ===================================================
+   RESET.CSS
+   =================================================== */
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; font-size:16px; }
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+a { text-decoration:none; color:inherit; }
+button { cursor:pointer; border:none; font-family:inherit; }
+img { display:block; max-width:100%; height:auto; }
+ul { list-style:none; }
+::selection { background:rgba(94,74,208,0.15); }
