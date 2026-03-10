@@ -370,10 +370,22 @@ const ClientDashboard = {
                   onclick="ClientDashboard._toggleDesc('${c.id}', this)">Voir plus</button>` : ''}
               </div>` : ''}
           </div>
+          <div class="ccc-card-board-row">
+            <button class="ccc-board-btn"
+                    onclick="ClientDashboard._openBoardFromCollab(${c.id})">
+              📋 Voir le suivi de campagne
+            </button>
+          </div>
           ${_progress(c.status)}
         </div>
       `;
     }).join('')}</div>`;
+  },
+
+  _openBoardFromCollab(collabId) {
+    const c = this._ccCache.find(x => parseInt(x.id) === collabId);
+    if (!c) return;
+    TaskBoardController.open(collabId, c);
   },
 
   // ---- Mes contrats ----

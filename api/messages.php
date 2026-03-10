@@ -32,6 +32,8 @@ try {
         case 'ensure_default': ensureDefault($pdo, $user);    break;
         case 'mark_read':      markRead($pdo, $user);         break;
         case 'create_group':   createGroup($pdo, $user);      break;
+        case 'update_group':   updateGroup($pdo, $user);      break;
+        case 'heartbeat':      heartbeat($pdo, $user);        break;
         case 'users':          getUsers($pdo, $user);         break;
         default:
             http_response_code(400);
@@ -48,7 +50,7 @@ try {
 
 function getConversations($pdo, $user) {
     $stmt = $pdo->prepare("
-        SELECT c.id, c.name, c.type, c.updated_at,
+        SELECT c.id, c.name, c.type, c.avatar, c.updated_at,
                m.content    AS last_content,
                m.type       AS last_type,
                m.created_at AS last_at,
@@ -70,7 +72,7 @@ function getConversations($pdo, $user) {
 
     foreach ($rows as &$row) {
         $ps = $pdo->prepare("
-            SELECT u.id, u.firstname, u.lastname, u.role
+            SELECT u.id, u.firstname, u.lastname, u.role, u.last_seen
             FROM conversation_participants cp
             JOIN users u ON u.id = cp.user_id
             WHERE cp.conversation_id = ?
@@ -308,6 +310,62 @@ function markRead($pdo, $user) {
 
     $pdo->prepare("UPDATE conversation_participants SET last_read_msg_id = ? WHERE conversation_id = ? AND user_id = ?")
         ->execute([$lastId, $convId, $user['id']]);
+
+    echo json_encode(['ok' => true]);
+}
+
+// ----------------------------------------------------------------
+function heartbeat($pdo, $user) {
+    $pdo->prepare("UPDATE users SET last_seen = NOW() WHERE id = ?")->execute([$user['id']]);
+    $_SESSION['user']['last_seen'] = date('Y-m-d H:i:s');
+    echo json_encode(['ok' => true]);
+}
+
+// ----------------------------------------------------------------
+function updateGroup($pdo, $user) {
+    if ($user['role'] !== 'admin') { http_response_code(403); echo json_encode(['error' => 'Accès refusé']); return; }
+
+    $convId = (int)($_POST['conversation_id'] ?? 0);
+    $name   = trim($_POST['name'] ?? '');
+
+    if (!$convId) { http_response_code(400); echo json_encode(['error' => 'conversation_id requis']); return; }
+
+    $check = $pdo->prepare("SELECT id FROM conversations WHERE id = ? AND type = 'group'");
+    $check->execute([$convId]);
+    if (!$check->fetch()) { http_response_code(404); echo json_encode(['error' => 'Groupe introuvable']); return; }
+
+    $sets = [];
+    $vals = [];
+
+    if ($name !== '') {
+        $sets[] = 'name = ?';
+        $vals[] = $name;
+    }
+
+    if (isset($_FILES['avatar']) && $_FILES['avatar']['error'] === UPLOAD_ERR_OK) {
+        $file     = $_FILES['avatar'];
+        $imgTypes = ['image/jpeg','image/png','image/gif','image/webp'];
+        $finfo    = new finfo(FILEINFO_MIME_TYPE);
+        $mime     = $finfo->file($file['tmp_name']);
+        if (!in_array($mime, $imgTypes)) { http_response_code(400); echo json_encode(['error' => "Type d'image non autorisé"]); return; }
+        if ($file['size'] > 5 * 1024 * 1024) { http_response_code(400); echo json_encode(['error' => 'Max 5 Mo']); return; }
+
+        $uploadDir = __DIR__ . '/../public/uploads/avatars/';
+        if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
+
+        $ext      = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
+        $safeName = 'group_' . $convId . '_' . uniqid() . '.' . preg_replace('/[^a-z0-9]/', '', $ext);
+
+        if (move_uploaded_file($file['tmp_name'], $uploadDir . $safeName)) {
+            $sets[] = 'avatar = ?';
+            $vals[] = 'public/uploads/avatars/' . $safeName;
+        }
+    }
+
+    if (empty($sets)) { http_response_code(400); echo json_encode(['error' => 'Rien à mettre à jour']); return; }
+
+    $vals[] = $convId;
+    $pdo->prepare("UPDATE conversations SET " . implode(', ', $sets) . " WHERE id = ?")->execute($vals);
 
     echo json_encode(['ok' => true]);
 }

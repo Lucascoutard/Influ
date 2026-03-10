@@ -21,7 +21,7 @@ switch ($action) {
     case 'role':
         requireRole('admin');
         $data = getJsonBody();
-        if (!in_array($data['role'] ?? '', ['admin', 'client', 'user']))
+        if (!in_array($data['role'] ?? '', ['admin', 'client', 'user', 'influencer', 'brand']))
             jsonResponse(['success' => false, 'message' => 'Rôle invalide.'], 422);
         $db = getDB();
         $db->prepare('UPDATE users SET role = ? WHERE id = ?')->execute([$data['role'], $data['user_id']]);
@@ -54,7 +54,7 @@ switch ($action) {
         if ($check->fetch())
             jsonResponse(['success' => false, 'message' => 'Cet e-mail est déjà utilisé.'], 409);
 
-        $role = in_array($data['role'] ?? '', ['admin','client','user']) ? $data['role'] : 'client';
+        $role = in_array($data['role'] ?? '', ['admin','client','user','influencer','brand']) ? $data['role'] : 'client';
         $hash = password_hash($data['password'], PASSWORD_BCRYPT);
         $db->prepare('INSERT INTO users (firstname, lastname, email, password, role, phone, company, is_active) VALUES (?,?,?,?,?,?,?,1)')
            ->execute([
