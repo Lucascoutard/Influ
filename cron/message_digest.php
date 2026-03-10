@@ -14,7 +14,7 @@
      Arguments : C:\wamp64\www\Influmatch\cron\message_digest.php
 
    Linux/Mac crontab (toutes les 30 min) :
-     */30 * * * * php /var/www/Influmatch/cron/message_digest.php
+     * /30 * * * * php /var/www/Influmatch/cron/message_digest.php
    =================================================== */
 
 // CLI only — refuser les requêtes HTTP
