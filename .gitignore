@@ -1,0 +1,12 @@
+# Secrets
+config/agent.php
+
+# Dependencies
+/vendor/
+/node_modules/
+
+# Uploads
+/public/uploads/
+
+# Logs
+*.log
