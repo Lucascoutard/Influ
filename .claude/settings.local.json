@@ -10,7 +10,9 @@
       "Bash(git -C c:/wamp64/www/influmatch diff HEAD -- api/messages.php)",
       "Bash(git -C c:/wamp64/www/influmatch diff -- api/messages.php)",
       "Bash(git -C c:/wamp64/www/influmatch show HEAD:api/messages.php)",
-      "Bash(git -C c:/wamp64/www/influmatch log --oneline)"
+      "Bash(git -C c:/wamp64/www/influmatch log --oneline)",
+      "Bash(git -C c:/wamp64/www/influmatch stash pop)",
+      "Bash(git -C c:/wamp64/www/influmatch stash drop)"
     ]
   }
 }
