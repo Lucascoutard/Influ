@@ -6,7 +6,11 @@
       "Bash(git -C c:/wamp64/www/influmatch log --oneline -5)",
       "Bash(git -C c:/wamp64/www/influmatch diff --stat HEAD)",
       "Bash(git -C c:/wamp64/www/influmatch diff HEAD -- index.html)",
-      "Bash(git -C c:/wamp64/www/influmatch diff HEAD -- app/controllers/MessagesController.js)"
+      "Bash(git -C c:/wamp64/www/influmatch diff HEAD -- app/controllers/MessagesController.js)",
+      "Bash(git -C c:/wamp64/www/influmatch diff HEAD -- api/messages.php)",
+      "Bash(git -C c:/wamp64/www/influmatch diff -- api/messages.php)",
+      "Bash(git -C c:/wamp64/www/influmatch show HEAD:api/messages.php)",
+      "Bash(git -C c:/wamp64/www/influmatch log --oneline)"
     ]
   }
 }
