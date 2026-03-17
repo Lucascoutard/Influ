@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(powershell -Command \"Get-ChildItem ''public/assets/images/'' | Where-Object { $_.Name -like ''solution*'' } | Select-Object Name\")",
+      "Bash(wc -l /c/wamp64/www/influmatch/public/css/*.css)",
+      "WebFetch(domain:www.novastudio.agency)"
+    ]
+  }
+}

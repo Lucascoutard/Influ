@@ -6,11 +6,12 @@
 
 const ClientDashboard = {
 
-  _page: 'discussions',
+  _page: 'accueil',
 
   render(page = null) {
     if (page) this._page = page;
-    setTimeout(() => ClientDashboard._refreshUnreadBadge(), 300);
+    setTimeout(() => ClientDashboard._refreshUnreadBadge(),   300);
+    setTimeout(() => ClientDashboard._refreshContractBadge(), 400);
     const user   = UserModel.getUser();
     const name   = user ? `${user.firstname} ${user.lastname}` : '';
     const initial = user ? (user.firstname || 'U').charAt(0).toUpperCase() : '';
@@ -18,6 +19,9 @@ const ClientDashboard = {
     return `
       ${this._renderDashHeader(initial, user)}
       ${MobileNav.render()}
+
+      <div class="dash-sidebar-overlay" id="dashSidebarOverlay"
+           onclick="ClientDashboard._toggleSidebar()"></div>
 
       <div class="dashboard-layout">
 
@@ -35,6 +39,9 @@ const ClientDashboard = {
           <nav class="dash-nav">
             <div class="dash-nav-section-label">Mon espace</div>
 
+            ${this._item('accueil', 'Accueil',
+              `<path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>`
+            )}
             ${this._item('discussions', 'Mes discussions',
               `<path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>`
             )}
@@ -93,8 +100,14 @@ const ClientDashboard = {
             <img src="${logoSrc}" alt="${AppConfig.name}" class="logo-img">
           </a>
 
-          <!-- Right side: avatar only -->
+          <!-- Right side: hamburger (mobile) + avatar -->
           <div class="dash-hdr-right">
+            <button class="dash-hdr-hamburger" onclick="ClientDashboard._toggleSidebar()" aria-label="Menu">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 12h18M3 6h18M3 18h18"/>
+              </svg>
+            </button>
             <div class="dash-hdr-avatar" title="${name}">${initial}</div>
           </div>
 
@@ -129,23 +142,51 @@ const ClientDashboard = {
     this._page = page;
 
     const el = document.getElementById('dashContent');
-    if (el) el.innerHTML = this._page_render(page);
+    if (el) {
+      el.classList.remove('dash-content--in');
+      void el.offsetWidth;
+      el.innerHTML = this._page_render(page);
+      el.classList.add('dash-content--in');
+    }
 
     document.querySelectorAll('.dash-nav-item').forEach(item => {
       item.classList.toggle('active', item.dataset.page === page);
     });
 
-    // Clear unread badge when entering discussions
     if (page === 'discussions') ClientDashboard._setBadge('discussions', 0);
+    if (page === 'contrats')    ClientDashboard._setBadge('contrats', 0);
+
+    // Fermer la sidebar mobile après navigation
+    const sidebar = document.querySelector('.dash-sidebar');
+    const overlay = document.getElementById('dashSidebarOverlay');
+    if (sidebar) sidebar.classList.remove('dash-sidebar--open');
+    if (overlay) overlay.classList.remove('active');
   },
 
   async _refreshUnreadBadge() {
     try {
-      const res  = await fetch('api/stats.php');
-      const data = await res.json();
-      const n    = parseInt(data.messages_unread) || 0;
+      const res   = await fetch('api/messages.php?action=conversations');
+      const data  = await res.json();
+      const convs = data.conversations || [];
+      const n     = convs.reduce((sum, c) => sum + (parseInt(c.unread_count) || 0), 0);
       ClientDashboard._setBadge('discussions', this._page === 'discussions' ? 0 : n);
     } catch (_) {}
+  },
+
+  async _refreshContractBadge() {
+    try {
+      const res  = await fetch('api/contracts.php?action=my_contracts');
+      const data = await res.json();
+      const n    = (data.contracts || []).filter(c => c.status === 'pending').length;
+      ClientDashboard._setBadge('contrats', this._page === 'contrats' ? 0 : n);
+    } catch (_) {}
+  },
+
+  _toggleSidebar() {
+    const sidebar = document.querySelector('.dash-sidebar');
+    const overlay = document.getElementById('dashSidebarOverlay');
+    const isOpen  = sidebar?.classList.toggle('dash-sidebar--open');
+    if (overlay) overlay.classList.toggle('active', isOpen);
   },
 
   _setBadge(page, count) {
@@ -162,19 +203,298 @@ const ClientDashboard = {
   // ---- Page router ----
   _page_render(page) {
     switch (page) {
+      case 'accueil':        return this._accueil();
       case 'discussions':    return this._discussions();
       case 'collaborations': return this._collaborations();
       case 'contrats':       return this._contrats();
       case 'stats':          return this._stats();
       case 'calendrier':     return this._calendrier();
       case 'compte':         return this._compte();
-      default:               return this._discussions();
+      default:               return this._accueil();
     }
   },
 
   // ================================================================
   //  PAGES
   // ================================================================
+
+  // ---- Accueil ----
+  _accueil() {
+    const user      = UserModel.getUser();
+    const firstname = user ? user.firstname : '';
+    const hour      = new Date().getHours();
+    const greeting  = hour < 12 ? 'Bonjour' : hour < 18 ? 'Bon après-midi' : 'Bonsoir';
+    const today     = new Date().toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+    const todayStr  = today.charAt(0).toUpperCase() + today.slice(1);
+    setTimeout(() => ClientDashboard._loadAccueil(), 0);
+
+    const sk = `
+      <div class="ac-kpi ac-kpi--loading">
+        <div class="ac-kpi-top">
+          <div class="dash-skeleton" style="width:40px;height:40px;border-radius:10px"></div>
+        </div>
+        <div class="dash-skeleton" style="height:28px;width:40px;margin-bottom:7px;border-radius:6px"></div>
+        <div class="dash-skeleton" style="height:11px;width:75%;border-radius:4px"></div>
+      </div>`;
+
+    const arrowSvg = `<svg class="ac-kpi-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>`;
+
+    return `
+      <div class="ac-hero">
+        <div class="ac-hero-glow"></div>
+        <div class="ac-hero-content">
+          <div class="ac-hero-left">
+            <div class="ac-greeting">${greeting}, <strong>${firstname}</strong> 👋</div>
+            <div class="ac-date">${todayStr}</div>
+          </div>
+          <div class="ac-hero-actions">
+            <button class="ac-action-btn" onclick="ClientDashboard.switchPage('collaborations')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+              </svg>
+              Collabs
+            </button>
+            <button class="ac-action-btn" onclick="ClientDashboard.switchPage('contrats')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/>
+              </svg>
+              Contrats
+            </button>
+            <button class="ac-action-btn" onclick="ClientDashboard.switchPage('discussions')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+              </svg>
+              Messages
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="ac-kpis" id="accueilKpis">${sk}${sk}${sk}</div>
+      <div id="accueilBody"></div>
+    `;
+  },
+
+  async _loadAccueil() {
+    const esc = s => String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    const arrowSvg = `<svg class="ac-kpi-caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>`;
+
+    try {
+      const [collabsRes, contractsRes, convRes] = await Promise.all([
+        fetch('api/collaborations.php?action=my_collabs'),
+        fetch('api/contracts.php?action=my_contracts'),
+        fetch('api/messages.php?action=conversations'),
+      ]);
+      const collabsData   = await collabsRes.json();
+      const contractsData = await contractsRes.json();
+      const convData      = await convRes.json();
+
+      const collabs   = collabsData.collaborations || [];
+      const contracts = contractsData.contracts    || [];
+      const convs     = convData.conversations     || [];
+
+      const activeCollabs    = collabs.filter(c => c.status === 'active').length;
+      const pendingContracts = contracts.filter(c => c.status === 'pending').length;
+      const unreadMsgs       = convs.reduce((sum, c) => sum + (parseInt(c.unread_count) || 0), 0);
+
+      // ── KPI cards ─────────────────────────────────────────────
+      const kpisEl = document.getElementById('accueilKpis');
+      if (kpisEl) {
+        kpisEl.innerHTML = `
+          <div class="ac-kpi" onclick="ClientDashboard.switchPage('collaborations')">
+            <div class="ac-kpi-top">
+              <div class="ac-kpi-icon ac-kpi-icon--purple">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                </svg>
+              </div>
+              ${arrowSvg}
+            </div>
+            <div class="ac-kpi-num">${activeCollabs}</div>
+            <div class="ac-kpi-label">Collaboration${activeCollabs !== 1 ? 's' : ''} active${activeCollabs !== 1 ? 's' : ''}</div>
+          </div>
+
+          <div class="ac-kpi" onclick="ClientDashboard.switchPage('contrats')">
+            <div class="ac-kpi-top">
+              <div class="ac-kpi-icon ${pendingContracts > 0 ? 'ac-kpi-icon--amber' : 'ac-kpi-icon--purple'}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/>
+                </svg>
+              </div>
+              ${arrowSvg}
+            </div>
+            <div class="ac-kpi-num ${pendingContracts > 0 ? 'ac-kpi-num--alert' : ''}">${pendingContracts}</div>
+            <div class="ac-kpi-label">Contrat${pendingContracts !== 1 ? 's' : ''} à signer</div>
+          </div>
+
+          <div class="ac-kpi" onclick="ClientDashboard.switchPage('discussions')">
+            <div class="ac-kpi-top">
+              <div class="ac-kpi-icon ${unreadMsgs > 0 ? 'ac-kpi-icon--red' : 'ac-kpi-icon--purple'}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+                </svg>
+              </div>
+              ${arrowSvg}
+            </div>
+            <div class="ac-kpi-num ${unreadMsgs > 0 ? 'ac-kpi-num--urgent' : ''}">${unreadMsgs}</div>
+            <div class="ac-kpi-label">Message${unreadMsgs !== 1 ? 's' : ''} non lu${unreadMsgs !== 1 ? 's' : ''}</div>
+          </div>
+        `;
+      }
+
+      const bodyEl = document.getElementById('accueilBody');
+      if (!bodyEl) return;
+
+      let html = '';
+
+      // ── Alert contrats ─────────────────────────────────────────
+      if (pendingContracts > 0) {
+        html += `
+          <div class="ac-alert">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+            </svg>
+            <div class="ac-alert-text">
+              <strong>${pendingContracts} contrat${pendingContracts > 1 ? 's' : ''} en attente de signature.</strong>
+              Signez-les dès que possible pour débloquer votre collaboration.
+            </div>
+            <button class="ac-alert-btn" onclick="ClientDashboard.switchPage('contrats')">Voir</button>
+          </div>
+        `;
+      }
+
+      // ── Collabs + messages (2 colonnes) ───────────────────────
+      const me  = UserModel.getUser();
+      const uid = me ? parseInt(me.id) : 0;
+      const statusCfg = {
+        pending:   { label: 'En attente', cls: 'collab-s--pending'   },
+        active:    { label: 'Active',     cls: 'collab-s--active'    },
+        completed: { label: 'Terminée',   cls: 'collab-s--completed' },
+        cancelled: { label: 'Annulée',    cls: 'collab-s--cancelled' },
+      };
+
+      // Collab column
+      let collabHtml = '';
+      if (collabs.length > 0) {
+        const recent = collabs.slice(0, 4);
+        collabHtml = `
+          <div>
+            <div class="ac-section-head">
+              <span class="ac-section-label">Collaborations récentes</span>
+              ${collabs.length > 4 ? `<button class="ac-section-link" onclick="ClientDashboard.switchPage('collaborations')">Toutes →</button>` : ''}
+            </div>
+            <div class="ac-collab-list">
+              ${recent.map(c => {
+                const sc      = statusCfg[c.status] || statusCfg.pending;
+                const amBrand = parseInt(c.brand_id) === uid;
+                const other   = amBrand
+                  ? (`${c.inf_firstname||''} ${c.inf_lastname||''}`.trim() || c.inf_email || '?')
+                  : (`${c.brand_firstname||''} ${c.brand_lastname||''}`.trim() + (c.brand_company ? ` — ${c.brand_company}` : ''));
+                const initial = (c.title || '?').charAt(0).toUpperCase();
+                const budget  = c.budget ? `${Number(c.budget).toLocaleString('fr-FR')} €` : null;
+                const date    = c.created_at
+                  ? new Date(c.created_at).toLocaleDateString('fr-FR', { day:'numeric', month:'short', year:'numeric' })
+                  : null;
+                return `
+                  <div class="ac-collab-card" onclick="ClientDashboard.switchPage('collaborations')">
+                    <div class="ac-cc-header">
+                      <div class="ac-cc-avatar">${initial}</div>
+                      <div class="ac-cc-info">
+                        <div class="ac-cc-title">${esc(c.title)}</div>
+                        <div class="ac-cc-partner">${esc(other)}</div>
+                      </div>
+                      <span class="collab-status ${sc.cls}">${sc.label}</span>
+                    </div>
+                    <div class="ac-cc-footer">
+                      <div class="ac-cc-budget ${budget ? '' : 'ac-cc-budget--none'}">${budget || 'Budget non défini'}</div>
+                      ${date ? `<div class="ac-cc-date">Créée le ${date}</div>` : ''}
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        `;
+      } else {
+        collabHtml = `
+          <div class="ac-empty">
+            <div class="ac-empty-emoji">✨</div>
+            <div class="ac-empty-title">Votre aventure commence ici</div>
+            <p class="ac-empty-desc">Votre première collaboration Influmatch apparaîtra ici. Notre équipe est là pour vous accompagner de A à Z.</p>
+            <button class="ac-empty-cta" onclick="ClientDashboard.switchPage('discussions')">Contacter l'équipe →</button>
+          </div>
+        `;
+      }
+
+      // Messages column
+      const topConvs = convs.slice(0, 4);
+      let msgHtml = '';
+      if (topConvs.length > 0) {
+        const fmtTime = str => {
+          if (!str) return '';
+          const d = new Date(str), now = new Date();
+          return d.toDateString() === now.toDateString()
+            ? d.toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' })
+            : d.toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit' });
+        };
+        const fmtPreview = conv => {
+          if (!conv.last_content) return 'Aucun message';
+          if (conv.last_type === 'image') return '📷 Image';
+          if (conv.last_type === 'file')  return '📎 Fichier';
+          const t = conv.last_content;
+          return t.length > 36 ? t.slice(0, 36) + '…' : t;
+        };
+        const convName = conv => {
+          if (conv.name) return conv.name;
+          const others = (conv.participants || []).filter(p => parseInt(p.id) !== uid);
+          const admins = others.filter(p => p.role === 'admin');
+          if (admins.length && admins.length === others.length) return 'Équipe Influmatch';
+          if (others.length === 1) return `${others[0].firstname} ${others[0].lastname}`;
+          return others.map(p => p.firstname).join(', ');
+        };
+        const convInitials = conv => {
+          const n = convName(conv);
+          return n === 'Équipe Influmatch' ? 'IM' : (n || '?').charAt(0).toUpperCase();
+        };
+
+        msgHtml = `
+          <div>
+            <div class="ac-section-head">
+              <span class="ac-section-label">Discussions</span>
+              <button class="ac-section-link" onclick="ClientDashboard.switchPage('discussions')">Toutes →</button>
+            </div>
+            <div class="ac-msg-card">
+              <div class="ac-msg-list">
+                ${topConvs.map(conv => {
+                  const unread = parseInt(conv.unread_count || 0);
+                  return `
+                    <div class="ac-msg-row" onclick="ClientDashboard.switchPage('discussions')">
+                      <div class="ac-msg-avatar">${convInitials(conv)}</div>
+                      <div class="ac-msg-info">
+                        <div class="ac-msg-name">${esc(convName(conv))}</div>
+                        <div class="ac-msg-preview ${unread ? 'ac-msg-preview--unread' : ''}">${esc(fmtPreview(conv))}</div>
+                      </div>
+                      <div class="ac-msg-meta">
+                        <div class="ac-msg-time">${fmtTime(conv.last_at)}</div>
+                        ${unread ? `<div class="ac-msg-badge">${unread > 9 ? '9+' : unread}</div>` : ''}
+                      </div>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            </div>
+          </div>
+        `;
+      }
+
+      html += `<div class="ac-body ${topConvs.length ? '' : 'ac-body--full'}">${collabHtml}${msgHtml}</div>`;
+      bodyEl.innerHTML = html;
+
+    } catch (_) {
+      const bodyEl = document.getElementById('accueilBody');
+      if (bodyEl) bodyEl.innerHTML = '<div style="color:var(--muted);font-size:.85rem;padding:24px 0">Erreur de chargement.</div>';
+    }
+  },
 
   // ---- Mes discussions ----
   _discussions() {
@@ -625,25 +945,111 @@ const ClientDashboard = {
 
   // ---- Mes statistiques ----
   _stats() {
+    setTimeout(() => ClientDashboard._loadStats(), 0);
+    const sk = `<div class="ccc-stat"><div class="dash-skeleton" style="height:30px;width:38px;border-radius:6px;margin-bottom:8px"></div><div class="dash-skeleton" style="height:11px;width:75%;border-radius:4px"></div></div>`;
     return `
       <div class="dash-page-header">
         <h1 class="dash-page-title">Mes statistiques</h1>
-        <p class="dash-page-desc">Suivez les performances de vos collaborations en temps réel.</p>
+        <p class="dash-page-desc">Vue d'ensemble de vos campagnes.</p>
       </div>
-      <div class="dash-empty">
-        <div class="dash-empty-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
-               stroke-linecap="round" stroke-linejoin="round">
-            <path d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/>
-          </svg>
-        </div>
-        <div class="dash-empty-title">Statistiques à venir</div>
-        <p class="dash-empty-text">
-          Vues, taux d'engagement, portée — les performances de vos campagnes
-          s'afficheront ici après votre première collaboration.
-        </p>
-      </div>
+      <div class="ccc-stats-row" id="statsKpiRow">${[1,2,3,4].map(() => sk).join('')}</div>
+      <div id="statsBody" style="margin-top:28px"></div>
     `;
+  },
+
+  async _loadStats() {
+    const esc = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    try {
+      const res  = await fetch('api/collaborations.php?action=my_collabs');
+      const data = await res.json();
+      const all  = data.collaborations || [];
+
+      const kpiEl = document.getElementById('statsKpiRow');
+      if (kpiEl) {
+        const budgetTotal = all.reduce((sum, c) => sum + (parseFloat(c.budget) || 0), 0);
+        const kpis = [
+          { val: all.length,                                      label: 'Total',       color: 'var(--primary)' },
+          { val: all.filter(c => c.status === 'active').length,   label: 'Actives',     color: '#22c55e'        },
+          { val: all.filter(c => c.status === 'completed').length,label: 'Terminées',   color: '#3b82f6'        },
+          { val: budgetTotal > 0 ? budgetTotal.toLocaleString('fr-FR') + ' €' : '—', label: 'Budget total', color: '#d97706' },
+        ];
+        kpiEl.innerHTML = kpis.map(k => `
+          <div class="ccc-stat">
+            <div class="ccc-stat-num" style="color:${k.color}">${k.val}</div>
+            <div class="ccc-stat-label">${k.label}</div>
+          </div>
+        `).join('');
+      }
+
+      const bodyEl = document.getElementById('statsBody');
+      if (!bodyEl) return;
+
+      if (all.length === 0) {
+        bodyEl.innerHTML = `
+          <div class="dash-empty">
+            <div class="dash-empty-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/>
+              </svg>
+            </div>
+            <div class="dash-empty-title">Aucune donnée disponible</div>
+            <p class="dash-empty-text">Vos statistiques s'afficheront ici après votre première collaboration.</p>
+          </div>`;
+        return;
+      }
+
+      const me  = UserModel.getUser();
+      const uid = me ? parseInt(me.id) : 0;
+      const statusGroups = [
+        { key: 'active',    label: 'Actives',     color: '#22c55e', cls: 'collab-s--active'    },
+        { key: 'pending',   label: 'En attente',  color: '#f59e0b', cls: 'collab-s--pending'   },
+        { key: 'completed', label: 'Terminées',   color: '#3b82f6', cls: 'collab-s--completed' },
+        { key: 'cancelled', label: 'Annulées',    color: '#9ca3af', cls: 'collab-s--cancelled' },
+      ].filter(g => all.some(c => c.status === g.key));
+
+      const fmt = d => new Date(d).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
+
+      bodyEl.innerHTML = statusGroups.map(g => {
+        const group = all.filter(c => c.status === g.key);
+        return `
+          <div class="stats-group">
+            <div class="stats-group-header">
+              <span class="stats-group-dot" style="background:${g.color}"></span>
+              <span class="stats-group-label">${g.label}</span>
+              <span class="stats-group-count">${group.length}</span>
+            </div>
+            <div class="stats-collab-list">
+              ${group.map(c => {
+                const amBrand = parseInt(c.brand_id) === uid;
+                const other   = amBrand
+                  ? (`${c.inf_firstname || ''} ${c.inf_lastname || ''}`.trim() || c.inf_email)
+                  : (`${c.brand_firstname || ''} ${c.brand_lastname || ''}`.trim() + (c.brand_company ? ` — ${c.brand_company}` : ''));
+                const initial  = (other || '?').charAt(0).toUpperCase();
+                const budget   = c.budget ? `${parseFloat(c.budget).toLocaleString('fr-FR')} €` : null;
+                const dateStr  = c.start_date ? fmt(c.start_date) + (c.end_date ? ' → ' + fmt(c.end_date) : '') : null;
+                return `
+                  <div class="stats-collab-row">
+                    <div class="ccc-avatar" style="width:32px;height:32px;font-size:.8rem;flex-shrink:0">${initial}</div>
+                    <div style="flex:1;min-width:0">
+                      <div class="accueil-collab-title">${esc(c.title)}</div>
+                      <div class="accueil-collab-sub">${esc(other)}</div>
+                    </div>
+                    <div style="display:flex;gap:8px;align-items:center;flex-shrink:0">
+                      ${budget  ? `<span class="ccc-chip ccc-chip--budget">${budget}</span>` : ''}
+                      ${dateStr ? `<span class="ccc-chip ccc-chip--date">${dateStr}</span>` : ''}
+                    </div>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          </div>
+        `;
+      }).join('');
+    } catch (_) {
+      const bodyEl = document.getElementById('statsBody');
+      if (bodyEl) bodyEl.innerHTML = `<div class="dash-empty"><div class="dash-empty-title">Erreur de chargement</div></div>`;
+    }
   },
 
   // ---- Calendrier ----
@@ -665,7 +1071,6 @@ const ClientDashboard = {
 
       <div class="dash-account-wrap">
         <div class="dash-account-grid">
-
           <div class="dash-field">
             <span class="dash-field-label">Prénom</span>
             <div class="dash-field-value">${user.firstname || '—'}</div>
@@ -674,37 +1079,69 @@ const ClientDashboard = {
             <span class="dash-field-label">Nom</span>
             <div class="dash-field-value">${user.lastname || '—'}</div>
           </div>
-
           <div class="dash-field dash-field--full">
             <span class="dash-field-label">Adresse e-mail</span>
             <div class="dash-field-value">${user.email || '—'}</div>
           </div>
-
-          <div class="dash-field">
-            <span class="dash-field-label">Téléphone</span>
-            <div class="dash-field-value">${user.phone || '—'}</div>
-          </div>
-          <div class="dash-field">
-            <span class="dash-field-label">Entreprise</span>
-            <div class="dash-field-value">${user.company || '—'}</div>
-          </div>
-
           <div class="dash-field dash-field--full">
             <span class="dash-field-label">Statut</span>
-            <div style="margin-top:2px">
-              <span class="dash-active-badge">Compte actif</span>
-            </div>
+            <div style="margin-top:2px"><span class="dash-active-badge">Compte actif</span></div>
           </div>
-
         </div>
 
-        <div class="dash-contact-note">
-          Pour modifier vos informations, écrivez-nous à
-          <a href="mailto:hello@influmatch.com">hello@influmatch.com</a>.
-          Nous mettons à jour votre profil sous 24h.
+        <div class="dash-account-edit-section">
+          <div class="dash-account-edit-title">Informations modifiables</div>
+          <div class="dash-account-edit-grid">
+            <div class="dash-field">
+              <span class="dash-field-label">Téléphone</span>
+              <input type="tel" id="comptePhone" class="dash-edit-input"
+                     placeholder="Ex : +33 6 12 34 56 78"
+                     value="${user.phone || ''}">
+            </div>
+            <div class="dash-field">
+              <span class="dash-field-label">Entreprise</span>
+              <input type="text" id="compteCompany" class="dash-edit-input"
+                     placeholder="Nom de votre entreprise"
+                     value="${user.company || ''}">
+            </div>
+          </div>
+          <div id="compteMsg" style="display:none;margin-bottom:12px;font-size:.84rem"></div>
+          <button class="dash-save-btn" onclick="ClientDashboard._saveCompte(this)">Enregistrer</button>
         </div>
       </div>
     `;
+  },
+
+  async _saveCompte(btn) {
+    const phone   = document.getElementById('comptePhone')?.value?.trim()   || '';
+    const company = document.getElementById('compteCompany')?.value?.trim() || '';
+    const msgEl   = document.getElementById('compteMsg');
+
+    btn.disabled    = true;
+    btn.textContent = 'Enregistrement…';
+
+    try {
+      const res  = await fetch('api/users.php?action=update_profile', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ phone, company }),
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        const user = UserModel.getUser();
+        if (user) { user.phone = phone; user.company = company; }
+        if (msgEl) { msgEl.style.display = ''; msgEl.style.color = '#166534'; msgEl.textContent = 'Modifications enregistrées.'; }
+        ClientDashboard._showToast('Profil mis à jour.');
+      } else {
+        if (msgEl) { msgEl.style.display = ''; msgEl.style.color = '#991b1b'; msgEl.textContent = data.message || 'Une erreur est survenue.'; }
+      }
+    } catch (_) {
+      if (msgEl) { msgEl.style.display = ''; msgEl.style.color = '#991b1b'; msgEl.textContent = 'Erreur réseau.'; }
+    } finally {
+      btn.disabled    = false;
+      btn.textContent = 'Enregistrer';
+    }
   }
 
 };

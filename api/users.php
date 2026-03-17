@@ -81,6 +81,39 @@ switch ($action) {
         jsonResponse(['success' => true, 'message' => 'Compte supprimé.']);
         break;
 
+    case 'change_password':
+        $user = requireAuth();
+        $data = getJsonBody();
+        if (empty($data['current_password']) || empty($data['new_password']))
+            jsonResponse(['success' => false, 'message' => 'Champs requis.'], 422);
+        if (strlen($data['new_password']) < 8)
+            jsonResponse(['success' => false, 'message' => 'Le nouveau mot de passe doit contenir au moins 8 caractères.'], 422);
+        $db = getDB();
+        $stmt = $db->prepare('SELECT password FROM users WHERE id = ?');
+        $stmt->execute([(int)$user['id']]);
+        $row = $stmt->fetch();
+        if (!$row || !password_verify($data['current_password'], $row['password']))
+            jsonResponse(['success' => false, 'message' => 'Mot de passe actuel incorrect.'], 401);
+        $hash = password_hash($data['new_password'], PASSWORD_BCRYPT);
+        $db->prepare('UPDATE users SET password = ? WHERE id = ?')->execute([$hash, (int)$user['id']]);
+        jsonResponse(['success' => true, 'message' => 'Mot de passe mis à jour.']);
+        break;
+
+    case 'update_profile':
+        $user = requireAuth();
+        $data = getJsonBody();
+        $db   = getDB();
+        $db->prepare('UPDATE users SET phone = ?, company = ? WHERE id = ?')
+           ->execute([
+               trim($data['phone']   ?? ''),
+               trim($data['company'] ?? ''),
+               (int)$user['id'],
+           ]);
+        $_SESSION['user']['phone']   = trim($data['phone']   ?? '');
+        $_SESSION['user']['company'] = trim($data['company'] ?? '');
+        jsonResponse(['success' => true, 'message' => 'Profil mis à jour.']);
+        break;
+
     default:
         jsonResponse(['success' => false, 'message' => 'Action inconnue.'], 400);
 }

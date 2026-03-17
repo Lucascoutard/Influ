@@ -5,16 +5,17 @@
 
 const MessagesController = {
 
-  _activeConvId:    null,
-  _pollInterval:    null,
-  _lastMsgId:       0,
-  _conversations:   [],
-  _titleInterval:   null,
-  _origTitle:       null,
-  _unreadScrolled:  0,
-  _pendingFile:     null,
-  _pendingFileUrl:  null,
-  _readStatus:      {},
+  _activeConvId:      null,
+  _pollInterval:      null,
+  _lastMsgId:         0,
+  _conversations:     [],
+  _titleInterval:     null,
+  _origTitle:         null,
+  _unreadScrolled:    0,
+  _pendingFile:       null,
+  _pendingFileUrl:    null,
+  _readStatus:        {},
+  _visibilityHandler: null,
 
   // ================================================================
   //  RENDER — appelé depuis _discussions() dans les dashboards
@@ -69,6 +70,16 @@ const MessagesController = {
     }
 
     await this._loadConversations();
+
+    // Demande permission notifications navigateur
+    this._requestNotifPermission();
+
+    // Pause polling quand l'onglet est masqué
+    this._visibilityHandler = () => {
+      if (document.hidden) { this._stopPolling(); }
+      else                 { this._startPolling(); }
+    };
+    document.addEventListener('visibilitychange', this._visibilityHandler);
 
     // Démarre l'écoute des appels entrants
     CallController.startListening();
@@ -398,6 +409,7 @@ const MessagesController = {
       if (document.hidden || !document.hasFocus()) {
         this._playNotifSound();
         this._notifTitle();
+        this._showBrowserNotif(msg);
       }
       if (!wasAtBottom) {
         this._unreadScrolled++;
@@ -660,6 +672,10 @@ const MessagesController = {
   destroy() {
     CallController.stopListening();
     this._stopPolling();
+    if (this._visibilityHandler) {
+      document.removeEventListener('visibilitychange', this._visibilityHandler);
+      this._visibilityHandler = null;
+    }
     clearInterval(this._titleInterval);
     this._titleInterval = null;
     if (this._origTitle) { document.title = this._origTitle; this._origTitle = null; }
@@ -790,6 +806,25 @@ const MessagesController = {
       this._unreadScrolled = 0;
       this._updateScrollBtn();
     }
+  },
+
+  _requestNotifPermission() {
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission().catch(() => {});
+    }
+  },
+
+  _showBrowserNotif(msg) {
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+    const sender = msg.firstname ? msg.firstname : 'Nouveau message';
+    const body   = msg.type === 'text'
+      ? (msg.content || '').substring(0, 80)
+      : msg.type === 'image' ? '📷 Image' : '📎 Fichier';
+    try {
+      const n = new Notification(`Influmatch — ${sender}`, { body, icon: '/public/assets/images/logo.svg', tag: 'influmatch-msg' });
+      n.onclick = () => { window.focus(); n.close(); };
+      setTimeout(() => n.close(), 5000);
+    } catch (_) {}
   },
 
   _playNotifSound() {

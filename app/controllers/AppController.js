@@ -79,6 +79,12 @@ const AppController = {
     // Bind interactions après le render
     NavigationController.bind();
 
+    // Homepage only : constat counters + solution sticky scroll
+    if (route === 'home' || route === undefined) {
+      HomePage.initConstatAnimation();
+      HomePage.initSolutionCarousel();
+    }
+
     // Scroll top à chaque changement de page
     window.scrollTo({ top: 0 });
   },

@@ -14,6 +14,7 @@ const NavigationController = {
     this._bindSmoothScroll();
     this._bindScrollProgress();
     this._bindScrollReveal();
+    this._initWordSplit();
   },
 
   // Header background on scroll (bind once)
@@ -110,5 +111,88 @@ const NavigationController = {
     });
 
     reveals.forEach(el => observer.observe(el));
+  },
+
+  // ============================================
+  // WORD-SPLIT REVEAL — kinetic typography
+  // Applies to .section-heading and .hero-title
+  // Each word slides up from below its overflow:hidden container
+  // ============================================
+  _initWordSplit() {
+    const heroTitle     = document.querySelector('.hero-title');
+    const scrollHeadings = document.querySelectorAll('.section-heading');
+    if (!heroTitle && !scrollHeadings.length) return;
+
+    // ── Split all targets ─────────────────────────────────────
+    if (heroTitle) {
+      let i = 0;
+      this._splitNode(heroTitle, () => i++, 75);
+    }
+    scrollHeadings.forEach(el => {
+      let i = 0;
+      this._splitNode(el, () => i++, 60);
+    });
+
+    // ── Hero title: reveal immediately (no scroll trigger) ────
+    if (heroTitle) {
+      requestAnimationFrame(() => {
+        heroTitle.style.opacity = '1';
+        requestAnimationFrame(() => heroTitle.classList.add('anim-in'));
+      });
+    }
+
+    // ── Section headings: reveal on scroll ───────────────────
+    if (scrollHeadings.length) {
+      const obs = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('anim-in');
+            obs.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+      scrollHeadings.forEach(el => {
+        // Already in viewport on page load (e.g. very tall screens)
+        const r = el.getBoundingClientRect();
+        if (r.top < window.innerHeight * 0.9) {
+          setTimeout(() => el.classList.add('anim-in'), 80);
+        } else {
+          obs.observe(el);
+        }
+      });
+    }
+  },
+
+  // Recursively split text nodes into .sw-outer/.sw-inner word spans
+  _splitNode(node, nextIdx, staggerMs) {
+    const children = [...node.childNodes];
+    node.innerHTML = '';
+    children.forEach(child => {
+      if (child.nodeType === Node.TEXT_NODE) {
+        child.textContent.split(/(\s+)/).forEach(tok => {
+          if (!tok || /^\s+$/.test(tok)) {
+            node.appendChild(document.createTextNode(tok));
+          } else {
+            node.appendChild(this._wrapWord(tok, nextIdx() * staggerMs));
+          }
+        });
+      } else if (child.nodeType === Node.ELEMENT_NODE) {
+        const clone = child.cloneNode(false);
+        node.appendChild(clone);
+        this._splitNode(clone, nextIdx, staggerMs);
+      }
+    });
+  },
+
+  _wrapWord(text, delayMs) {
+    const outer = document.createElement('span');
+    outer.className = 'sw-outer';
+    const inner = document.createElement('span');
+    inner.className = 'sw-inner';
+    inner.style.transitionDelay = `${delayMs}ms`;
+    inner.textContent = text;
+    outer.appendChild(inner);
+    return outer;
   }
 };

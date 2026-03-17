@@ -12,7 +12,11 @@
       "Bash(git -C c:/wamp64/www/influmatch show HEAD:api/messages.php)",
       "Bash(git -C c:/wamp64/www/influmatch log --oneline)",
       "Bash(git -C c:/wamp64/www/influmatch stash pop)",
-      "Bash(git -C c:/wamp64/www/influmatch stash drop)"
+      "Bash(git -C c:/wamp64/www/influmatch stash drop)",
+      "Bash(identify public/assets/images/solution-matching.png public/assets/images/solution-contrat.png public/assets/images/solution-suivi.png)",
+      "Bash(python3 -c \":*)",
+      "Bash(python -c \":*)",
+      "Bash(powershell -Command \":*)"
     ]
   }
 }
