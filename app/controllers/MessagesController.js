@@ -5,16 +5,17 @@
 
 const MessagesController = {
 
-  _activeConvId:    null,
-  _pollInterval:    null,
-  _lastMsgId:       0,
-  _conversations:   [],
-  _titleInterval:   null,
-  _origTitle:       null,
-  _unreadScrolled:  0,
-  _pendingFile:     null,
-  _pendingFileUrl:  null,
-  _readStatus:      {},
+  _activeConvId:      null,
+  _pollInterval:      null,
+  _lastMsgId:         0,
+  _conversations:     [],
+  _titleInterval:     null,
+  _origTitle:         null,
+  _unreadScrolled:    0,
+  _pendingFile:       null,
+  _pendingFileUrl:    null,
+  _readStatus:        {},
+  _visibilityHandler: null,
 
   // ================================================================
   //  RENDER — appelé depuis _discussions() dans les dashboards
@@ -70,6 +71,19 @@ const MessagesController = {
 
     await this._loadConversations();
 
+    // Demande permission notifications navigateur
+    this._requestNotifPermission();
+
+    // Pause polling quand l'onglet est masqué
+    this._visibilityHandler = () => {
+      if (document.hidden) { this._stopPolling(); }
+      else                 { this._startPolling(); }
+    };
+    document.addEventListener('visibilitychange', this._visibilityHandler);
+
+    // Démarre l'écoute des appels entrants
+    CallController.startListening();
+
     // Auto-ouvre la première conversation
     if (this._conversations.length > 0) {
       this.openConversation(this._conversations[0].id);
@@ -109,21 +123,28 @@ const MessagesController = {
     }
 
     const me = UserModel.getUser();
-    list.innerHTML = this._conversations.map(conv => {
+    // Épingler la conversation Équipe Influmatch en premier
+    const convs = [...this._conversations].sort((a, b) => {
+      const aPin = this._isInflumatchConv(a, me) ? -1 : 0;
+      const bPin = this._isInflumatchConv(b, me) ? -1 : 0;
+      return aPin - bPin;
+    });
+    list.innerHTML = convs.map(conv => {
       const name     = this._convName(conv, me);
       const initials = this._convInitials(conv, me);
       const preview  = this._convPreview(conv);
       const time     = conv.last_at ? this._fmtTime(conv.last_at) : '';
       const active   = conv.id === this._activeConvId;
       const unread   = parseInt(conv.unread_count || 0);
+      const pinned   = this._isInflumatchConv(conv, me);
 
       return `
-        <div class="chat-conv-item ${active ? 'active' : ''}"
+        <div class="chat-conv-item ${active ? 'active' : ''} ${pinned ? 'chat-conv-item--pinned' : ''}"
              data-id="${conv.id}"
              onclick="MessagesController.openConversation(${conv.id})">
           <div class="chat-conv-avatar">${initials}</div>
           <div class="chat-conv-info">
-            <div class="chat-conv-name">${this._esc(name)}</div>
+            <div class="chat-conv-name">${this._esc(name)}${pinned ? ' <span class="chat-conv-pin">📌</span>' : ''}</div>
             <div class="chat-conv-preview ${unread ? 'chat-conv-preview--unread' : ''}">${this._esc(preview)}</div>
           </div>
           <div class="chat-conv-meta">
@@ -158,6 +179,8 @@ const MessagesController = {
     const chatMain = document.getElementById('chatMain');
     if (!chatMain) return;
 
+    const isDirect = conv && conv.type === 'direct';
+
     chatMain.innerHTML = `
       <div class="chat-header">
         <button class="chat-back-btn" onclick="MessagesController.closeConversation()" title="Retour">
@@ -171,6 +194,24 @@ const MessagesController = {
           <div class="chat-header-name">${this._esc(name)}</div>
           ${sub ? `<div class="chat-header-sub">${this._esc(sub)}</div>` : ''}
         </div>
+        ${isDirect ? `
+        <div class="chat-call-actions">
+          <button class="chat-call-btn" title="Appel audio"
+                  onclick="CallController.startCall(${convId}, '${this._esc(name)}', false)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.22 1.18 2 2 0 012.22 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.09a16 16 0 006 6l.56-.56a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/>
+            </svg>
+          </button>
+          <button class="chat-call-btn" title="Appel vidéo"
+                  onclick="CallController.startCall(${convId}, '${this._esc(name)}', true)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round">
+              <polygon points="23 7 16 12 23 17 23 7"/>
+              <rect x="1" y="5" width="15" height="14" rx="2" ry="2"/>
+            </svg>
+          </button>
+        </div>` : ''}
       </div>
 
       <div class="chat-messages" id="chatMessages">
@@ -273,6 +314,26 @@ const MessagesController = {
     const time    = this._fmtTime(msg.created_at);
     const initial = (msg.firstname || '?').charAt(0).toUpperCase();
 
+    // Événement d'appel : bulle centrée (pas de wrapper sender/receiver)
+    if (msg.type === 'call_event') {
+      let parsed = {};
+      try { parsed = JSON.parse(msg.content); } catch (_) {}
+      const callType = parsed.call_type === 'video' ? 'vidéo' : 'audio';
+      const duration = parsed.duration;
+      let icon, label, cls;
+      if (parsed.status === 'ended') {
+        const dur = duration ? ' · ' + this._fmtDuration(duration) : '';
+        icon  = '📞';
+        label = `Appel ${callType}${dur}`;
+        cls   = '';
+      } else {
+        icon  = '📵';
+        label = `Appel ${callType} manqué`;
+        cls   = 'chat-call-event--missed';
+      }
+      return `<div class="chat-call-event ${cls}"><span>${icon}</span><span>${label}</span></div>`;
+    }
+
     let body = '';
     if (msg.type === 'text') {
       body = `<div class="chat-bubble-text">${this._nl2br(this._esc(msg.content))}</div>`;
@@ -348,6 +409,7 @@ const MessagesController = {
       if (document.hidden || !document.hasFocus()) {
         this._playNotifSound();
         this._notifTitle();
+        this._showBrowserNotif(msg);
       }
       if (!wasAtBottom) {
         this._unreadScrolled++;
@@ -608,7 +670,12 @@ const MessagesController = {
   },
 
   destroy() {
+    CallController.stopListening();
     this._stopPolling();
+    if (this._visibilityHandler) {
+      document.removeEventListener('visibilitychange', this._visibilityHandler);
+      this._visibilityHandler = null;
+    }
     clearInterval(this._titleInterval);
     this._titleInterval = null;
     if (this._origTitle) { document.title = this._origTitle; this._origTitle = null; }
@@ -658,6 +725,12 @@ const MessagesController = {
     target.after(vu);
   },
 
+  _isInflumatchConv(conv, me) {
+    if (conv.type !== 'direct') return false;
+    const others = (conv.participants || []).filter(p => parseInt(p.id) !== me.id);
+    return others.length > 0 && others.every(p => p.role === 'admin');
+  },
+
   _convName(conv, me) {
     if (conv.name) return conv.name;
     const others = (conv.participants || []).filter(p => parseInt(p.id) !== me.id);
@@ -688,6 +761,11 @@ const MessagesController = {
 
   _convPreview(conv) {
     if (!conv.last_content) return 'Aucun message';
+    if (conv.last_type === 'call_event') {
+      let parsed = {};
+      try { parsed = JSON.parse(conv.last_content); } catch (_) {}
+      return parsed.status === 'missed' ? '📵 Appel manqué' : '📞 Appel';
+    }
     if (conv.last_type === 'image') return '📷 Image';
     if (conv.last_type === 'file' && this._isVideoFile(conv.last_content)) return '🎥 Vidéo';
     if (conv.last_type === 'file')  return '📎 Fichier';
@@ -728,6 +806,25 @@ const MessagesController = {
       this._unreadScrolled = 0;
       this._updateScrollBtn();
     }
+  },
+
+  _requestNotifPermission() {
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission().catch(() => {});
+    }
+  },
+
+  _showBrowserNotif(msg) {
+    if (!('Notification' in window) || Notification.permission !== 'granted') return;
+    const sender = msg.firstname ? msg.firstname : 'Nouveau message';
+    const body   = msg.type === 'text'
+      ? (msg.content || '').substring(0, 80)
+      : msg.type === 'image' ? '📷 Image' : '📎 Fichier';
+    try {
+      const n = new Notification(`Influmatch — ${sender}`, { body, icon: '/public/assets/images/logo.svg', tag: 'influmatch-msg' });
+      n.onclick = () => { window.focus(); n.close(); };
+      setTimeout(() => n.close(), 5000);
+    } catch (_) {}
   },
 
   _playNotifSound() {
@@ -805,5 +902,11 @@ const MessagesController = {
 
   _nl2br(str) {
     return str.replace(/\n/g, '<br>');
+  },
+
+  _fmtDuration(secs) {
+    const m = Math.floor(secs / 60).toString().padStart(2, '0');
+    const s = (secs % 60).toString().padStart(2, '0');
+    return `${m}:${s}`;
   }
 };

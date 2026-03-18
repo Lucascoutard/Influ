@@ -23,6 +23,9 @@ const AdminDashboard = {
       ${this._renderDashHeader(initial, user)}
       ${MobileNav.render()}
 
+      <div class="dash-sidebar-overlay" id="dashSidebarOverlay"
+           onclick="AdminDashboard._toggleSidebar()"></div>
+
       <div class="dashboard-layout">
 
         <!-- ====== SIDEBAR ====== -->
@@ -65,8 +68,7 @@ const AdminDashboard = {
               `<path d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/>`
             )}
             ${this._item('agent', 'Agent marketing',
-              `<path d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/>`,
-              true
+              `<path d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/>`
             )}
 
             <div class="dash-nav-section-label">Paramètres</div>
@@ -110,6 +112,14 @@ const AdminDashboard = {
             <img src="${logoSrc}" alt="${AppConfig.name}" class="logo-img">
           </a>
           <div class="dash-hdr-right">
+            <button class="dash-hdr-hamburger" onclick="AdminDashboard._toggleSidebar()" aria-label="Menu">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <line x1="3" y1="6"  x2="21" y2="6"/>
+                <line x1="3" y1="12" x2="21" y2="12"/>
+                <line x1="3" y1="18" x2="21" y2="18"/>
+              </svg>
+            </button>
             <div class="dash-hdr-avatar" title="${name}">${initial}</div>
           </div>
         </nav>
@@ -140,11 +150,32 @@ const AdminDashboard = {
 
     this._page = page;
     localStorage.setItem('adminPage', page);
+
     const el = document.getElementById('dashContent');
-    if (el) el.innerHTML = this._page_render(page);
+    if (el) {
+      el.classList.remove('dash-content--in');
+      void el.offsetWidth;
+      el.innerHTML = this._page_render(page);
+      el.classList.add('dash-content--in');
+    }
+
     document.querySelectorAll('.dash-nav-item').forEach(item => {
       item.classList.toggle('active', item.dataset.page === page);
     });
+
+    // Fermer la sidebar mobile après navigation
+    const sidebar = document.querySelector('.dash-sidebar');
+    const overlay = document.getElementById('dashSidebarOverlay');
+    if (sidebar) sidebar.classList.remove('dash-sidebar--open');
+    if (overlay) overlay.classList.remove('active');
+  },
+
+  _toggleSidebar() {
+    const sidebar = document.querySelector('.dash-sidebar');
+    const overlay = document.getElementById('dashSidebarOverlay');
+    if (!sidebar) return;
+    const open = sidebar.classList.toggle('dash-sidebar--open');
+    if (overlay) overlay.classList.toggle('active', open);
   },
 
   // ---- Page router ----
@@ -233,7 +264,6 @@ const AdminDashboard = {
                 const name    = `${u.firstname || ''} ${u.lastname || ''}`.trim() || u.email;
                 const initial = (u.firstname || u.email || '?').charAt(0).toUpperCase();
                 const date    = new Date(u.created_at).toLocaleDateString('fr-FR', { day:'numeric', month:'short' });
-                const active  = parseInt(u.is_active) === 1;
                 return `
                   <div class="dash-recent-row">
                     <div class="dash-recent-avatar">${initial}</div>
@@ -519,6 +549,10 @@ const AdminDashboard = {
         </div>
         <div class="dash-modal-footer">
           <button class="dash-mfooter-delete" onclick="AdminDashboard._deleteCollab(${c.id})">Supprimer</button>
+          <button class="dash-mfooter-board"
+                  onclick="document.getElementById('collabDetailOverlay').remove(); AdminDashboard._openBoardFromCollab(${c.id})">
+            📋 Suivi campagne
+          </button>
           <button class="dash-mfooter-close"  onclick="document.getElementById('collabDetailOverlay').remove()">Annuler</button>
           <button class="dash-mfooter-submit" id="cdSaveBtn" onclick="AdminDashboard._saveCollab(${c.id}, this)">Enregistrer</button>
         </div>
@@ -526,6 +560,12 @@ const AdminDashboard = {
     `;
     document.body.appendChild(overlay);
     overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
+  },
+
+  _openBoardFromCollab(collabId) {
+    const c = this._collabsCache.find(x => parseInt(x.id) === collabId);
+    if (!c) return;
+    TaskBoardController.open(collabId, c);
   },
 
   async _saveCollab(collabId, btn) {
@@ -1021,7 +1061,7 @@ const AdminDashboard = {
             </div>
           </div>
           <div id="ucError" class="dash-modal-error" style="display:none"></div>
-          <p style="font-size:.78rem;color:var(--text-light);margin-top:10px">
+          <p style="font-size:.78rem;color:var(--muted);margin-top:10px">
             ✉️ Le client recevra automatiquement un email de notification.
           </p>
         </div>
@@ -1079,24 +1119,150 @@ const AdminDashboard = {
 
   // ---- Statistiques ----
   _stats() {
+    setTimeout(() => AdminDashboard._loadStats(), 0);
+    const _skel = () => `
+      <div class="dash-stat-card dash-stat-card--loading">
+        <div class="dash-stat-num dash-skeleton"></div>
+        <div class="dash-stat-label dash-skeleton" style="width:60%;height:12px"></div>
+      </div>`;
     return `
       <div class="dash-page-header">
-        <h1 class="dash-page-title">Statistiques</h1>
-        <p class="dash-page-desc">Performances globales de vos campagnes et collaborations.</p>
+        <h1 class="dash-page-title">Statistiques plateforme</h1>
+        <p class="dash-page-desc">Vue globale des utilisateurs, collaborations et activités.</p>
       </div>
-      <div class="dash-empty">
-        <div class="dash-empty-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"
-               stroke-linecap="round" stroke-linejoin="round">
-            <path d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/>
-          </svg>
+
+      <div class="stats-section-title">Utilisateurs</div>
+      <div class="dash-stats-grid" id="statsUsersGrid">
+        ${[1,2,3,4].map(_skel).join('')}
+      </div>
+
+      <div class="stats-section-title" style="margin-top:28px">Collaborations</div>
+      <div class="dash-stats-grid" id="statsCollabsGrid">
+        ${[1,2,3,4].map(_skel).join('')}
+      </div>
+
+      <div class="stats-two-col" style="margin-top:28px">
+        <div class="dash-overview-panel" id="statsRecentUsers">
+          <div class="dash-panel-title">Derniers inscrits</div>
+          <div class="dash-panel-loading">Chargement…</div>
         </div>
-        <div class="dash-empty-title">Statistiques à venir</div>
-        <p class="dash-empty-text">
-          Portée, taux d'engagement, ROI — les métriques de toutes vos campagnes s'afficheront ici.
-        </p>
+        <div class="dash-overview-panel" id="statsRecentCollabs">
+          <div class="dash-panel-title">Dernières collaborations</div>
+          <div class="dash-panel-loading">Chargement…</div>
+        </div>
       </div>
     `;
+  },
+
+  async _loadStats() {
+    try {
+      const res  = await fetch('api/stats.php');
+      const data = await res.json();
+      if (!data.success) return;
+      const s = data.stats;
+
+      // ── Users KPIs ─────────────────────────────────
+      const usersGrid = document.getElementById('statsUsersGrid');
+      if (usersGrid) {
+        usersGrid.innerHTML = [
+          { val: s.users_total,    label: 'Comptes créés',         color: 'var(--primary)', sub: `${s.users_active} actifs` },
+          { val: s.clients,        label: 'Clients actifs',         color: '#22c55e',        sub: `${s.admins} admin${s.admins > 1 ? 's' : ''}` },
+          { val: s.new_this_week,  label: 'Nouveaux cette semaine', color: '#f59e0b',        sub: null },
+          { val: s.messages_unread,label: 'Messages non lus',       color: '#ef4444',        sub: null },
+        ].map(c => `
+          <div class="dash-stat-card">
+            <div class="dash-stat-num" style="color:${c.color}">${c.val}</div>
+            <div class="dash-stat-label">${c.label}</div>
+            ${c.sub ? `<div class="dash-stat-sub">${c.sub}</div>` : ''}
+          </div>
+        `).join('');
+      }
+
+      // ── Collabs KPIs ───────────────────────────────
+      const collabsGrid = document.getElementById('statsCollabsGrid');
+      if (collabsGrid) {
+        collabsGrid.innerHTML = [
+          { val: s.collabs_total,     label: 'Total collaborations', color: 'var(--primary)', sub: null },
+          { val: s.collabs_active,    label: 'En cours',             color: '#22c55e',        sub: null },
+          { val: s.collabs_pending,   label: 'En attente',           color: '#f59e0b',        sub: null },
+          { val: s.collabs_completed, label: 'Terminées',            color: 'var(--muted)',   sub: `${s.collabs_cancelled} annulée${s.collabs_cancelled > 1 ? 's' : ''}` },
+        ].map(c => `
+          <div class="dash-stat-card">
+            <div class="dash-stat-num" style="color:${c.color}">${c.val}</div>
+            <div class="dash-stat-label">${c.label}</div>
+            ${c.sub ? `<div class="dash-stat-sub">${c.sub}</div>` : ''}
+          </div>
+        `).join('');
+      }
+
+      // ── Recent users ───────────────────────────────
+      const recentUsersEl = document.getElementById('statsRecentUsers');
+      if (recentUsersEl) {
+        const users = data.recent_users || [];
+        recentUsersEl.innerHTML = `<div class="dash-panel-title">Derniers inscrits</div>` + (
+          users.length === 0
+            ? '<div class="dash-panel-empty">Aucun inscrit</div>'
+            : users.map(u => {
+                const name    = `${u.firstname || ''} ${u.lastname || ''}`.trim() || u.email;
+                const initial = (u.firstname || u.email || '?').charAt(0).toUpperCase();
+                const date    = new Date(u.created_at).toLocaleDateString('fr-FR', { day:'numeric', month:'short' });
+                return `
+                  <div class="dash-recent-row">
+                    <div class="dash-recent-avatar">${initial}</div>
+                    <div class="dash-recent-info">
+                      <div class="dash-recent-name">${AdminDashboard._escU(name)}</div>
+                      <div class="dash-recent-meta">${AdminDashboard._escU(u.email)}</div>
+                    </div>
+                    <div class="dash-recent-right">
+                      <span class="dash-role-select dash-role-select--${u.role}" style="cursor:default;pointer-events:none">
+                        ${u.role === 'admin' ? 'Admin' : u.role === 'client' ? 'Client' : 'User'}
+                      </span>
+                      <span class="dash-recent-date">${date}</span>
+                    </div>
+                  </div>
+                `;
+              }).join('')
+        );
+      }
+
+      // ── Recent collabs ─────────────────────────────
+      const recentCollabsEl = document.getElementById('statsRecentCollabs');
+      if (recentCollabsEl) {
+        const collabs = data.recent_collabs || [];
+        const statusCfg = {
+          pending:   { label: 'En attente', cls: 'collab-s--pending'   },
+          active:    { label: 'Active',     cls: 'collab-s--active'    },
+          completed: { label: 'Terminée',   cls: 'collab-s--completed' },
+          cancelled: { label: 'Annulée',    cls: 'collab-s--cancelled' },
+        };
+        recentCollabsEl.innerHTML = `<div class="dash-panel-title">Dernières collaborations</div>` + (
+          collabs.length === 0
+            ? '<div class="dash-panel-empty">Aucune collaboration</div>'
+            : collabs.map(c => {
+                const brand  = `${c.brand_firstname || ''} ${c.brand_lastname || ''}`.trim();
+                const inf    = `${c.inf_firstname   || ''} ${c.inf_lastname   || ''}`.trim();
+                const sc     = statusCfg[c.status] || statusCfg.pending;
+                const date   = new Date(c.created_at).toLocaleDateString('fr-FR', { day:'numeric', month:'short' });
+                const budget = c.budget ? `${Number(c.budget).toLocaleString('fr-FR')} €` : '';
+                return `
+                  <div class="dash-recent-row">
+                    <div class="dash-recent-avatar" style="background:var(--primary-light);color:var(--primary);font-size:.8rem">
+                      ${(c.title || '?').charAt(0).toUpperCase()}
+                    </div>
+                    <div class="dash-recent-info">
+                      <div class="dash-recent-name">${AdminDashboard._escU(c.title)}</div>
+                      <div class="dash-recent-meta">${AdminDashboard._escU(brand)} → ${AdminDashboard._escU(inf)}${budget ? ' · ' + budget : ''}</div>
+                    </div>
+                    <div class="dash-recent-right">
+                      <span class="collab-status ${sc.cls}" style="cursor:default">${sc.label}</span>
+                      <span class="dash-recent-date">${date}</span>
+                    </div>
+                  </div>
+                `;
+              }).join('')
+        );
+      }
+    } catch (_) {}
   },
 
   // ---- Calendrier ----
@@ -1295,9 +1461,11 @@ const AdminDashboard = {
           <td onclick="event.stopPropagation()">
             <select class="dash-role-select dash-role-select--${u.role}"
                     onchange="AdminDashboard._changeRole(${u.id}, this.value, this)">
-              <option value="client"  ${u.role === 'client'  ? 'selected' : ''}>Client</option>
-              <option value="admin"   ${u.role === 'admin'   ? 'selected' : ''}>Admin</option>
-              <option value="user"    ${u.role === 'user'    ? 'selected' : ''}>Utilisateur</option>
+              <option value="client"     ${u.role === 'client'     ? 'selected' : ''}>Client</option>
+              <option value="influencer" ${u.role === 'influencer' ? 'selected' : ''}>Influenceur</option>
+              <option value="brand"      ${u.role === 'brand'      ? 'selected' : ''}>Marque</option>
+              <option value="admin"      ${u.role === 'admin'      ? 'selected' : ''}>Admin</option>
+              <option value="user"       ${u.role === 'user'       ? 'selected' : ''}>Utilisateur</option>
             </select>
           </td>
           <td>
@@ -1494,7 +1662,9 @@ const AdminDashboard = {
             <div class="dash-modal-field">
               <span class="dash-modal-label">Rôle</span>
               <select class="dash-modal-input" id="cuRole">
-                <option value="client" selected>Client</option>
+                <option value="influencer">Influenceur</option>
+                <option value="brand">Marque (client)</option>
+                <option value="client" selected>Client (générique)</option>
                 <option value="user">Utilisateur</option>
                 <option value="admin">Admin</option>
               </select>
@@ -1590,45 +1760,41 @@ const AdminDashboard = {
 
   // ---- Agent marketing (IA) ----
   _agent() {
+    setTimeout(() => AgentController.init(), 0);
+    const chips = AgentController.QUICK_ACTIONS.map(a =>
+      `<button class="agent-chip" onclick="AgentController.quickAction('${a.id}')">${a.label}</button>`
+    ).join('');
+
     return `
       <div class="dash-page-header">
         <h1 class="dash-page-title">Agent marketing</h1>
         <p class="dash-page-desc">Votre assistant IA privé — prompts, briefs créatifs et stratégies de campagne.</p>
       </div>
 
-      <div class="dash-agent-wrap">
-        <div class="dash-agent-card">
-          <div class="dash-agent-icon-wrap">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"
-                 stroke-linecap="round" stroke-linejoin="round">
-              <path d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/>
-              <path d="M18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456z"/>
-            </svg>
+      <div class="agent-wrap">
+        <div class="agent-chips">${chips}</div>
+
+        <div class="agent-chat-box">
+          <div class="agent-messages" id="agentMessages"></div>
+
+          <div class="agent-input-row">
+            <textarea id="agentInput" class="agent-input"
+                      placeholder="Décrivez votre demande…" rows="1"
+                      onkeydown="AgentController.onKeyDown(event)"></textarea>
+            <button id="agentSendBtn" class="agent-send-btn" onclick="AgentController.send()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <line x1="22" y1="2" x2="11" y2="13"/>
+                <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+              </svg>
+            </button>
           </div>
-          <h2 class="dash-agent-title">En cours de développement</h2>
-          <p class="dash-agent-desc">
-            Votre agent IA générera des prompts sur mesure pour vos visuels Instagram,
-            analysera les tendances de votre niche et proposera des angles éditoriaux
-            adaptés à chaque influenceur et chaque campagne.
-          </p>
-          <div class="dash-agent-features">
-            <div class="dash-agent-feature">
-              <span class="dash-agent-dot"></span>
-              Génération de prompts visuels (Midjourney, DALL·E)
-            </div>
-            <div class="dash-agent-feature">
-              <span class="dash-agent-dot"></span>
-              Briefs créatifs personnalisés par campagne
-            </div>
-            <div class="dash-agent-feature">
-              <span class="dash-agent-dot"></span>
-              Suggestions de légendes, hashtags et calendriers de publication
-            </div>
-            <div class="dash-agent-feature">
-              <span class="dash-agent-dot"></span>
-              Analyse de tendances et recommandations éditoriales
-            </div>
-          </div>
+        </div>
+
+        <div class="agent-footer">
+          <button class="agent-clear-btn" onclick="AgentController.clearHistory()">
+            Réinitialiser la conversation
+          </button>
         </div>
       </div>
     `;
@@ -1663,29 +1829,108 @@ const AdminDashboard = {
           </div>
 
           <div class="dash-field">
-            <span class="dash-field-label">Téléphone</span>
-            <div class="dash-field-value">${user.phone || '—'}</div>
-          </div>
-          <div class="dash-field">
             <span class="dash-field-label">Rôle</span>
             <div class="dash-field-value" style="text-transform:capitalize">${user.role || '—'}</div>
           </div>
-
-          <div class="dash-field dash-field--full">
+          <div class="dash-field">
             <span class="dash-field-label">Statut</span>
-            <div style="margin-top:2px">
-              <span class="dash-active-badge">Compte actif</span>
-            </div>
+            <div style="margin-top:2px"><span class="dash-active-badge">Compte actif</span></div>
           </div>
 
         </div>
 
-        <div class="dash-contact-note">
-          Pour modifier vos informations, contactez l'équipe technique à
-          <a href="mailto:hello@influmatch.com">hello@influmatch.com</a>.
+        <!-- Informations modifiables -->
+        <div class="dash-account-edit-section" style="margin-top:24px">
+          <div class="dash-account-edit-title">Informations modifiables</div>
+          <div class="dash-account-edit-grid">
+            <input class="dash-edit-input" id="adminEditPhone"   type="tel"  placeholder="Téléphone"  value="${this._escU(user.phone   || '')}">
+            <input class="dash-edit-input" id="adminEditCompany" type="text" placeholder="Entreprise" value="${this._escU(user.company || '')}">
+          </div>
+          <div id="adminProfileMsg" style="font-size:.82rem;margin-bottom:10px;display:none"></div>
+          <button class="dash-save-btn" onclick="AdminDashboard._saveCompte(this)">Enregistrer</button>
+        </div>
+
+        <!-- Changement de mot de passe -->
+        <div class="dash-account-edit-section" style="margin-top:16px">
+          <div class="dash-account-edit-title">Changer le mot de passe</div>
+          <div class="dash-account-edit-grid" style="grid-template-columns:1fr">
+            <input class="dash-edit-input" id="adminPwCurrent" type="password" placeholder="Mot de passe actuel">
+            <input class="dash-edit-input" id="adminPwNew"     type="password" placeholder="Nouveau mot de passe (8 car. min.)">
+            <input class="dash-edit-input" id="adminPwConfirm" type="password" placeholder="Confirmer le nouveau mot de passe">
+          </div>
+          <div id="adminPwMsg" style="font-size:.82rem;margin-bottom:10px;display:none"></div>
+          <button class="dash-save-btn" onclick="AdminDashboard._changePassword(this)">Mettre à jour</button>
         </div>
       </div>
     `;
+  },
+
+  async _saveCompte(btn) {
+    const phone   = document.getElementById('adminEditPhone')?.value.trim()   || '';
+    const company = document.getElementById('adminEditCompany')?.value.trim() || '';
+    const msg     = document.getElementById('adminProfileMsg');
+
+    btn.disabled = true; btn.textContent = 'Enregistrement…';
+    try {
+      const res  = await fetch('api/users.php?action=update_profile', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ phone, company }),
+      });
+      const data = await res.json();
+      if (msg) {
+        msg.style.display = 'block';
+        msg.style.color   = data.success ? '#16a34a' : '#dc2626';
+        msg.textContent   = data.message || (data.success ? 'Profil mis à jour.' : 'Erreur.');
+        setTimeout(() => { msg.style.display = 'none'; }, 3000);
+      }
+      if (data.success) {
+        const u = UserModel.getUser();
+        if (u) { u.phone = phone; u.company = company; }
+      }
+    } catch (_) {
+      if (msg) { msg.style.display='block'; msg.style.color='#dc2626'; msg.textContent='Erreur réseau.'; }
+    } finally {
+      btn.disabled = false; btn.textContent = 'Enregistrer';
+    }
+  },
+
+  async _changePassword(btn) {
+    const current = document.getElementById('adminPwCurrent')?.value || '';
+    const newPw   = document.getElementById('adminPwNew')?.value     || '';
+    const confirm = document.getElementById('adminPwConfirm')?.value || '';
+    const msg     = document.getElementById('adminPwMsg');
+
+    const show = (text, ok) => {
+      if (!msg) return;
+      msg.style.display = 'block';
+      msg.style.color   = ok ? '#16a34a' : '#dc2626';
+      msg.textContent   = text;
+    };
+
+    if (!current || !newPw || !confirm) return show('Remplissez tous les champs.', false);
+    if (newPw !== confirm)              return show('Les mots de passe ne correspondent pas.', false);
+
+    btn.disabled = true; btn.textContent = 'Mise à jour…';
+    try {
+      const res  = await fetch('api/users.php?action=change_password', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ current_password: current, new_password: newPw }),
+      });
+      const data = await res.json();
+      show(data.message || (data.success ? 'Mot de passe mis à jour.' : 'Erreur.'), data.success);
+      if (data.success) {
+        document.getElementById('adminPwCurrent').value = '';
+        document.getElementById('adminPwNew').value     = '';
+        document.getElementById('adminPwConfirm').value = '';
+        setTimeout(() => { if (msg) msg.style.display = 'none'; }, 3000);
+      }
+    } catch (_) {
+      show('Erreur réseau.', false);
+    } finally {
+      btn.disabled = false; btn.textContent = 'Mettre à jour';
+    }
   }
 
 };

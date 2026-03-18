@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(xargs grep -l \"dash-agent\\\\|agent\")",
+      "Bash(git -C c:/wamp64/www/influmatch status)",
+      "Bash(git -C c:/wamp64/www/influmatch log --oneline -5)",
+      "Bash(git -C c:/wamp64/www/influmatch diff --stat HEAD)",
+      "Bash(git -C c:/wamp64/www/influmatch diff HEAD -- index.html)",
+      "Bash(git -C c:/wamp64/www/influmatch diff HEAD -- app/controllers/MessagesController.js)",
+      "Bash(git -C c:/wamp64/www/influmatch diff HEAD -- api/messages.php)",
+      "Bash(git -C c:/wamp64/www/influmatch diff -- api/messages.php)",
+      "Bash(git -C c:/wamp64/www/influmatch show HEAD:api/messages.php)",
+      "Bash(git -C c:/wamp64/www/influmatch log --oneline)",
+      "Bash(git -C c:/wamp64/www/influmatch stash pop)",
+      "Bash(git -C c:/wamp64/www/influmatch stash drop)",
+      "Bash(identify public/assets/images/solution-matching.png public/assets/images/solution-contrat.png public/assets/images/solution-suivi.png)",
+      "Bash(python3 -c \":*)",
+      "Bash(python -c \":*)",
+      "Bash(powershell -Command \":*)"
+    ]
+  }
+}

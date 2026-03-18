@@ -35,7 +35,7 @@ const HomePage = {
               </a>
               <a href="#problem" class="btn-secondary">Voir comment ça marche</a>
             </div>
-            <div class="hero-video-link">
+            <div class="hero-video-link" onclick="HomePage.openVideoModal()">
               <div class="play-icon">
                 <svg viewBox="0 0 16 16"><polygon points="6,3 13,8 6,13" fill="white"/></svg>
               </div>
@@ -230,37 +230,35 @@ const HomePage = {
       <section class="section-problem" id="problem">
         <div class="container">
 
-          <!-- Editorial 2-col: heading left / stats right -->
-          <div class="problem-editorial">
-            <div class="problem-heading-col reveal-left">
-              <span class="section-label">Le constat</span>
-              <h2 class="section-heading">Le marketing d'influence est en <em>pleine croissance.</em> Mais il reste un problème.</h2>
-              <p class="problem-intro-text">
-                Le marché explose, les opportunités sont là — mais les créateurs et les marques continuent de galérer avec des collabs floues, mal cadrées, et sans suivi.
-              </p>
+          <!-- Heading -->
+          <div class="problem-heading-wrap reveal-left">
+            <span class="section-label">Le constat</span>
+            <h2 class="section-heading">Un marché de $33 milliards.<br>Géré encore dans le <em>chaos.</em></h2>
+            <p class="problem-intro-text">
+              L'influence est devenue un levier majeur. Mais les pratiques qui entourent les collabs, elles, n'ont pas suivi. Créateurs et marques subissent les mêmes frictions depuis des années — sans que personne n'ait vraiment réglé le problème.
+            </p>
+          </div>
+
+          <!-- 3 grandes stats animées -->
+          <div class="constat-stats reveal">
+            <div class="constat-stat">
+              <div class="constat-stat-num" id="cntMarket">$33B</div>
+              <div class="constat-stat-label">en jeu en 2025 — dans un secteur qui fonctionne encore à l'ancienne.</div>
+              <div class="constat-stat-source">Statista &amp; eMarketer, 2025</div>
             </div>
-            <div class="problem-stats-col reveal reveal-delay-1">
-              <div class="problem-stat-row">
-                <div class="problem-stat-num">$24B</div>
-                <div class="problem-stat-desc">Marché mondial du marketing d'influence en 2025</div>
-              </div>
-              <div class="problem-stat-row">
-                <div class="problem-stat-num">67%</div>
-                <div class="problem-stat-desc">Des créateurs ont vécu au moins une collab mal cadrée ou non payée</div>
-              </div>
-              <div class="problem-stat-row">
-                <div class="problem-stat-num">52%</div>
-                <div class="problem-stat-desc">Des marques sont déçues par les prestations reçues</div>
-              </div>
+            <div class="constat-stat constat-stat--red">
+              <div class="constat-stat-num" id="cnt87">87%</div>
+              <div class="constat-stat-label">des créateurs se sont déjà fait avoir sur un paiement.</div>
+              <div class="constat-stat-source">Influencer Marketing Hub, 2024</div>
+            </div>
+            <div class="constat-stat constat-stat--gold">
+              <div class="constat-stat-num" id="cnt49">49%</div>
+              <div class="constat-stat-label">des marques pilotent leurs collabs à l'aveugle.</div>
+              <div class="constat-stat-source">Linqia — State of Influencer Marketing, 2024</div>
             </div>
           </div>
 
-          <!-- Visual break — panoramic image zone -->
-          <div class="problem-visual reveal">
-            <div class="problem-visual-placeholder">
-              <!-- Replace with: <img src="public/assets/images/collab-scene.jpg" alt="Collaboration"> -->
-            </div>
-          </div>
+          <p class="problem-bridge reveal">Trois symptômes. Un seul problème.</p>
 
           <!-- Pain points: numbered editorial list -->
           <div class="problem-pain-list">
@@ -284,100 +282,105 @@ const HomePage = {
         </div>
       </section>
 
-      <!-- ============ 2. SOLUTION → NOS ATOUTS ============ -->
+      <!-- ============ 2. SOLUTION — CARROUSEL ============ -->
       <section class="section-solution" id="solution">
         <div class="container">
-          <div class="solution-layout">
 
-            <!-- Content: intro + list -->
-            <div class="solution-content">
-              <div class="solution-intro reveal-left">
-                <span class="section-label">Notre réponse</span>
-                <h2 class="section-heading">Un accompagnement <em>humain,</em> du début à l'après-publication.</h2>
+          <!-- Header -->
+          <div class="sol-header reveal-left">
+            <span class="section-label">Notre réponse</span>
+            <h2 class="section-heading">Un accompagnement <em>humain,</em><br>du brief au reporting.</h2>
+          </div>
+
+          <!-- Carrousel : image gauche | flèches centre | texte droite -->
+          <div class="sol-carousel reveal">
+
+            <!-- Image gauche — peek carousel vertical -->
+            <div class="sol-img-wrap">
+              <div class="sol-track">
+                <div class="sol-img active" data-step="0">
+                  <img src="public/assets/images/solution-matching.png" alt="Matching Influmatch">
+                  // <div class="sol-placeholder">
+                  //   <svg viewBox="0 0 40 40" fill="none"><rect x="4" y="4" width="32" height="32" rx="6" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 3"/><circle cx="15" cy="16" r="4" stroke="currentColor" stroke-width="1.5"/><path d="M6 34c2-5 5-8 9-8s7 3 9 8M26 20l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  //   <span>Photo / vidéo — Matching</span>
+                  // </div>
+                </div>
+                <div class="sol-img" data-step="1">
+                  <img src="public/assets/images/solution-contrat.png" alt="Contrat Influmatch">
+                  // <div class="sol-placeholder">
+                  //   <svg viewBox="0 0 40 40" fill="none"><rect x="4" y="4" width="32" height="32" rx="6" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 3"/><circle cx="15" cy="16" r="4" stroke="currentColor" stroke-width="1.5"/><path d="M6 34c2-5 5-8 9-8s7 3 9 8M26 20l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  //   <span>Photo / vidéo — Contrat</span>
+                  // </div>
+                </div>
+                <div class="sol-img" data-step="2">
+                  <img src="public/assets/images/solution-suivi.png" alt="Suivi Influmatch">
+                  <div class="sol-placeholder">
+                    <svg viewBox="0 0 40 40" fill="none"><rect x="4" y="4" width="32" height="32" rx="6" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 3"/><circle cx="15" cy="16" r="4" stroke="currentColor" stroke-width="1.5"/><path d="M6 34c2-5 5-8 9-8s7 3 9 8M26 20l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <span>Photo / vidéo — Suivi</span>
+                  </div>
+                </div>
+                <div class="sol-img" data-step="3">
+                  <!-- <img src="public/assets/images/solution-outil.jpg" alt="Outil Influmatch"> -->
+                  <div class="sol-placeholder">
+                    <svg viewBox="0 0 40 40" fill="none"><rect x="4" y="4" width="32" height="32" rx="6" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 3"/><circle cx="15" cy="16" r="4" stroke="currentColor" stroke-width="1.5"/><path d="M6 34c2-5 5-8 9-8s7 3 9 8M26 20l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    <span>Photo / vidéo — Outil</span>
+                  </div>
+                </div>
               </div>
-
-              <div class="solution-list">
-                <div class="solution-item reveal">
-                  <div class="solution-num">01</div>
-                  <div class="solution-heading">Matching intelligent</div>
-                  <div class="solution-desc">On sélectionne les créateurs alignés avec votre marque : valeurs, audience, esthétique. Pas de vanity metrics, du vrai fit.</div>
-                </div>
-                <div class="solution-item reveal reveal-delay-1">
-                  <div class="solution-num">02</div>
-                  <div class="solution-heading">Contrat tripartite</div>
-                  <div class="solution-desc">Marque, créateur, Influmatch. Tout est écrit : livrables, droits d'usage, calendrier, paiement. Signé via DocuSign.</div>
-                </div>
-                <div class="solution-item reveal reveal-delay-2">
-                  <div class="solution-num">03</div>
-                  <div class="solution-heading">Suivi humain continu</div>
-                  <div class="solution-desc">On est présents à chaque étape — du brief jusqu'après la publication. Reporting, retour qualitatif, et on prépare déjà la suite.</div>
-                </div>
-                <div class="solution-item reveal reveal-delay-3">
-                  <div class="solution-num">04</div>
-                  <div class="solution-heading">Outil centralisé</div>
-                  <div class="solution-desc">Discussions, contrats, livrables, statistiques : tout au même endroit sur notre plateforme. Rapide et efficace.</div>
-                </div>
-              </div>
-
             </div>
 
-            <!-- Visual: platform mockup placeholder -->
-            <div class="solution-visual reveal-scale">
-              <div class="solution-visual-placeholder">
-                <!-- Replace with: <img src="public/assets/images/platform-dashboard.jpg" alt="Dashboard Influmatch"> -->
-                <div class="sv-inner">
-                  <div class="sv-bar">
-                    <div class="sv-dot sv-dot--r"></div>
-                    <div class="sv-dot sv-dot--y"></div>
-                    <div class="sv-dot sv-dot--g"></div>
-                    <div class="sv-spacer"></div>
-                    <div class="sv-pill"></div>
-                  </div>
-                  <div class="sv-row">
-                    <div class="sv-block sv-block--accent"></div>
-                    <div class="sv-block--sm sv-block"></div>
-                  </div>
-                  <div class="sv-divider"></div>
-                  <div class="sv-list">
-                    <div class="sv-list-item">
-                      <div class="sv-avatar"></div>
-                      <div class="sv-text-lines">
-                        <div class="sv-text-line"></div>
-                        <div class="sv-text-line sv-text-line--short"></div>
-                      </div>
-                      <div class="sv-badge"></div>
-                    </div>
-                    <div class="sv-list-item">
-                      <div class="sv-avatar"></div>
-                      <div class="sv-text-lines">
-                        <div class="sv-text-line"></div>
-                        <div class="sv-text-line sv-text-line--short"></div>
-                      </div>
-                      <div class="sv-badge"></div>
-                    </div>
-                    <div class="sv-list-item">
-                      <div class="sv-avatar"></div>
-                      <div class="sv-text-lines">
-                        <div class="sv-text-line"></div>
-                        <div class="sv-text-line sv-text-line--short"></div>
-                      </div>
-                      <div class="sv-badge"></div>
-                    </div>
-                  </div>
-                  <div class="sv-divider"></div>
-                  <div class="sv-row">
-                    <div class="sv-block sv-block--green"></div>
-                    <div class="sv-block--xs sv-block"></div>
-                    <div class="sv-block--xs sv-block"></div>
-                  </div>
-                  <div class="sv-row">
-                    <div class="sv-block"></div>
-                  </div>
+            <!-- Flèches centre -->
+            <div class="sol-arrows">
+              <button class="sol-arrow" id="solPrev" aria-label="Précédent">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+              </button>
+              <button class="sol-arrow" id="solNext" aria-label="Suivant">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+            </div>
+
+            <!-- Textes droite -->
+            <div class="sol-texts">
+              <div class="sol-text active" data-step="0">
+                <h3 class="sol-text-heading">Matching intelligent</h3>
+                <div class="sol-text-tags">
+                  <span class="sol-tag">Audience</span>
+                  <span class="sol-tag">Valeurs</span>
+                  <span class="sol-tag">IA</span>
                 </div>
+                <p class="sol-text-desc">On sélectionne les créateurs alignés avec votre marque : valeurs, audience, esthétique. Pas de vanity metrics, du vrai fit.</p>
+              </div>
+              <div class="sol-text" data-step="1">
+                <h3 class="sol-text-heading">Contrat tripartite</h3>
+                <div class="sol-text-tags">
+                  <span class="sol-tag">DocuSign</span>
+                  <span class="sol-tag">Juridique</span>
+                  <span class="sol-tag">Sécurisé</span>
+                </div>
+                <p class="sol-text-desc">Marque, créateur, Influmatch. Tout est écrit : livrables, droits d'usage, calendrier, paiement. Signé via DocuSign.</p>
+              </div>
+              <div class="sol-text" data-step="2">
+                <h3 class="sol-text-heading">Suivi humain continu</h3>
+                <div class="sol-text-tags">
+                  <span class="sol-tag">Brief</span>
+                  <span class="sol-tag">Reporting</span>
+                  <span class="sol-tag">Humain</span>
+                </div>
+                <p class="sol-text-desc">On est présents à chaque étape — du brief jusqu'après la publication. Reporting, retour qualitatif, et on prépare déjà la suite.</p>
+              </div>
+              <div class="sol-text" data-step="3">
+                <h3 class="sol-text-heading">Outil centralisé</h3>
+                <div class="sol-text-tags">
+                  <span class="sol-tag">Dashboard</span>
+                  <span class="sol-tag">Contrats</span>
+                  <span class="sol-tag">Stats</span>
+                </div>
+                <p class="sol-text-desc">Discussions, contrats, livrables, statistiques : tout au même endroit. Marque et créateur ont chacun leur espace.</p>
               </div>
             </div>
 
           </div>
+
         </div>
       </section>
 
@@ -1037,5 +1040,129 @@ const HomePage = {
     const isOpen = el.classList.contains('open');
     document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
     if (!isOpen) el.classList.add('open');
+  },
+
+  // ---- Constat stats : counters au scroll ----
+  openVideoModal() {
+    const overlay = document.createElement('div');
+    overlay.id        = 'heroVideoOverlay';
+    overlay.className = 'hvm-overlay';
+    overlay.innerHTML = `
+      <div class="hvm-modal">
+        <button class="hvm-close" id="hvmClose" aria-label="Fermer">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+               stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+          </svg>
+        </button>
+        <video class="hvm-video" controls autoplay playsinline
+               src="public/assets/videos/hero.mp4">
+        </video>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+    document.body.style.overflow = 'hidden';
+
+    // Fade in
+    requestAnimationFrame(() => overlay.classList.add('hvm-overlay--in'));
+
+    const close = () => {
+      const vid = overlay.querySelector('video');
+      if (vid) { vid.pause(); vid.src = ''; }
+      overlay.classList.remove('hvm-overlay--in');
+      overlay.addEventListener('transitionend', () => {
+        overlay.remove();
+        document.body.style.overflow = '';
+      }, { once: true });
+      document.removeEventListener('keydown', onKey);
+    };
+
+    const onKey = (e) => { if (e.key === 'Escape') close(); };
+    document.addEventListener('keydown', onKey);
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+    document.getElementById('hvmClose').addEventListener('click', close);
+  },
+
+  initConstatAnimation() {
+    const strip = document.querySelector('.constat-stats');
+    if (!strip) return;
+
+    const el87     = document.getElementById('cnt87');
+    const el49     = document.getElementById('cnt49');
+    const elMarket = document.getElementById('cntMarket');
+
+    // Reset à zéro avant l'animation
+    if (el87)     el87.textContent     = '0%';
+    if (el49)     el49.textContent     = '0%';
+    if (elMarket) elMarket.textContent = '$0B';
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (!entry.isIntersecting) return;
+        observer.unobserve(entry.target);
+        if (elMarket) this._countUpMarket(elMarket, 33,  1100, 100);
+        if (el87)     this._countUp(el87,     87, '%',   1400, 250);
+        if (el49)     this._countUp(el49,     49, '%',   1200, 400);
+      });
+    }, { threshold: 0.2, rootMargin: '0px 0px -60px 0px' });
+
+    observer.observe(strip);
+  },
+
+  _countUp(el, target, suffix, duration, delay) {
+    setTimeout(() => {
+      const start = performance.now();
+      const tick  = (now) => {
+        const p    = Math.min((now - start) / duration, 1);
+        const ease = 1 - Math.pow(1 - p, 3);
+        el.textContent = Math.round(ease * target) + suffix;
+        if (p < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    }, delay);
+  },
+
+  // ---- Solution : carousel peek vertical (flèches haut/bas) ----
+  initSolutionCarousel() {
+    const carousel = document.querySelector('.sol-carousel');
+    if (!carousel) return;
+
+    const track = carousel.querySelector('.sol-track');
+    const imgs  = carousel.querySelectorAll('.sol-img');
+    const texts = carousel.querySelectorAll('.sol-text');
+    const prev  = document.getElementById('solPrev');
+    const next  = document.getElementById('solNext');
+    const total = texts.length;
+    let current = 0;
+
+    const GAP  = 16;
+    const PEEK = 40;
+    // Slide height synced avec CSS (260px desktop / 220px mobile)
+    const slideH = () => window.innerWidth <= 820 ? 220 : 260;
+
+    const activate = (idx) => {
+      current = (idx + total) % total;
+      const ty = PEEK - current * (slideH() + GAP);
+      track.style.transform = `translateY(${ty}px)`;
+      imgs.forEach((im, i)  => im.classList.toggle('active', i === current));
+      texts.forEach((t, i)  => t.classList.toggle('active', i === current));
+    };
+
+    if (prev) prev.addEventListener('click', () => activate(current - 1));
+    if (next) next.addEventListener('click', () => activate(current + 1));
+    activate(0);
+  },
+
+  _countUpMarket(el, target, duration, delay) {
+    setTimeout(() => {
+      const start = performance.now();
+      const tick  = (now) => {
+        const p    = Math.min((now - start) / duration, 1);
+        const ease = 1 - Math.pow(1 - p, 3);
+        el.textContent = '$' + Math.round(ease * target) + 'B';
+        if (p < 1) requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
+    }, delay);
   }
 };

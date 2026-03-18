@@ -37,8 +37,11 @@ $collabsTotal  = 0;
 $collabsActive = 0;
 $recentCollabs = [];
 try {
-    $collabsTotal  = (int)$db->query('SELECT COUNT(*) FROM collaborations')->fetchColumn();
-    $collabsActive = (int)$db->query("SELECT COUNT(*) FROM collaborations WHERE status = 'active'")->fetchColumn();
+    $collabsTotal     = (int)$db->query('SELECT COUNT(*) FROM collaborations')->fetchColumn();
+    $collabsActive    = (int)$db->query("SELECT COUNT(*) FROM collaborations WHERE status = 'active'")->fetchColumn();
+    $collabsPending   = (int)$db->query("SELECT COUNT(*) FROM collaborations WHERE status = 'pending'")->fetchColumn();
+    $collabsCompleted = (int)$db->query("SELECT COUNT(*) FROM collaborations WHERE status = 'completed'")->fetchColumn();
+    $collabsCancelled = (int)$db->query("SELECT COUNT(*) FROM collaborations WHERE status = 'cancelled'")->fetchColumn();
     $recentCollabs = $db->query("
         SELECT c.id, c.title, c.status, c.budget, c.created_at,
                b.firstname AS brand_firstname, b.lastname AS brand_lastname, b.company AS brand_company,
@@ -47,7 +50,7 @@ try {
         JOIN users b ON b.id = c.brand_id
         JOIN users i ON i.id = c.influencer_id
         ORDER BY c.created_at DESC
-        LIMIT 5
+        LIMIT 10
     ")->fetchAll();
 } catch (Exception $e) {}
 
@@ -66,8 +69,11 @@ jsonResponse([
         'admins'         => $admins,
         'new_this_week'  => $newThisWeek,
         'messages_unread'=> $unread,
-        'collabs_total'  => $collabsTotal,
-        'collabs_active' => $collabsActive,
+        'collabs_total'     => $collabsTotal,
+        'collabs_active'    => $collabsActive,
+        'collabs_pending'   => $collabsPending,
+        'collabs_completed' => $collabsCompleted,
+        'collabs_cancelled' => $collabsCancelled,
     ],
     'recent_users'  => $recentUsers,
     'recent_collabs'=> $recentCollabs,
