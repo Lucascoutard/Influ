@@ -240,18 +240,18 @@ const HomePage = {
           </div>
 
           <!-- 3 grandes stats animées -->
-          <div class="constat-stats reveal">
-            <div class="constat-stat">
+          <div class="constat-stats">
+            <div class="constat-stat reveal">
               <div class="constat-stat-num" id="cntMarket">$33B</div>
               <div class="constat-stat-label">en jeu en 2025 — dans un secteur qui fonctionne encore à l'ancienne.</div>
               <div class="constat-stat-source">Statista &amp; eMarketer, 2025</div>
             </div>
-            <div class="constat-stat constat-stat--red">
+            <div class="constat-stat constat-stat--red reveal reveal-delay-2">
               <div class="constat-stat-num" id="cnt87">87%</div>
               <div class="constat-stat-label">des créateurs se sont déjà fait avoir sur un paiement.</div>
               <div class="constat-stat-source">Influencer Marketing Hub, 2024</div>
             </div>
-            <div class="constat-stat constat-stat--gold">
+            <div class="constat-stat constat-stat--gold reveal reveal-delay-4">
               <div class="constat-stat-num" id="cnt49">49%</div>
               <div class="constat-stat-label">des marques pilotent leurs collabs à l'aveugle.</div>
               <div class="constat-stat-source">Linqia — State of Influencer Marketing, 2024</div>
@@ -334,13 +334,20 @@ const HomePage = {
               <button class="sol-arrow" id="solPrev" aria-label="Précédent">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
               </button>
+              <div class="sol-step-counter"><span id="solCurrent">01</span> / 04</div>
               <button class="sol-arrow" id="solNext" aria-label="Suivant">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
               </button>
             </div>
 
             <!-- Textes droite -->
-            <div class="sol-texts">
+            <div class="sol-texts" style="position:relative;">
+              <div class="sol-dots" id="solDots">
+                <div class="sol-dot active" data-step="0"></div>
+                <div class="sol-dot" data-step="1"></div>
+                <div class="sol-dot" data-step="2"></div>
+                <div class="sol-dot" data-step="3"></div>
+              </div>
               <div class="sol-text active" data-step="0">
                 <h3 class="sol-text-heading">Matching intelligent</h3>
                 <div class="sol-text-tags">
@@ -377,7 +384,7 @@ const HomePage = {
                 </div>
                 <p class="sol-text-desc">Discussions, contrats, livrables, statistiques : tout au même endroit. Marque et créateur ont chacun leur espace.</p>
               </div>
-            </div>
+            </div><!-- /.sol-texts -->
 
           </div>
 
@@ -395,36 +402,57 @@ const HomePage = {
           <div class="cases-split">
 
             <!-- Marques -->
-            <div class="cases-col cases-col--brand reveal">
-              <div class="cases-col-image">
+            <div class="cases-col cases-col--brand reveal-left">
+
+              <div class="cases-col-image reveal-scale">
                 <!-- Replace with: <img src="public/assets/images/brand-team.jpg" alt="Marque beauté"> -->
                 <div class="cases-col-image-placeholder">
                   <span class="cases-col-image-hint">Photo marque beauté</span>
                 </div>
+                <div class="cases-image-badge">
+                  <div class="cases-image-badge-dot"></div>
+                  <div>
+                    <div class="cases-image-badge-num">Top 3</div>
+                    <div class="cases-image-badge-lbl">créateurs proposés sous 48h</div>
+                  </div>
+                </div>
               </div>
+
               <div class="cases-col-body">
-                <span class="cases-col-eyebrow">Pour les marques</span>
-                <h3 class="cases-col-heading">Trouvez les créateurs qui <em>vous ressemblent.</em></h3>
-                <p class="cases-col-intro">Fini la chasse au bon profil, les briefs au feeling et les paiements sans garantie. On structure tout pour vous.</p>
+                <span class="cases-col-eyebrow reveal">Pour les marques</span>
+                <h3 class="cases-col-heading reveal">Trouvez les créateurs qui <em>vous ressemblent.</em></h3>
+                <p class="cases-col-intro reveal reveal-delay-1">Fini la chasse au bon profil, les briefs au feeling et les paiements sans garantie. On structure tout pour vous.</p>
                 <ul class="cases-benefits">
-                  <li class="cases-benefit">
-                    <span class="cases-benefit-label">Short-list sur-mesure</span>
+                  <li class="cases-benefit reveal reveal-delay-1">
+                    <div class="cases-benefit-header">
+                      <svg class="cases-benefit-icon" viewBox="0 0 16 16" fill="none"><circle cx="6.5" cy="6.5" r="4" stroke="currentColor" stroke-width="1.4"/><path d="M10 10l2.5 2.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+                      <span class="cases-benefit-label">Short-list sur-mesure</span>
+                    </div>
                     <span class="cases-benefit-desc">Profils vérifiés dès 10k — alignés ton, audience, valeurs</span>
                   </li>
-                  <li class="cases-benefit">
-                    <span class="cases-benefit-label">Brief structuré & partagé</span>
+                  <li class="cases-benefit reveal reveal-delay-2">
+                    <div class="cases-benefit-header">
+                      <svg class="cases-benefit-icon" viewBox="0 0 16 16" fill="none"><path d="M4.5 2h5l3 3v8.5a.5.5 0 01-.5.5h-7a.5.5 0 01-.5-.5v-11a.5.5 0 01.5-.5z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M9.5 2v3h3M6 8.5h4M6 10.5h2.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+                      <span class="cases-benefit-label">Brief structuré & partagé</span>
+                    </div>
                     <span class="cases-benefit-desc">Attentes, livrables, droits d'usage, calendrier — tout est écrit</span>
                   </li>
-                  <li class="cases-benefit">
-                    <span class="cases-benefit-label">Contrat tripartite signé</span>
+                  <li class="cases-benefit reveal reveal-delay-3">
+                    <div class="cases-benefit-header">
+                      <svg class="cases-benefit-icon" viewBox="0 0 16 16" fill="none"><path d="M8 2L13 4v4.5C13 11 11 13 8 14 5 13 3 11 3 8.5V4L8 2z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M5.5 8l2 2 3-3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                      <span class="cases-benefit-label">Contrat tripartite signé</span>
+                    </div>
                     <span class="cases-benefit-desc">DocuSign · Paiements sécurisés via Stripe · Zéro litige</span>
                   </li>
-                  <li class="cases-benefit">
-                    <span class="cases-benefit-label">Suivi post-publication inclus</span>
+                  <li class="cases-benefit reveal reveal-delay-4">
+                    <div class="cases-benefit-header">
+                      <svg class="cases-benefit-icon" viewBox="0 0 16 16" fill="none"><path d="M2 12L5 8.5l3 2.5 3.5-5.5 2 2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                      <span class="cases-benefit-label">Suivi post-publication inclus</span>
+                    </div>
                     <span class="cases-benefit-desc">Débrief humain, reporting complet, optimisation pour la suite</span>
                   </li>
                 </ul>
-                <a href="#register" class="cases-cta cases-cta--brand">
+                <a href="#register" class="cases-cta cases-cta--brand reveal reveal-delay-5">
                   Trouver mon créateur
                   <svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5"/></svg>
                 </a>
@@ -432,36 +460,57 @@ const HomePage = {
             </div>
 
             <!-- Créateurs -->
-            <div class="cases-col cases-col--creator reveal reveal-delay-1">
-              <div class="cases-col-image">
+            <div class="cases-col cases-col--creator reveal-right reveal-delay-1">
+
+              <div class="cases-col-image reveal-scale reveal-delay-1">
                 <!-- Replace with: <img src="public/assets/images/creator-filming.jpg" alt="Créateur de contenu"> -->
                 <div class="cases-col-image-placeholder">
                   <span class="cases-col-image-hint">Photo créateur</span>
                 </div>
+                <div class="cases-image-badge">
+                  <div class="cases-image-badge-dot"></div>
+                  <div>
+                    <div class="cases-image-badge-num">100%</div>
+                    <div class="cases-image-badge-lbl">paiements traçables & garantis</div>
+                  </div>
+                </div>
               </div>
+
               <div class="cases-col-body">
-                <span class="cases-col-eyebrow">Pour les créateurs</span>
-                <h3 class="cases-col-heading">Travaillez avec des marques qui vous <em>respectent.</em></h3>
-                <p class="cases-col-intro">Des marques sérieuses, des briefs clairs, des paiements garantis. Votre créativité mérite mieux qu'un DM sans suite.</p>
+                <span class="cases-col-eyebrow reveal reveal-delay-1">Pour les créateurs</span>
+                <h3 class="cases-col-heading reveal reveal-delay-1">Travaillez avec des marques qui vous <em>respectent.</em></h3>
+                <p class="cases-col-intro reveal reveal-delay-2">Des marques sérieuses, des briefs clairs, des paiements garantis. Votre créativité mérite mieux qu'un DM sans suite.</p>
                 <ul class="cases-benefits">
-                  <li class="cases-benefit">
-                    <span class="cases-benefit-label">Rémunération juste & garantie</span>
+                  <li class="cases-benefit reveal reveal-delay-2">
+                    <div class="cases-benefit-header">
+                      <svg class="cases-benefit-icon" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="5.5" stroke="currentColor" stroke-width="1.4"/><path d="M6.8 9.5c0 .7.5 1.2 1.2 1.2s1.2-.5 1.2-1.2-.5-1.3-1.2-1.3-1.2-.5-1.2-1.2.5-1.2 1.2-1.2 1.2.5 1.2 1.2M8 4.5v1.3M8 10.2v1.3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></svg>
+                      <span class="cases-benefit-label">Rémunération juste & garantie</span>
+                    </div>
                     <span class="cases-benefit-desc">Tarifs transparents, paiements traçables, zéro impayé</span>
                   </li>
-                  <li class="cases-benefit">
-                    <span class="cases-benefit-label">Briefs clairs dès le départ</span>
+                  <li class="cases-benefit reveal reveal-delay-3">
+                    <div class="cases-benefit-header">
+                      <svg class="cases-benefit-icon" viewBox="0 0 16 16" fill="none"><rect x="2.5" y="2.5" width="11" height="11" rx="1.5" stroke="currentColor" stroke-width="1.4"/><path d="M5.5 6h5M5.5 8.5h5M5.5 11h3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+                      <span class="cases-benefit-label">Briefs clairs dès le départ</span>
+                    </div>
                     <span class="cases-benefit-desc">Objectifs, livrables, cadre légal — expliqués avant de signer</span>
                   </li>
-                  <li class="cases-benefit">
-                    <span class="cases-benefit-label">Liberté créative préservée</span>
+                  <li class="cases-benefit reveal reveal-delay-4">
+                    <div class="cases-benefit-header">
+                      <svg class="cases-benefit-icon" viewBox="0 0 16 16" fill="none"><path d="M8 1.5L9.8 6.2 14.5 8l-4.7 1.8L8 14.5 6.2 9.8 1.5 8l4.7-1.8L8 1.5z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
+                      <span class="cases-benefit-label">Liberté créative préservée</span>
+                    </div>
                     <span class="cases-benefit-desc">On cadre pour vous protéger, pas pour brider votre style</span>
                   </li>
-                  <li class="cases-benefit">
-                    <span class="cases-benefit-label">Relation durable, pas un one-shot</span>
+                  <li class="cases-benefit reveal reveal-delay-5">
+                    <div class="cases-benefit-header">
+                      <svg class="cases-benefit-icon" viewBox="0 0 16 16" fill="none"><path d="M12.5 4a5.5 5.5 0 11-3.5 9.6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M14.5 2v3.5H11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                      <span class="cases-benefit-label">Relation durable, pas un one-shot</span>
+                    </div>
                     <span class="cases-benefit-desc">On reste en contact après publication — les meilleures collabs se répètent</span>
                   </li>
                 </ul>
-                <a href="#register" class="cases-cta cases-cta--creator">
+                <a href="#register" class="cases-cta cases-cta--creator reveal reveal-delay-5">
                   Rejoindre Influmatch
                   <svg viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5"/></svg>
                 </a>
@@ -475,322 +524,244 @@ const HomePage = {
       <!-- ============ 4. AVANT / APRÈS INFLUMATCH ============ -->
       <section class="section-compare" id="compare">
         <div class="container">
+          <div class="cmp-layout">
 
-          <div class="compare-header reveal">
-            <span class="section-label section-label--center">Le changement</span>
-            <h2 class="section-heading">Avant et après <em>Influmatch.</em></h2>
-          </div>
+            <!-- ── Texte gauche ── -->
+            <div class="cmp-text-block reveal-left">
+              <span class="section-label">Le changement</span>
+              <h2 class="section-heading">Ce que ça change,<br><em>concrètement.</em></h2>
+              <p class="cmp-intro">Trois situations réelles. Avant, c'était le chaos. Avec Influmatch, chaque collab est cadrée, sécurisée et suivie.</p>
+              <svg class="cmp-deco-arrow" viewBox="0 0 90 64" fill="none" aria-hidden="true">
+                <path d="M6 6 C 24 6, 48 42, 72 36 C 80 34, 84 26, 86 18" stroke="currentColor" stroke-width="1.5" stroke-dasharray="5 4" stroke-linecap="round"/>
+                <path d="M80 12 L86 18 L78 22" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
 
-          <div class="compare-tabs reveal reveal-delay-1">
-            <button class="compare-tab compare-tab--before active" onclick="HomePage.switchCompare('before')">
-              <span class="compare-tab-dot"></span>
-              Sans Influmatch
-            </button>
-            <button class="compare-tab compare-tab--after" onclick="HomePage.switchCompare('after')">
-              <span class="compare-tab-dot"></span>
-              Avec Influmatch
-            </button>
-          </div>
+            <!-- ── Cartes flottantes droite ── -->
+            <div class="cmp-cards-block">
 
-          <!-- BEFORE panel -->
-          <div class="compare-panel compare-panel--before active" id="compareBefore">
-            <div class="compare-scene compare-scene--before">
-              <span class="compare-scene-label">Sans Influmatch</span>
-              <div class="compare-scene-inner">
+              <!-- Décoration -->
+              <span class="cmp-sparkle cmp-sparkle--1" aria-hidden="true">✦</span>
+              <span class="cmp-sparkle cmp-sparkle--2" aria-hidden="true">✦</span>
 
-                <!-- Card 1 : Contrat manquant -->
-                <div class="cs-card cs-card--before">
-                  <div class="cs-card-head">
-                    <div class="cs-icon cs-icon--warn">
-                      <svg viewBox="0 0 24 24"><path d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>
-                    </div>
-                    <div class="cs-head-text">
-                      <div class="cs-head-title">Contrat introuvable</div>
-                      <div class="cs-head-sub">Aucun document signé</div>
-                    </div>
-                    <span class="cs-badge cs-badge--danger">Non signé</span>
-                  </div>
-                  <div class="cs-body">
-                    <div class="cs-question">? ? ?</div>
-                    <div class="cs-missing">
-                      <div class="cs-missing-line"></div>
-                      <div class="cs-missing-line cs-missing-line--sm"></div>
-                      <div class="cs-missing-line"></div>
-                    </div>
-                    <div class="cs-chat">
-                      <div class="cs-chat-line">
-                        <div class="cs-bubble cs-bubble--in">"T'inquiète, on fera ça à l'oral..."</div>
-                      </div>
-                    </div>
-                    <div class="cs-alert">Aucun recours possible sans contrat écrit</div>
-                  </div>
+              <!-- Carte AVANT -->
+              <div class="cmp-card cmp-card--before reveal">
+                <div class="cmp-card-header">
+                  <div class="cmp-card-dot cmp-card-dot--bad"></div>
+                  <span class="cmp-card-label">Sans Influmatch</span>
                 </div>
-
-                <!-- Card 2 : Brief chaos (centre) -->
-                <div class="cs-card cs-card--before">
-                  <div class="cs-card-head">
-                    <div class="cs-icon cs-icon--neutral">
-                      <svg viewBox="0 0 24 24"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                <ul class="cmp-card-list">
+                  <li class="cmp-li">
+                    <div class="cmp-li-icon cmp-li-icon--bad"><svg viewBox="0 0 12 12" fill="none"><path d="M2 2l8 8M10 2l-8 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+                    <div>
+                      <div class="cmp-li-title">"T'inquiète, on fera ça à l'oral."</div>
+                      <div class="cmp-li-sub">Aucun contrat · litige · 0 € récupéré</div>
                     </div>
-                    <div class="cs-head-text">
-                      <div class="cs-head-title">Brief — Instagram DM</div>
-                      <div class="cs-head-sub">12 messages, 0 livrable clair</div>
+                  </li>
+                  <li class="cmp-li">
+                    <div class="cmp-li-icon cmp-li-icon--bad"><svg viewBox="0 0 12 12" fill="none"><path d="M2 2l8 8M10 2l-8 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+                    <div>
+                      <div class="cmp-li-title">"Fais un truc sympa, sois créative !"</div>
+                      <div class="cmp-li-sub">Brief vague · 12 allers-retours · 10j de retard</div>
                     </div>
-                  </div>
-                  <div class="cs-body">
-                    <div class="cs-chat">
-                      <div class="cs-chat-line">
-                        <div class="cs-bubble cs-bubble--in">"Ouais bah fais un post sympa sur la crème..."</div>
-                      </div>
-                      <div class="cs-chat-line cs-chat-line--out">
-                        <div class="cs-bubble cs-bubble--out">"C'est quoi exactement les livrables ?"</div>
-                      </div>
-                      <div class="cs-chat-line">
-                        <div class="cs-bubble cs-bubble--in">"Sois créative !"</div>
-                      </div>
-                      <div class="cs-chat-line cs-chat-line--out">
-                        <div class="cs-bubble cs-bubble--out">"Et pour le paiement ?"</div>
-                      </div>
-                      <div class="cs-chat-line">
-                        <div class="cs-bubble cs-bubble--in">"vU"</div>
-                      </div>
-                      <div class="cs-seen">Lu · sans réponse depuis 5 jours</div>
+                  </li>
+                  <li class="cmp-li">
+                    <div class="cmp-li-icon cmp-li-icon--bad"><svg viewBox="0 0 12 12" fill="none"><path d="M2 2l8 8M10 2l-8 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+                    <div>
+                      <div class="cmp-li-title">"Vu" · sans réponse depuis 3 semaines.</div>
+                      <div class="cmp-li-sub">850 € impayés · relances ignorées · abandonné</div>
                     </div>
-                  </div>
-                </div>
-
-                <!-- Card 3 : Paiement en retard -->
-                <div class="cs-card cs-card--before">
-                  <div class="cs-card-head">
-                    <div class="cs-icon cs-icon--danger">
-                      <svg viewBox="0 0 24 24"><path d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z"/></svg>
-                    </div>
-                    <div class="cs-head-text">
-                      <div class="cs-head-title">Facture #031</div>
-                      <div class="cs-head-sub">Émise le 3 jan · non payée</div>
-                    </div>
-                    <span class="cs-badge cs-badge--danger">En retard</span>
-                  </div>
-                  <div class="cs-body">
-                    <div class="cs-amount-block">
-                      <div class="cs-amount cs-amount--danger">$850</div>
-                      <div class="cs-amount-sub">Impayé · 3 semaines de retard</div>
-                    </div>
-                    <div class="cs-bar"><div class="cs-bar-fill cs-bar-fill--danger"></div></div>
-                    <div class="cs-alert">Relances ignorées · aucun contrat = aucun recours</div>
-                  </div>
-                </div>
-
+                  </li>
+                </ul>
               </div>
+
+              <!-- Carte APRÈS -->
+              <div class="cmp-card cmp-card--after reveal reveal-delay-2">
+                <div class="cmp-card-header">
+                  <div class="cmp-card-dot cmp-card-dot--good"></div>
+                  <span class="cmp-card-label">Avec Influmatch</span>
+                </div>
+                <ul class="cmp-card-list">
+                  <li class="cmp-li">
+                    <div class="cmp-li-icon cmp-li-icon--good"><svg viewBox="0 0 12 12" fill="none"><path d="M1.5 6l3 3L10.5 2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                    <div>
+                      <div class="cmp-li-title">Contrat tripartite signé en 4 min</div>
+                      <div class="cmp-li-sub">Livrables, droits d'usage, délais · Influmatch en garant</div>
+                    </div>
+                  </li>
+                  <li class="cmp-li">
+                    <div class="cmp-li-icon cmp-li-icon--good"><svg viewBox="0 0 12 12" fill="none"><path d="M1.5 6l3 3L10.5 2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                    <div>
+                      <div class="cmp-li-title">Brief structuré, validé avant J1</div>
+                      <div class="cmp-li-sub">Format, ton, mentions, deadline · 0 ambiguïté · 0 retour</div>
+                    </div>
+                  </li>
+                  <li class="cmp-li">
+                    <div class="cmp-li-icon cmp-li-icon--good"><svg viewBox="0 0 12 12" fill="none"><path d="M1.5 6l3 3L10.5 2.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+                    <div>
+                      <div class="cmp-li-title">850 € virés automatiquement en J+3</div>
+                      <div class="cmp-li-sub">Séquestre à la signature · déclenché à la validation</div>
+                    </div>
+                  </li>
+                </ul>
+
+                <!-- Badge stat flottant -->
+                <div class="cmp-stat-badge reveal reveal-delay-3">
+                  <div class="cmp-stat-dot"></div>
+                  <div>
+                    <div class="cmp-stat-num">850 €</div>
+                    <div class="cmp-stat-lbl">sécurisés en moyenne</div>
+                  </div>
+                </div>
+              </div>
+
             </div>
           </div>
-
-          <!-- AFTER panel -->
-          <div class="compare-panel compare-panel--after" id="compareAfter">
-            <div class="compare-scene compare-scene--after">
-              <span class="compare-scene-label">Avec Influmatch</span>
-              <div class="compare-scene-inner">
-
-                <!-- Card 1 : Contrat signé -->
-                <div class="cs-card cs-card--after">
-                  <div class="cs-card-head">
-                    <div class="cs-icon cs-icon--success">
-                      <svg viewBox="0 0 24 24"><path d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>
-                    </div>
-                    <div class="cs-head-text">
-                      <div class="cs-head-title">Contrat tripartite</div>
-                      <div class="cs-head-sub">Signé via DocuSign</div>
-                    </div>
-                    <span class="cs-badge cs-badge--success">Signé ✓</span>
-                  </div>
-                  <div class="cs-body">
-                    <div class="cs-checks">
-                      <div class="cs-check">
-                        <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="rgba(34,197,94,.45)" stroke-width="1.5"/><path d="M5 8l2 2.5L11 5.5" stroke="rgba(34,197,94,.85)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                        Livrables définis et signés
-                      </div>
-                      <div class="cs-check">
-                        <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="rgba(34,197,94,.45)" stroke-width="1.5"/><path d="M5 8l2 2.5L11 5.5" stroke="rgba(34,197,94,.85)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                        Droits d'usage inclus
-                      </div>
-                      <div class="cs-check">
-                        <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="rgba(34,197,94,.45)" stroke-width="1.5"/><path d="M5 8l2 2.5L11 5.5" stroke="rgba(34,197,94,.85)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                        Calendrier verrouillé
-                      </div>
-                      <div class="cs-check">
-                        <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="rgba(34,197,94,.45)" stroke-width="1.5"/><path d="M5 8l2 2.5L11 5.5" stroke="rgba(34,197,94,.85)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                        Marque · Créateur · Influmatch
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Card 2 : Brief structuré (centre) -->
-                <div class="cs-card cs-card--after">
-                  <div class="cs-card-head">
-                    <div class="cs-icon cs-icon--primary">
-                      <svg viewBox="0 0 24 24"><path d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                    </div>
-                    <div class="cs-head-text">
-                      <div class="cs-head-title">Brief Influmatch</div>
-                      <div class="cs-head-sub">Validé · 2 parties</div>
-                    </div>
-                    <span class="cs-badge cs-badge--primary">En cours</span>
-                  </div>
-                  <div class="cs-body">
-                    <div class="cs-brief">
-                      <div class="cs-brief-row">
-                        <span class="cs-brief-key">Objectif</span>
-                        <span class="cs-brief-val">Notoriété · Skincare routine</span>
-                      </div>
-                      <div class="cs-brief-row">
-                        <span class="cs-brief-key">Livrable</span>
-                        <span class="cs-brief-val">1 Reel + 2 Stories</span>
-                      </div>
-                      <div class="cs-brief-row">
-                        <span class="cs-brief-key">Deadline</span>
-                        <span class="cs-brief-val">15 mars 2025</span>
-                      </div>
-                      <div class="cs-brief-row">
-                        <span class="cs-brief-key">Mentions</span>
-                        <span class="cs-brief-val">#paid · @brand · lien bio</span>
-                      </div>
-                      <div class="cs-brief-row">
-                        <span class="cs-brief-key">Droits</span>
-                        <span class="cs-brief-val">Usage 6 mois · réseaux</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Card 3 : Paiement confirmé + métriques -->
-                <div class="cs-card cs-card--after">
-                  <div class="cs-card-head">
-                    <div class="cs-icon cs-icon--success">
-                      <svg viewBox="0 0 24 24"><path d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z"/></svg>
-                    </div>
-                    <div class="cs-head-text">
-                      <div class="cs-head-title">Paiement sécurisé</div>
-                      <div class="cs-head-sub">Via Stripe · Traçable</div>
-                    </div>
-                    <span class="cs-badge cs-badge--success">Payé ✓</span>
-                  </div>
-                  <div class="cs-body">
-                    <div class="cs-amount-block">
-                      <div class="cs-amount cs-amount--success">$850</div>
-                      <div class="cs-amount-sub">Virement confirmé · J+3</div>
-                    </div>
-                    <div class="cs-bar"><div class="cs-bar-fill cs-bar-fill--success"></div></div>
-                    <div class="cs-metrics">
-                      <span class="cs-metric">24K vues</span>
-                      <span class="cs-metric">3.2% ER</span>
-                      <span class="cs-metric">+890 followers</span>
-                    </div>
-                  </div>
-                </div>
-
-              </div>
-            </div>
-          </div>
-
         </div>
       </section>
 
       <!-- ============ 5. PLATFORM TOOL — Espace client ============ -->
       <section class="section-platform" id="platform">
         <div class="container">
+          <div class="platform-layout">
 
-          <div class="platform-header reveal">
-            <span class="section-label section-label--center">Espace client</span>
-            <h2 class="section-heading">Une plateforme pour <em>tout gérer.</em></h2>
-            <p class="platform-tagline">Accessible dès votre première collaboration, votre espace centralisé remplace les mails éparpillés, les suivis manuels et les procédures complexes. Tout ce qui compte, au même endroit.</p>
-          </div>
+            <!-- Left: features -->
+            <div class="platform-text reveal-left">
+              <span class="section-label">Espace client</span>
+              <h2 class="section-heading">Une plateforme<br>pour <em>tout gérer.</em></h2>
+              <p class="platform-intro">Accessible dès votre première collab — votre tableau de bord remplace les mails éparpillés, les tableaux Excel et les relances manuelles.</p>
 
-          <!-- Platform visual / dashboard mockup -->
-          <div class="platform-visual-main reveal reveal-delay-1">
-            <div class="platform-visual-placeholder-main">
-              <!-- Replace with: <img src="public/assets/images/platform-interface.jpg" alt="Interface Influmatch"> -->
-              <div class="pv-ui">
-                <div class="pv-sidebar">
-                  <div class="pv-sb-dot pv-sb-dot--active"></div>
-                  <div class="pv-sb-dot"></div>
-                  <div class="pv-sb-dot"></div>
-                  <div class="pv-sb-dot"></div>
-                  <div class="pv-sb-dot"></div>
-                </div>
-                <div class="pv-main">
-                  <div class="pv-topbar">
-                    <div class="pv-tb-title"></div>
-                    <div class="pv-spacer"></div>
-                    <div class="pv-tb-badge"></div>
+              <div class="platform-feat-list">
+                <div class="platform-feat">
+                  <div class="pf-icon-wrap">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/></svg>
                   </div>
-                  <div class="pv-content">
-                    <div class="pv-card">
-                      <div class="pv-card-label"></div>
-                      <div class="pv-card-value"></div>
-                      <div class="pv-card-sub"></div>
+                  <div>
+                    <h4>Campagnes en temps réel</h4>
+                    <p>Avancement, livrables et statuts centralisés — de la signature au rendu final.</p>
+                  </div>
+                </div>
+                <div class="platform-feat">
+                  <div class="pf-icon-wrap">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/></svg>
+                  </div>
+                  <div>
+                    <h4>Contrats & paiements sécurisés</h4>
+                    <p>Signature via DocuSign, séquestre Stripe — déclenché automatiquement à la validation.</p>
+                  </div>
+                </div>
+                <div class="platform-feat">
+                  <div class="pf-icon-wrap">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z"/></svg>
+                  </div>
+                  <div>
+                    <h4>Messagerie centralisée</h4>
+                    <p>Tous vos échanges avec les créateurs au même endroit. Sans DM éparpillés.</p>
+                  </div>
+                </div>
+                <div class="platform-feat">
+                  <div class="pf-icon-wrap">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 14.25v2.25m3-4.5v4.5m3-6.75v6.75m3-9v9M6 20.25h12A2.25 2.25 0 0020.25 18V6A2.25 2.25 0 0018 3.75H6A2.25 2.25 0 003.75 6v12A2.25 2.25 0 006 20.25z"/></svg>
+                  </div>
+                  <div>
+                    <h4>Analytics & reporting</h4>
+                    <p>ROI, portée, engagement — rapport complet envoyé après chaque publication.</p>
+                  </div>
+                </div>
+              </div>
+
+              <a href="#register" class="btn-primary">Accéder à mon espace</a>
+            </div>
+
+            <!-- Right: dashboard mockup -->
+            <div class="platform-mockup-wrap reveal-right">
+              <div class="platform-mockup">
+
+                <!-- Browser chrome -->
+                <div class="pv-chrome">
+                  <div class="pv-chrome-dots">
+                    <span class="pv-chrome-dot"></span>
+                    <span class="pv-chrome-dot"></span>
+                    <span class="pv-chrome-dot"></span>
+                  </div>
+                  <div class="pv-chrome-url">
+                    <svg viewBox="0 0 12 12" fill="none"><path d="M9 5V4a3 3 0 00-6 0v1M3.5 5h5a1 1 0 011 1v4a1 1 0 01-1 1h-5a1 1 0 01-1-1V6a1 1 0 011-1z" stroke="currentColor" stroke-width="1"/></svg>
+                    app.influmatch.io/dashboard
+                  </div>
+                </div>
+
+                <!-- UI -->
+                <div class="pm-ui">
+                  <div class="pm-sidebar">
+                    <div class="pm-sb-logo">IM</div>
+                    <div class="pm-sb-item pm-sb-item--active">
+                      <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="9" y="2" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="2" y="9" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="9" y="9" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/></svg>
+                      <span>Dashboard</span>
                     </div>
-                    <div class="pv-card">
-                      <div class="pv-card-label"></div>
-                      <div class="pv-card-value"></div>
-                      <div class="pv-card-sub"></div>
+                    <div class="pm-sb-item">
+                      <svg viewBox="0 0 16 16" fill="none"><path d="M2 5h12M2 8h8M2 11h5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+                      <span>Campagnes</span>
                     </div>
-                    <div class="pv-card">
-                      <div class="pv-chat">
-                        <div class="pv-bubble pv-bubble--in"></div>
-                        <div class="pv-bubble pv-bubble--out"></div>
-                        <div class="pv-bubble pv-bubble--in pv-bubble--sm"></div>
-                        <div class="pv-bubble pv-bubble--out"></div>
+                    <div class="pm-sb-item">
+                      <svg viewBox="0 0 16 16" fill="none"><path d="M13 4H3a1 1 0 00-1 1v6a1 1 0 001 1h2l2 2 2-2h3a1 1 0 001-1V5a1 1 0 00-1-1z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
+                      <span>Messages</span>
+                    </div>
+                    <div class="pm-sb-item">
+                      <svg viewBox="0 0 16 16" fill="none"><path d="M4 2h6l3 3v9a1 1 0 01-1 1H4a1 1 0 01-1-1V3a1 1 0 011-1z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M10 2v3h3M5.5 8.5h5M5.5 10.5h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+                      <span>Contrats</span>
+                    </div>
+                  </div>
+
+                  <div class="pm-main">
+                    <div class="pm-topbar">
+                      <span class="pm-tb-title">Dashboard</span>
+                      <div class="pm-spacer"></div>
+                      <span class="pm-tb-btn">+ Nouvelle collab</span>
+                    </div>
+                    <div class="pm-stats">
+                      <div class="pm-stat"><span class="pm-stat-label">Campagnes actives</span><span class="pm-stat-val">3</span></div>
+                      <div class="pm-stat"><span class="pm-stat-label">Budget engagé</span><span class="pm-stat-val">4 200€</span></div>
+                      <div class="pm-stat"><span class="pm-stat-label">Créateurs actifs</span><span class="pm-stat-val">8</span></div>
+                    </div>
+                    <div class="pm-list">
+                      <div class="pm-list-head">
+                        <span>Créateur · Marque</span><span>Statut</span><span>Budget</span><span>Deadline</span>
+                      </div>
+                      <div class="pm-row">
+                        <div class="pm-row-creator"><span class="pm-av" style="background:linear-gradient(135deg,#e0b88a,#a87040)">L</span>Léa D. × NovaSkin</div>
+                        <span class="pm-status pm-status--green">En cours</span>
+                        <span class="pm-val">850€</span>
+                        <span class="pm-date">12 avr.</span>
+                      </div>
+                      <div class="pm-row">
+                        <div class="pm-row-creator"><span class="pm-av" style="background:linear-gradient(135deg,#9dcce4,#4a8aa8)">M</span>Marc T. × GlowLab</div>
+                        <span class="pm-status pm-status--violet">Brief envoyé</span>
+                        <span class="pm-val">1 200€</span>
+                        <span class="pm-date">28 avr.</span>
+                      </div>
+                      <div class="pm-row pm-row--dim">
+                        <div class="pm-row-creator"><span class="pm-av" style="background:linear-gradient(135deg,#c4aadc,#7a50a0)">S</span>Sofia R. × Lumière</div>
+                        <span class="pm-status pm-status--rose">Contrat signé</span>
+                        <span class="pm-val">2 150€</span>
+                        <span class="pm-date">3 mai</span>
                       </div>
                     </div>
-                    <div class="pv-card">
-                      <div class="pv-card-label"></div>
-                      <div class="pv-card-value"></div>
-                      <div class="pv-card-sub"></div>
-                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </div>
 
-          <!-- Feature grid -->
-          <div class="platform-features">
-
-            <div class="platform-feature reveal">
-              <div class="pf-icon-wrap">
-                <svg viewBox="0 0 24 24"><path d="M8.625 12a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H8.25m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0H12m4.125 0a.375.375 0 11-.75 0 .375.375 0 01.75 0zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 01-2.555-.337A5.972 5.972 0 015.41 20.97a5.969 5.969 0 01-.474-.065 4.48 4.48 0 00.978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25z"/></svg>
+              <!-- Floating badges -->
+              <div class="pv-annotation pv-annotation--1 reveal reveal-delay-2">
+                <div class="pv-ann-dot pv-ann-dot--green"></div>
+                <div><div class="pv-ann-val">J+3</div><div class="pv-ann-lbl">Virement automatique</div></div>
               </div>
-              <h3>Discussions centralisées</h3>
-              <p>Toutes vos conversations au même endroit. Adieu les DMs éparpillés entre mail, WhatsApp et Instagram.</p>
-            </div>
-
-            <div class="platform-feature reveal reveal-delay-1">
-              <div class="pf-icon-wrap">
-                <svg viewBox="0 0 24 24"><path d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/></svg>
+              <div class="pv-annotation pv-annotation--2 reveal reveal-delay-3">
+                <div class="pv-ann-dot pv-ann-dot--violet"></div>
+                <div><div class="pv-ann-val">100%</div><div class="pv-ann-lbl">Paiements sécurisés</div></div>
               </div>
-              <h3>Contrats &amp; accords</h3>
-              <p>Vos contrats signés, archivés et accessibles en un clic. Retrouvez n'importe quel accord en quelques secondes.</p>
-            </div>
-
-            <div class="platform-feature reveal reveal-delay-2">
-              <div class="pf-icon-wrap">
-                <svg viewBox="0 0 24 24"><path d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/></svg>
-              </div>
-              <h3>Statistiques &amp; reporting</h3>
-              <p>Performances de chaque campagne en temps réel. Des données claires pour prendre de meilleures décisions.</p>
-            </div>
-
-            <div class="platform-feature reveal reveal-delay-3">
-              <div class="pf-icon-wrap">
-                <svg viewBox="0 0 24 24"><path d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/></svg>
-              </div>
-              <h3>Productivité maximale</h3>
-              <p>Workflow simplifié, procédures allégées. Moins d'administration, moins d'erreurs, plus de temps pour l'essentiel.</p>
             </div>
 
           </div>
-
         </div>
       </section>
 
@@ -822,8 +793,8 @@ const HomePage = {
               </div>
             </div>
             <div class="about-content reveal reveal-delay-1">
-              <span class="section-label section-label--light">Qui sommes-nous</span>
-              <h2 class="section-heading section-heading--light">James & Lucas,<br>deux entrepreneurs <em>complémentaires.</em></h2>
+              <span class="section-label">Qui sommes-nous</span>
+              <h2 class="section-heading">James & Lucas,<br>deux entrepreneurs <em>complémentaires.</em></h2>
               <div class="about-story">
                 <p>Tout a commencé pendant un stage — compétences complémentaires, même envie d'entreprendre, même refus du statu quo.</p>
                 <p>Un soir, une amie créatrice nous confie ses galères : partenariats peu transparents, collabs mal cadrées, paiements flous. Du côté des marques, même constat.</p>
@@ -840,59 +811,88 @@ const HomePage = {
       <section class="section-proof" id="proof">
         <div class="container">
           <div class="proof-header reveal">
-            <span class="section-label">Ce qu'ils en disent</span>
-            <h2 class="section-heading">Ils nous ont <em>fait confiance.</em></h2>
+            <span class="section-label section-label--center">Ce qu'ils en disent</span>
+            <h2 class="section-heading" style="text-align:center">Ils nous ont <em>fait confiance.</em></h2>
           </div>
+        </div>
 
-          <!-- Featured quote — large centred -->
-          <div class="proof-featured-wrap reveal">
-            <blockquote class="proof-featured-text">
-              J'avais essayé de gérer les collabs moi-même par DM. Un créateur a disparu après le post, sans aucun recours. Avec Influmatch, tout était écrit, signé, suivi. Notre première vraie collab s'est transformée en partenariat régulier.
-            </blockquote>
-            <div class="proof-attribution">
-              <!-- Replace circle with: <img src="public/assets/images/testimonials/sarah-k.jpg" alt="Sarah K." style="width:34px;height:34px;border-radius:50%;object-fit:cover"> -->
-              <div class="proof-attr-avatar proof-attr-avatar--1">S</div>
-              <div>
-                <div class="proof-attr-name">Sarah K.</div>
-                <div class="proof-attr-role">Fondatrice, Glow Lab Skincare · New York</div>
+        <!-- Rangée 1 → gauche (3 sets identiques) -->
+        <div class="proof-marquee-wrap">
+          <div class="proof-marquee-track">
+            ${['', '', ''].map(() => `
+            <div class="proof-card">
+              <div class="proof-card-top">
+                <div class="proof-card-av" style="background:linear-gradient(135deg,#e0b88a,#a87040)">S</div>
+                <div class="proof-card-meta">
+                  <div class="proof-card-name">Sarah K.</div>
+                  <div class="proof-card-role">Fondatrice · Glow Lab Skincare</div>
+                </div>
+                <span class="proof-card-tag proof-card-tag--brand">Marque</span>
               </div>
-              <span class="proof-attr-handle">@glowlab.skincare</span>
+              <blockquote class="proof-card-quote">« Un créateur a disparu après le post, sans aucun recours. Avec Influmatch tout était écrit, signé, suivi. Notre première collab s'est transformée en partenariat régulier. »</blockquote>
             </div>
+            <div class="proof-card">
+              <div class="proof-card-top">
+                <div class="proof-card-av" style="background:linear-gradient(135deg,#9dcce4,#4a8aa8)">M</div>
+                <div class="proof-card-meta">
+                  <div class="proof-card-name">Maya W.</div>
+                  <div class="proof-card-role">Créatrice beauté · Instagram 28K</div>
+                </div>
+                <span class="proof-card-tag proof-card-tag--creator">Créateur</span>
+              </div>
+              <blockquote class="proof-card-quote">« Pour la première fois, un brief qui expliquait tout — objectifs, livrables, droits d'usage. Mon paiement est arrivé en J+3. Je refuse toute collab sans ce niveau de cadre. »</blockquote>
+            </div>
+            <div class="proof-card">
+              <div class="proof-card-top">
+                <div class="proof-card-av" style="background:linear-gradient(135deg,#c4aadc,#7a50a0)">J</div>
+                <div class="proof-card-meta">
+                  <div class="proof-card-name">Jessica T.</div>
+                  <div class="proof-card-role">Marketing Manager · Velvet Haircare</div>
+                </div>
+                <span class="proof-card-tag proof-card-tag--brand">Marque</span>
+              </div>
+              <blockquote class="proof-card-quote">« 3 créateurs en urgence pour un lancement. Shortlist en 48h, contrats signés en 5 jours. L'un est devenu partenaire récurrent. Influmatch est dans tous nos lancements. »</blockquote>
+            </div>`).join('')}
           </div>
+        </div>
 
-          <!-- Secondary duo — asymmetric -->
-          <div class="proof-duo">
-
-            <div class="proof-side reveal">
-              <blockquote class="proof-side-text">
-                Pour la première fois, j'ai reçu un brief qui expliquait exactement ce qu'on attendait — objectifs, livrables, deadline, droits d'usage. Mon paiement est arrivé en J+3. Je refuse désormais toute collab sans ce niveau de cadre.
-              </blockquote>
-              <div class="proof-attribution">
-                <!-- Replace: <img src="public/assets/images/testimonials/maya-w.jpg" alt="Maya W." style="width:34px;height:34px;border-radius:50%;object-fit:cover"> -->
-                <div class="proof-attr-avatar proof-attr-avatar--2">M</div>
-                <div>
-                  <div class="proof-attr-name">Maya W.</div>
-                  <div class="proof-attr-role">Créatrice beauté · Instagram · 28K</div>
+        <!-- Rangée 2 → droite (3 sets identiques, sens inverse) -->
+        <div class="proof-marquee-wrap">
+          <div class="proof-marquee-track proof-marquee-track--reverse">
+            ${['', '', ''].map(() => `
+            <div class="proof-card">
+              <div class="proof-card-top">
+                <div class="proof-card-av" style="background:linear-gradient(135deg,#a8d8b0,#4a9a60)">T</div>
+                <div class="proof-card-meta">
+                  <div class="proof-card-name">Thomas L.</div>
+                  <div class="proof-card-role">Créateur lifestyle · TikTok 45K</div>
                 </div>
-                <span class="proof-attr-handle">@maya.creates</span>
+                <span class="proof-card-tag proof-card-tag--creator">Créateur</span>
               </div>
+              <blockquote class="proof-card-quote">« Fini les DM qui traînent et les paiements oubliés. Influmatch cadre tout en amont — je signe, je crée, je suis payé. Exactement ce qu'on attendait. »</blockquote>
             </div>
-
-            <div class="proof-side reveal reveal-delay-1">
-              <blockquote class="proof-side-text">
-                On avait besoin de 3 créateurs en urgence pour un lancement. Shortlist reçue en 48h, contrats signés en 5 jours. L'un d'eux est devenu un partenaire récurrent. Influmatch est maintenant intégré dans tous nos lancements.
-              </blockquote>
-              <div class="proof-attribution">
-                <!-- Replace: <img src="public/assets/images/testimonials/jessica-t.jpg" alt="Jessica T." style="width:34px;height:34px;border-radius:50%;object-fit:cover"> -->
-                <div class="proof-attr-avatar proof-attr-avatar--3">J</div>
-                <div>
-                  <div class="proof-attr-name">Jessica T.</div>
-                  <div class="proof-attr-role">Marketing Manager, Velvet Haircare · Los Angeles</div>
+            <div class="proof-card">
+              <div class="proof-card-top">
+                <div class="proof-card-av" style="background:linear-gradient(135deg,#f0b8c4,#c0607a)">A</div>
+                <div class="proof-card-meta">
+                  <div class="proof-card-name">Amélie R.</div>
+                  <div class="proof-card-role">Directrice marketing · Bloom Beauty</div>
                 </div>
-                <span class="proof-attr-handle">@velvethaircare</span>
+                <span class="proof-card-tag proof-card-tag--brand">Marque</span>
               </div>
+              <blockquote class="proof-card-quote">« On a testé plusieurs agences. Influmatch est la seule qui propose un contrat tripartite dès le départ. La transparence fait toute la différence. »</blockquote>
             </div>
-
+            <div class="proof-card">
+              <div class="proof-card-top">
+                <div class="proof-card-av" style="background:linear-gradient(135deg,#d4c090,#a08040)">K</div>
+                <div class="proof-card-meta">
+                  <div class="proof-card-name">Karim D.</div>
+                  <div class="proof-card-role">Créateur santé · YouTube 62K</div>
+                </div>
+                <span class="proof-card-tag proof-card-tag--creator">Créateur</span>
+              </div>
+              <blockquote class="proof-card-quote">« La marque savait ce qu'elle voulait, j'avais la liberté créative pour le faire bien. Le contrat protégeait les deux parties. C'est rare — et ça se sent dans le résultat. »</blockquote>
+            </div>`).join('')}
           </div>
         </div>
       </section>
@@ -962,7 +962,7 @@ const HomePage = {
       <!-- ============ 8. CTA FINAL — Éditorial centré ============ -->
       <section class="section-cta-final has-grain" id="cta-final">
         <div class="container">
-          <div class="cta-final-inner reveal">
+          <div class="cta-final-inner reveal-blur">
             <span class="section-label section-label--light section-label--center">Prêts à commencer ?</span>
             <div class="cta-final-rule"></div>
             <blockquote class="cta-final-quote">
@@ -1022,18 +1022,6 @@ const HomePage = {
     `;
   },
 
-  // ---- Avant/Après switcher ----
-  switchCompare(state) {
-    document.querySelectorAll('.compare-tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.compare-panel').forEach(p => p.classList.remove('active'));
-    if (state === 'before') {
-      document.querySelector('.compare-tab--before').classList.add('active');
-      document.getElementById('compareBefore').classList.add('active');
-    } else {
-      document.querySelector('.compare-tab--after').classList.add('active');
-      document.getElementById('compareAfter').classList.add('active');
-    }
-  },
 
   // ---- FAQ accordion ----
   toggleFaq(el) {
@@ -1127,18 +1115,20 @@ const HomePage = {
     const carousel = document.querySelector('.sol-carousel');
     if (!carousel) return;
 
-    const track = carousel.querySelector('.sol-track');
-    const imgs  = carousel.querySelectorAll('.sol-img');
-    const texts = carousel.querySelectorAll('.sol-text');
-    const prev  = document.getElementById('solPrev');
-    const next  = document.getElementById('solNext');
-    const total = texts.length;
-    let current = 0;
+    const track   = carousel.querySelector('.sol-track');
+    const imgs    = carousel.querySelectorAll('.sol-img');
+    const texts   = carousel.querySelectorAll('.sol-text');
+    const prev    = document.getElementById('solPrev');
+    const next    = document.getElementById('solNext');
+    const counter = document.getElementById('solCurrent');
+    const dots    = document.querySelectorAll('.sol-dot');
+    const total   = texts.length;
+    let current   = 0;
 
-    const GAP  = 16;
-    const PEEK = 40;
-    // Slide height synced avec CSS (260px desktop / 220px mobile)
-    const slideH = () => window.innerWidth <= 820 ? 220 : 260;
+    const GAP  = 20;
+    const PEEK = 48;
+    // Slide height synced avec CSS (420px desktop / 300px mobile)
+    const slideH = () => window.innerWidth <= 820 ? 300 : 420;
 
     const activate = (idx) => {
       current = (idx + total) % total;
@@ -1146,11 +1136,78 @@ const HomePage = {
       track.style.transform = `translateY(${ty}px)`;
       imgs.forEach((im, i)  => im.classList.toggle('active', i === current));
       texts.forEach((t, i)  => t.classList.toggle('active', i === current));
+      dots.forEach((d, i)   => d.classList.toggle('active', i === current));
+      if (counter) counter.textContent = String(current + 1).padStart(2, '0');
     };
+
+    // Clic sur les dots
+    dots.forEach(d => d.addEventListener('click', () => activate(+d.dataset.step)));
 
     if (prev) prev.addEventListener('click', () => activate(current - 1));
     if (next) next.addEventListener('click', () => activate(current + 1));
     activate(0);
+  },
+
+  initCompareSlider() {
+    const wrap    = document.getElementById('compareSlider');
+    const after   = document.getElementById('csAfterPanel');
+    const divider = document.getElementById('csDivider');
+    if (!wrap || !after || !divider) return;
+
+    let active  = false;
+    let entered = false;
+
+    // Applique la position sans transition (drag fluide)
+    const setPos = (pct) => {
+      const v = `inset(0 0 0 ${pct}%)`;
+      after.style.clipPath        = v;
+      after.style.webkitClipPath  = v;
+      divider.style.left          = pct + '%';
+    };
+
+    // Position initiale : AVANT entièrement visible
+    setPos(97);
+
+    // Animation d'entrée : sweep vers 50 % quand le slider est visible
+    const io = new IntersectionObserver((entries) => {
+      if (!entries[0].isIntersecting || entered) return;
+      entered = true;
+      io.disconnect();
+      const easing = 'cubic-bezier(.16,1,.3,1)';
+      after.style.transition        = `clip-path 1.1s ${easing}, -webkit-clip-path 1.1s ${easing}`;
+      divider.style.transition      = `left 1.1s ${easing}`;
+      setTimeout(() => {
+        setPos(50);
+        setTimeout(() => {
+          after.style.transition   = 'none';
+          divider.style.transition = 'none';
+        }, 1200);
+      }, 280);
+    }, { threshold: 0.35 });
+    io.observe(wrap);
+
+    // Drag
+    const onMove = (clientX) => {
+      const r   = wrap.getBoundingClientRect();
+      const pct = Math.max(4, Math.min(96, ((clientX - r.left) / r.width) * 100));
+      after.style.transition   = 'none';
+      divider.style.transition = 'none';
+      setPos(pct);
+    };
+
+    wrap.addEventListener('mousedown', (e) => { active = true; onMove(e.clientX); e.preventDefault(); });
+    document.addEventListener('mousemove', (e) => { if (active) onMove(e.clientX); });
+    document.addEventListener('mouseup',   ()  => { active = false; });
+
+    wrap.addEventListener('touchstart', (e) => {
+      active = true; onMove(e.touches[0].clientX);
+    }, { passive: true });
+    document.addEventListener('touchmove', (e) => {
+      if (!active) return;
+      e.preventDefault();
+      onMove(e.touches[0].clientX);
+    }, { passive: false });
+    document.addEventListener('touchend', () => { active = false; });
   },
 
   _countUpMarket(el, target, duration, delay) {
