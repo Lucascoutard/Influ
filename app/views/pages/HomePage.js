@@ -334,13 +334,20 @@ const HomePage = {
               <button class="sol-arrow" id="solPrev" aria-label="Précédent">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
               </button>
+              <div class="sol-step-counter"><span id="solCurrent">01</span> / 04</div>
               <button class="sol-arrow" id="solNext" aria-label="Suivant">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
               </button>
             </div>
 
             <!-- Textes droite -->
-            <div class="sol-texts">
+            <div class="sol-texts" style="position:relative;">
+              <div class="sol-dots" id="solDots">
+                <div class="sol-dot active" data-step="0"></div>
+                <div class="sol-dot" data-step="1"></div>
+                <div class="sol-dot" data-step="2"></div>
+                <div class="sol-dot" data-step="3"></div>
+              </div>
               <div class="sol-text active" data-step="0">
                 <h3 class="sol-text-heading">Matching intelligent</h3>
                 <div class="sol-text-tags">
@@ -377,7 +384,7 @@ const HomePage = {
                 </div>
                 <p class="sol-text-desc">Discussions, contrats, livrables, statistiques : tout au même endroit. Marque et créateur ont chacun leur espace.</p>
               </div>
-            </div>
+            </div><!-- /.sol-texts -->
 
           </div>
 
@@ -1127,18 +1134,20 @@ const HomePage = {
     const carousel = document.querySelector('.sol-carousel');
     if (!carousel) return;
 
-    const track = carousel.querySelector('.sol-track');
-    const imgs  = carousel.querySelectorAll('.sol-img');
-    const texts = carousel.querySelectorAll('.sol-text');
-    const prev  = document.getElementById('solPrev');
-    const next  = document.getElementById('solNext');
-    const total = texts.length;
-    let current = 0;
+    const track   = carousel.querySelector('.sol-track');
+    const imgs    = carousel.querySelectorAll('.sol-img');
+    const texts   = carousel.querySelectorAll('.sol-text');
+    const prev    = document.getElementById('solPrev');
+    const next    = document.getElementById('solNext');
+    const counter = document.getElementById('solCurrent');
+    const dots    = document.querySelectorAll('.sol-dot');
+    const total   = texts.length;
+    let current   = 0;
 
-    const GAP  = 16;
-    const PEEK = 40;
-    // Slide height synced avec CSS (260px desktop / 220px mobile)
-    const slideH = () => window.innerWidth <= 820 ? 220 : 260;
+    const GAP  = 20;
+    const PEEK = 48;
+    // Slide height synced avec CSS (420px desktop / 300px mobile)
+    const slideH = () => window.innerWidth <= 820 ? 300 : 420;
 
     const activate = (idx) => {
       current = (idx + total) % total;
@@ -1146,7 +1155,12 @@ const HomePage = {
       track.style.transform = `translateY(${ty}px)`;
       imgs.forEach((im, i)  => im.classList.toggle('active', i === current));
       texts.forEach((t, i)  => t.classList.toggle('active', i === current));
+      dots.forEach((d, i)   => d.classList.toggle('active', i === current));
+      if (counter) counter.textContent = String(current + 1).padStart(2, '0');
     };
+
+    // Clic sur les dots
+    dots.forEach(d => d.addEventListener('click', () => activate(+d.dataset.step)));
 
     if (prev) prev.addEventListener('click', () => activate(current - 1));
     if (next) next.addEventListener('click', () => activate(current + 1));
