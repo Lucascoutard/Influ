@@ -12,6 +12,7 @@ const TaskBoardController = {
   _tasks:       [],
   _userRole:    'readonly', // 'admin' | 'influencer' | 'brand' | 'readonly'
   _filter:      { platform: '', search: '' },
+  _dragTaskId:  null,
 
   COLUMNS: [
     { key: 'todo',        label: 'À faire',     color: '#64748b', bg: '#f8fafc' },
@@ -34,9 +35,10 @@ const TaskBoardController = {
     return 'readonly';
   },
 
-  _canCreate()           { return ['admin', 'influencer'].includes(this._userRole); },
-  _canEdit()             { return ['admin', 'influencer'].includes(this._userRole); },
+  _canCreate()           { return this._userRole === 'admin'; },
+  _canEdit()             { return this._userRole === 'admin'; },
   _canDelete()           { return this._userRole === 'admin'; },
+  _canMove()             { return ['admin', 'influencer'].includes(this._userRole); },
   _canMoveTo(task, to)   {
     if (this._userRole === 'admin')      return true;
     if (this._userRole === 'influencer') return to !== 'validated';
@@ -44,6 +46,9 @@ const TaskBoardController = {
                                               || (task.status === 'validated' && to === 'done');
     return false;
   },
+
+  // Alias for drag/status-select visibility (influencer can move but not edit)
+  _showStatusControls() { return this._canMove(); },
 
   _esc: s => String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'),
 
@@ -244,7 +249,10 @@ const TaskBoardController = {
                       onclick="TaskBoardController._openTaskForm(null, '${col.key}')">+</button>
             ` : ''}
           </div>
-          <div class="tb-col-tasks" id="tbCol_${col.key}">
+          <div class="tb-col-tasks" id="tbCol_${col.key}"
+               ondragover="TaskBoardController._onDragOver(event,'${col.key}')"
+               ondragleave="TaskBoardController._onDragLeave(event)"
+               ondrop="TaskBoardController._onDrop(event,'${col.key}')">
             ${cards}
           </div>
         </div>
@@ -275,10 +283,6 @@ const TaskBoardController = {
     };
     const pc = platformColors[t.platform] || { bg: '#f1f5f9', text: '#475569' };
 
-    const colIdx  = this.COLUMNS.findIndex(c => c.key === t.status);
-    const prevCol = colIdx > 0 ? this.COLUMNS[colIdx - 1] : null;
-    const nextCol = colIdx < this.COLUMNS.length - 1 ? this.COLUMNS[colIdx + 1] : null;
-
     // Bouton de validation spécial pour la marque
     const validateBtn = this._userRole === 'brand' && t.status === 'done' ? `
       <button class="tb-validate-btn" onclick="TaskBoardController._moveTask(${t.id}, 'validated')">
@@ -291,25 +295,32 @@ const TaskBoardController = {
       </button>
     ` : '';
 
-    // Boutons de déplacement (admin / influencer)
-    const moveHtml = this._canEdit() ? `
-      <div class="tb-card-move">
-        ${prevCol && this._canMoveTo(t, prevCol.key) ? `
-          <button class="tb-move-prev" title="${prevCol.label}"
-                  onclick="TaskBoardController._moveTask(${t.id},'${prevCol.key}')">
-            ← ${prevCol.label}
-          </button>` : '<span></span>'}
-        ${nextCol && this._canMoveTo(t, nextCol.key) ? `
-          <button class="tb-move-next" title="${nextCol.label}"
-                  onclick="TaskBoardController._moveTask(${t.id},'${nextCol.key}')">
-            ${nextCol.label} →
-          </button>` : ''}
-      </div>
-    ` : (validateBtn || unvalidateBtn ? `<div class="tb-card-move">${validateBtn}${unvalidateBtn}</div>` : '');
+    // Sélecteur de statut (admin / influencer) — drag + select
+    let actionHtml = '';
+    if (this._canMove()) {
+      const opts = this.COLUMNS.map(c => `
+        <option value="${c.key}"
+                ${t.status === c.key ? 'selected' : ''}
+                ${t.status !== c.key && !this._canMoveTo(t, c.key) ? 'disabled' : ''}>
+          ${c.label}
+        </option>`).join('');
+      actionHtml = `
+        <div class="tb-card-status-row">
+          <select class="tb-status-select" onchange="TaskBoardController._moveTask(${t.id}, this.value)">
+            ${opts}
+          </select>
+        </div>`;
+    } else if (validateBtn || unvalidateBtn) {
+      actionHtml = `<div class="tb-card-move">${validateBtn}${unvalidateBtn}</div>`;
+    }
+
+    const draggable = this._canMove()
+      ? `draggable="true" ondragstart="TaskBoardController._onDragStart(event,${t.id})" ondragend="TaskBoardController._onDragEnd(event)"`
+      : '';
 
     return `
       <div class="tb-card ${overdue ? 'tb-card--overdue' : ''} ${t.status === 'validated' ? 'tb-card--validated' : ''}"
-           data-id="${t.id}">
+           data-id="${t.id}" ${draggable}>
 
         <!-- Top row: title + actions -->
         <div class="tb-card-top">
@@ -371,10 +382,50 @@ const TaskBoardController = {
           </div>
         ` : ''}
 
-        <!-- Move / validate buttons -->
-        ${moveHtml}
+        <!-- Status / validate actions -->
+        ${actionHtml}
       </div>
     `;
+  },
+
+  // ================================================================
+  //  DRAG & DROP
+  // ================================================================
+
+  _onDragStart(e, taskId) {
+    this._dragTaskId = taskId;
+    e.dataTransfer.effectAllowed = 'move';
+    e.currentTarget.classList.add('tb-card--dragging');
+  },
+
+  _onDragEnd(e) {
+    e.currentTarget.classList.remove('tb-card--dragging');
+    document.querySelectorAll('.tb-col-tasks--drag-over').forEach(c => c.classList.remove('tb-col-tasks--drag-over'));
+  },
+
+  _onDragOver(e, colKey) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    const col = document.getElementById(`tbCol_${colKey}`);
+    if (col) col.classList.add('tb-col-tasks--drag-over');
+  },
+
+  _onDragLeave(e) {
+    if (!e.currentTarget.contains(e.relatedTarget)) {
+      e.currentTarget.classList.remove('tb-col-tasks--drag-over');
+    }
+  },
+
+  _onDrop(e, colKey) {
+    e.preventDefault();
+    document.querySelectorAll('.tb-col-tasks--drag-over').forEach(c => c.classList.remove('tb-col-tasks--drag-over'));
+    const taskId = this._dragTaskId;
+    this._dragTaskId = null;
+    if (!taskId) return;
+    const task = this._tasks.find(t => parseInt(t.id) === taskId);
+    if (!task || task.status === colKey) return;
+    if (!this._canMoveTo(task, colKey)) return;
+    this._moveTask(taskId, colKey);
   },
 
   // ================================================================

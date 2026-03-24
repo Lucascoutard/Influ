@@ -7,6 +7,7 @@ const NavigationController = {
 
   _scrollBound: false,
   _progressBound: false,
+  _revealObserver: null,
 
   bind() {
     this._bindHeaderScroll();
@@ -95,22 +96,25 @@ const NavigationController = {
   // Elements with class .reveal fade in when visible
   // ============================================
   _bindScrollReveal() {
-    const reveals = document.querySelectorAll('.reveal, .reveal-left, .reveal-scale');
+    // Déconnecte l'ancien observer si re-render
+    if (this._revealObserver) this._revealObserver.disconnect();
+
+    const reveals = document.querySelectorAll('.reveal, .reveal-left, .reveal-right, .reveal-scale, .reveal-blur');
     if (!reveals.length) return;
 
-    const observer = new IntersectionObserver((entries) => {
+    this._revealObserver = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           entry.target.classList.add('visible');
-          observer.unobserve(entry.target);
+          this._revealObserver.unobserve(entry.target);
         }
       });
     }, {
-      threshold: 0.08,
-      rootMargin: '0px 0px -60px 0px'
+      threshold: 0.06,
+      rootMargin: '0px 0px -40px 0px'
     });
 
-    reveals.forEach(el => observer.observe(el));
+    reveals.forEach(el => this._revealObserver.observe(el));
   },
 
   // ============================================

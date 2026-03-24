@@ -1,6 +1,9 @@
 <?php
+/* ===================================================
+   CONFIG/AGENT.PHP — Agent IA Influmatch (Claude)
+   =================================================== */
 
-define('OPENAI_API_KEY',   '');
-define('AGENT_MODEL',        'gpt-4o-mini');
-define('AGENT_MAX_TOKENS',   800);   // Suffisant pour des briefs/hashtags/prompts
-define('AGENT_HISTORY_KEEP', 10);    // Nb d'échanges passés conservés (input tokens)
+define('ANTHROPIC_API_KEY', '');            // ← ta clé sur console.anthropic.com
+define('AGENT_MODEL',       'claude-haiku-4-5-20251001'); // rapide + économique
+define('AGENT_MAX_TOKENS',  2000);
+define('AGENT_HISTORY_KEEP', 20);           // nb de messages conservés en contexte

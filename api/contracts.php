@@ -203,9 +203,17 @@ switch ($action) {
         if ($user['role'] !== 'admin' && (int)$row['client_id'] !== (int)$user['id'])
             jsonResponse(['success' => false, 'message' => 'Accès refusé.'], 403);
 
-        $col  = $type === 'signed' ? 'signed_path' : 'unsigned_path';
-        $path = $row[$col] ? CONTRACTS_DIR . '../' . $row[$col] : null;
-        if (!$path || !file_exists($path))
+        $col     = $type === 'signed' ? 'signed_path' : 'unsigned_path';
+        $rawPath = $row[$col] ?? null;
+        if (!$rawPath)
+            jsonResponse(['success' => false, 'message' => 'Fichier introuvable.'], 404);
+
+        // Prevent path traversal — resolve real path and verify it stays inside contracts dir (OWASP A01)
+        $baseDir = realpath(__DIR__ . '/../public/uploads/contracts');
+        $path    = realpath(__DIR__ . '/../' . $rawPath);
+        if (!$path || !$baseDir || strncmp($path, $baseDir, strlen($baseDir)) !== 0)
+            jsonResponse(['success' => false, 'message' => 'Accès refusé.'], 403);
+        if (!file_exists($path))
             jsonResponse(['success' => false, 'message' => 'Fichier introuvable.'], 404);
 
         // Send file (override JSON Content-Type)

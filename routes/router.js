@@ -6,7 +6,7 @@ const Router = {
 
   // Routes = pages (changent la vue entière)
   // Sections = ancres dans une page (scroll smooth)
-  _pageRoutes: ['home', 'login', 'register', 'contact', 'logout', 'espace', 'dashboard', 'admin-dashboard', 'profile', 'account', 'settings', 'users', 'collabs', 'messages', 'documents', 'all-collabs', 'admin-messages', 'discover', 'admin-account'],
+  _pageRoutes: ['home', 'login', 'register', 'contact', 'logout', 'espace', 'dashboard', 'admin-dashboard', 'profile', 'account', 'settings', 'users', 'collabs', 'messages', 'documents', 'all-collabs', 'admin-messages', 'discover', 'admin-account', 'privacy', 'mentions', 'cgu', 'dmca', 'setup-passkey'],
 
   getCurrentRoute() {
     const hash = window.location.hash.replace('#', '').replace('/', '');

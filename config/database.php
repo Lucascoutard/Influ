@@ -8,6 +8,9 @@
    - MAMP   : user = "root", pass = "root"
    =================================================== */
 
+// ⚠️ Set to 'production' on Hostinger — controls SSL verification, error verbosity
+define('APP_ENV', 'development');  // 'development' | 'production'
+
 define('DB_HOST', 'localhost');
 define('DB_NAME', 'influmatch');   // Nom de la base créée via le SQL
 define('DB_USER', 'root');         // ← adapte si besoin
@@ -26,8 +29,10 @@ function getDB(): PDO {
         try {
             $pdo = new PDO($dsn, DB_USER, DB_PASS, $options);
         } catch (PDOException $e) {
+            // Log real error server-side, never expose to client (OWASP A09)
+            error_log('[Influmatch] DB connection error: ' . $e->getMessage());
             http_response_code(500);
-            echo json_encode(['success' => false, 'message' => 'Erreur de connexion BDD: ' . $e->getMessage()]);
+            echo json_encode(['success' => false, 'message' => 'Service temporarily unavailable. Please try again later.']);
             exit;
         }
     }

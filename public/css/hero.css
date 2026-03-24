@@ -1,6 +1,5 @@
 /* ===================================================
-   HERO.CSS — Clean hero, inspired by Alan
-   Sober: just title + 2 buttons + video link
+   HERO.CSS — Original
    =================================================== */
 
 .hero {
@@ -12,7 +11,7 @@
   max-width: 1200px;
   margin: 0 auto;
   border-radius: var(--radius-lg);
-  overflow: hidden;
+  overflow: clip;
   position: relative;
   min-height: 580px;
   display: flex;
@@ -20,7 +19,6 @@
   background: #2a2a3a;
 }
 
-/* ---- Video / image background (right side, fills card) ---- */
 .hero-video-bg {
   position: absolute;
   inset: 0;
@@ -35,50 +33,34 @@
   object-fit: cover;
   z-index: 1;
 }
-
 .hero-visual-placeholder {
   position: absolute;
   inset: 0;
-  z-index: 0;
-}
-
-/* Placeholder gradient when no video yet */
-.hero-visual-placeholder {
   width: 100%;
   height: 100%;
-  background: linear-gradient(
-    135deg,
-    #2d2b3d 0%,
-    #3a3554 30%,
-    #4a4268 60%,
-    #2d2b3d 100%
-  );
+  background: linear-gradient(135deg, #2d2b3d 0%, #3a3554 30%, #4a4268 60%, #2d2b3d 100%);
 }
-
-/* Gradient overlay — left side readable, right side shows video */
 .hero-video-bg::after {
   content: '';
   position: absolute;
   inset: 0;
   background: linear-gradient(
     90deg,
-    rgba(30, 28, 45, 0.85) 0%,
-    rgba(30, 28, 45, 0.55) 40%,
-    rgba(30, 28, 45, 0.1) 70%,
+    rgba(30,28,45,0.85) 0%,
+    rgba(30,28,45,0.55) 40%,
+    rgba(30,28,45,0.1)  70%,
     transparent 100%
   );
-  z-index: 1;
+  z-index: 2;
 }
 
-/* ---- Content ---- */
 .hero-content {
   position: relative;
-  z-index: 2;
+  z-index: 3;
   padding: 72px 60px;
   max-width: 560px;
 }
 
-/* Title */
 .hero-title {
   font-family: var(--font-display);
   font-size: clamp(2rem, 3.8vw, 2.9rem);
@@ -87,55 +69,10 @@
   color: #fff;
   margin-bottom: 36px;
   letter-spacing: -0.02em;
+  opacity: 0;
 }
-.hero-title em {
-  font-style: italic;
-  color: #b8acf6;
-}
+.hero-title em { font-style: italic; color: #b8acf6; }
 
-/* Buttons row */
-.hero-actions {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  flex-wrap: wrap;
-  margin-bottom: 32px;
-}
-
-/* Video link at bottom */
-.hero-video-link {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 0.88rem;
-  color: rgba(255,255,255,0.7);
-  font-weight: 500;
-  cursor: pointer;
-  transition: var(--transition);
-}
-.hero-video-link:hover { color: #fff; }
-
-.play-icon {
-  width: 34px; height: 34px;
-  border-radius: 50%;
-  background: var(--primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  transition: var(--transition);
-}
-.play-icon svg {
-  width: 12px; height: 12px;
-  fill: #fff;
-  margin-left: 2px;
-}
-.hero-video-link:hover .play-icon {
-  transform: scale(1.1);
-  box-shadow: 0 4px 16px rgba(94,74,208,0.4);
-}
-
-/* Subtitle */
 .hero-subtitle {
   font-size: 1rem;
   line-height: 1.7;
@@ -146,19 +83,42 @@
   opacity: 0;
 }
 
-/* ---- Entrance animations ---- */
-/* hero-title: opacity starts at 0, JS reveals via word-split */
-.hero-title {
-  opacity: 0;
-  /* animation replaced by JS word-split → anim-in */
-}
 .hero-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 32px;
   animation: heroFadeIn 0.75s cubic-bezier(.16,1,.3,1) 0.55s forwards;
   opacity: 0;
 }
+
 .hero-video-link {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.88rem;
+  color: rgba(255,255,255,0.7);
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
   animation: heroFadeIn 0.75s cubic-bezier(.16,1,.3,1) 0.7s forwards;
   opacity: 0;
+}
+.hero-video-link:hover { color: #fff; }
+
+.play-icon {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: var(--primary);
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  transition: var(--transition);
+}
+.play-icon svg { width: 12px; height: 12px; fill: #fff; margin-left: 2px; }
+.hero-video-link:hover .play-icon {
+  transform: scale(1.1);
+  box-shadow: 0 4px 16px rgba(94,74,208,0.4);
 }
 
 @keyframes heroFadeIn {
@@ -167,40 +127,27 @@
 }
 
 /* ============================================
-   VIDEO MODAL — hero "Découvrir Influmatch"
+   VIDEO MODAL
    ============================================ */
 .hvm-overlay {
   position: fixed; inset: 0; z-index: 1000;
-  background: rgba(0, 0, 0, 0);
+  background: rgba(0,0,0,0);
   display: flex; align-items: center; justify-content: center;
   padding: 24px;
   backdrop-filter: blur(0px);
   transition: background 0.3s ease, backdrop-filter 0.3s ease;
 }
-.hvm-overlay--in {
-  background: rgba(0, 0, 0, 0.82);
-  backdrop-filter: blur(6px);
-}
+.hvm-overlay--in { background: rgba(0,0,0,.82); backdrop-filter: blur(6px); }
 .hvm-modal {
   position: relative;
   width: 100%; max-width: 960px;
   border-radius: 16px; overflow: hidden;
-  transform: scale(0.94);
-  opacity: 0;
-  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1),
-              opacity 0.3s ease;
+  transform: scale(0.94); opacity: 0;
+  transition: transform 0.35s cubic-bezier(0.16,1,0.3,1), opacity 0.3s ease;
   box-shadow: 0 32px 80px rgba(0,0,0,.6);
 }
-.hvm-overlay--in .hvm-modal {
-  transform: scale(1);
-  opacity: 1;
-}
-.hvm-video {
-  display: block;
-  width: 100%; height: auto;
-  max-height: 80vh;
-  background: #000;
-}
+.hvm-overlay--in .hvm-modal { transform: scale(1); opacity: 1; }
+.hvm-video { display: block; width: 100%; height: auto; max-height: 80vh; background: #000; }
 .hvm-close {
   position: absolute; top: 14px; right: 14px; z-index: 10;
   width: 38px; height: 38px; border-radius: 50%;

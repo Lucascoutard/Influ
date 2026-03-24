@@ -14,6 +14,24 @@ $user   = requireAuth();
 
 switch ($action) {
 
+    // ======================== MY TASKS (all open tasks for current user) ========================
+    case 'my_tasks':
+        $uid = (int)$user['id'];
+        $db  = getDB();
+        $stmt = $db->prepare("
+            SELECT t.id, t.title, t.content_type, t.platform, t.status, t.due_date,
+                   c.id AS collab_id, c.title AS collab_title
+            FROM campaign_tasks t
+            JOIN collaborations c ON c.id = t.collab_id
+            WHERE (c.influencer_id = ? OR c.brand_id = ?)
+              AND t.status IN ('todo', 'in_progress')
+            ORDER BY t.due_date IS NULL, t.due_date ASC, t.created_at ASC
+            LIMIT 20
+        ");
+        $stmt->execute([$uid, $uid]);
+        jsonResponse(['success' => true, 'tasks' => $stmt->fetchAll()]);
+        break;
+
     // ======================== LIST ========================
     case 'list':
         $collabId = (int)($_GET['collab_id'] ?? 0);
@@ -111,7 +129,7 @@ switch ($action) {
         $isAdmin      = $user['role'] === 'admin';
 
         // Brand (marque) : peut uniquement valider ou annuler la validation
-        if ($isBrand && !$isAdmin) {
+        if ($isBrand && !$isAdmin && !$isInfluencer) {
             $newStatus = $data['status'] ?? null;
             $allowed   = ($t['status'] === 'done' && $newStatus === 'validated')
                       || ($t['status'] === 'validated' && $newStatus === 'done');

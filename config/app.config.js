@@ -11,61 +11,59 @@ const AppConfig = {
   // Menus par rôle
   menus: {
 
-    // --- Visiteur ---
+    // --- Guest ---
     guest: {
       links: [
-        { label: 'Accueil', href: '#home' },
+        { label: 'Home', href: '#home' },
         {
-          label: 'Nos services',
+          label: 'Our services',
           dropdown: [
-            { label: 'Notre méthode', desc: 'Comment on travaille', href: '#solution' },
-            { label: 'Pour les marques', desc: 'Gagner du temps', href: '#use-cases' },
-            { label: 'Pour les créateurs', desc: 'Respect et protection', href: '#use-cases' },
+            { label: 'Our method', desc: 'How we work', href: '#solution' },
+            { label: 'For brands', desc: 'Save time', href: '#use-cases' },
+            { label: 'For creators', desc: 'Respect & protection', href: '#use-cases' },
           ]
         },
         {
-          label: 'Pourquoi nous ?',
+          label: 'Why us?',
           dropdown: [
-            { label: 'Le constat', desc: 'Le problème qu\'on résout', href: '#problem' },
-            { label: 'Avant / Après', desc: 'Le changement concret', href: '#compare' },
-            { label: 'Qui sommes-nous', desc: 'James & Lucas', href: '#about' },
+            { label: 'The problem', desc: 'What we solve', href: '#problem' },
+            { label: 'Before / After', desc: 'The concrete change', href: '#compare' },
+            { label: 'Who we are', desc: 'James & Lucas', href: '#about' },
           ]
         },
         { label: 'Contact', href: '#contact' },
       ],
-      cta: { label: 'Se connecter', href: '#login' }
+      cta: { label: 'Log in', href: '#login' }
     },
 
-    // --- User simple ---
-    user: {
+    // --- Brand ---
+    brand: {
       links: [
-        { label: 'Accueil', href: '#home' },
-        { label: 'Mon profil', href: '#profile' },
-        { label: 'Découvrir', href: '#discover' },
-        { label: 'Contact', href: '#contact' },
-      ],
-      cta: { label: 'Mon compte', href: '#account' }
-    },
-
-    // --- Client ---
-    client: {
-      links: [
-        { label: 'Dashboard', href: '#dashboard' },
-        { label: 'Mes collaborations', href: '#collabs' },
+        { label: 'Dashboard', href: '#espace' },
+        { label: 'My collaborations', href: '#collabs' },
         { label: 'Messages', href: '#messages' },
-        { label: 'Documents', href: '#documents' },
       ],
-      cta: { label: 'Mon compte', href: '#account' }
+      cta: { label: 'My space', href: '#espace' }
+    },
+
+    // --- Influencer ---
+    influencer: {
+      links: [
+        { label: 'Dashboard', href: '#espace' },
+        { label: 'My collaborations', href: '#collabs' },
+        { label: 'Messages', href: '#messages' },
+      ],
+      cta: { label: 'My space', href: '#espace' }
     },
 
     // --- Admin ---
     admin: {
       links: [
         { label: 'Dashboard', href: '#admin-dashboard' },
-        { label: 'Utilisateurs', href: '#users' },
+        { label: 'Users', href: '#users' },
         { label: 'Collaborations', href: '#all-collabs' },
         { label: 'Messages', href: '#admin-messages' },
-        { label: 'Paramètres', href: '#settings' },
+        { label: 'Settings', href: '#settings' },
       ],
       cta: { label: 'Admin', href: '#admin-account' }
     }

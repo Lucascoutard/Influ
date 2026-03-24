@@ -16,7 +16,9 @@
       "Bash(identify public/assets/images/solution-matching.png public/assets/images/solution-contrat.png public/assets/images/solution-suivi.png)",
       "Bash(python3 -c \":*)",
       "Bash(python -c \":*)",
-      "Bash(powershell -Command \":*)"
+      "Bash(powershell -Command \":*)",
+      "Bash(wc -l /c/wamp64/www/Influmatch/app/views/pages/*.js /c/wamp64/www/Influmatch/app/controllers/*.js)",
+      "Bash(xargs wc:*)"
     ]
   }
 }

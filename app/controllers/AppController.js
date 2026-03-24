@@ -30,13 +30,18 @@ const AppController = {
       // ---- Auth ----
       case 'login':
         if (isLoggedIn) { Router.navigate('home'); return; }
-        app.innerHTML = AuthPage.render('login');
+        app.innerHTML = AuthPage.render();
+        break;
+
+      case 'setup-passkey':
+        if (isLoggedIn) { Router.navigate('espace'); return; }
+        app.innerHTML = SetupPasskeyPage.render();
+        SetupPasskeyPage.afterRender();
         break;
 
       case 'register':
-        if (isLoggedIn) { Router.navigate('home'); return; }
-        app.innerHTML = AuthPage.render('register');
-        break;
+        Router.navigate('login');
+        return;
 
       case 'logout':
         UserModel.logout();
@@ -46,12 +51,30 @@ const AppController = {
       // ---- Contact ----
       case 'contact':
         app.innerHTML = ContactPage.render();
+        ContactPage.afterRender();
         break;
 
-      // ---- Espace client ----
+      // ---- Pages légales ----
+      case 'privacy':
+        app.innerHTML = LegalPage.render('privacy');
+        break;
+
+      case 'cgu':
+        app.innerHTML = LegalPage.render('cgu');
+        break;
+
+      case 'mentions':
+        app.innerHTML = LegalPage.render('mentions');
+        break;
+
+      case 'dmca':
+        app.innerHTML = LegalPage.render('dmca');
+        break;
+
+      // ---- Espace client / marque / influenceur ----
       case 'espace':
         if (!isLoggedIn) { Router.navigate('login'); return; }
-        if (role !== 'client' && role !== 'admin') { Router.navigate('home'); return; }
+        if (!['brand', 'influencer', 'client', 'admin'].includes(role)) { Router.navigate('home'); return; }
         app.innerHTML = ClientDashboard.render();
         break;
 
@@ -112,8 +135,8 @@ const AppController = {
     chip.innerHTML = `
       <div class="sc-avatar">${initial}</div>
       <div class="sc-text">
-        <div class="sc-greeting">Bonjour, ${prenom}</div>
-        <div class="sc-status">Compte actif</div>
+        <div class="sc-greeting">Hello, ${prenom}</div>
+        <div class="sc-status">Active account</div>
       </div>
       <a href="#logout" class="sc-logout" title="Se déconnecter">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">

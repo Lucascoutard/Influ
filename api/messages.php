@@ -216,7 +216,7 @@ function uploadFile($pdo, $user) {
 
 // ----------------------------------------------------------------
 function ensureDefault($pdo, $user) {
-    if ($user['role'] !== 'client') { echo json_encode(['status' => 'ok']); return; }
+    if (!in_array($user['role'], ['client', 'influencer'])) { echo json_encode(['status' => 'ok']); return; }
 
     // Check if already has a convo with an admin
     $check = $pdo->prepare("
@@ -256,14 +256,13 @@ function ensureDefault($pdo, $user) {
 
     // Welcome message from first admin
     $first = $admins[0];
+    $other = count($admins) > 1 ? $admins[1]['firstname'] : null;
+    $cofounder = $other ? ", co-fondateur avec {$other}" : ', co-fondateur';
+    $welcomeMsg = "Bienvenue sur Influmatch ! 🚀\n\nJe suis {$first['firstname']}{$cofounder}. On est ravis de vous avoir à bord.\n\nCe fil est votre ligne directe avec nous — brief de campagne, choix des créateurs, résultats, questions ou retours : tout passe ici.\n\nOn revient vers vous très vite pour démarrer. 💪";
     $pdo->prepare("
         INSERT INTO messages (conversation_id, sender_id, content, type)
         VALUES (?, ?, ?, 'text')
-    ")->execute([
-        $convId,
-        $first['id'],
-        "Bonjour 👋 Je suis {$first['firstname']}, co-fondateur d'Influmatch. N'hésitez pas à nous écrire ici pour toute question sur votre campagne. On est là pour vous !"
-    ]);
+    ")->execute([$convId, $first['id'], $welcomeMsg]);
 
     echo json_encode(['status' => 'created', 'conversation_id' => $convId]);
 }

@@ -1,158 +1,75 @@
 /* ===================================================
-   CONTACT.CSS — Page Contact
-   Même DA: dark panel gauche + form blanc droite
+   CONTACT.CSS — Page Contact (Cal.com booking style)
    =================================================== */
 
 .contact-section {
   margin-top: 72px;
-  padding: 24px;
+  padding: 60px 24px 80px;
   min-height: calc(100vh - 72px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.contact-card {
-  max-width: 1060px;
-  width: 100%;
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  display: grid;
-  grid-template-columns: 1fr 1.2fr;
-  min-height: 600px;
-  box-shadow: var(--shadow-lg);
-}
-
-/* ---- Panneau info gauche ---- */
-.contact-info {
-  background: linear-gradient(135deg, #2d2b3d 0%, #3a3554 30%, #4a4268 60%, #2d2b3d 100%);
-  padding: 56px 44px;
-  display: flex;
-  align-items: center;
-  position: relative;
-  overflow: hidden;
-}
-
-.contact-info-content {
-  position: relative;
-  z-index: 2;
-  animation: heroFadeIn 0.8s ease forwards;
-}
-
-.contact-title {
-  font-family: var(--font-display);
-  font-size: clamp(1.5rem, 2.5vw, 2.1rem);
-  font-weight: 600;
-  line-height: 1.25;
-  color: #fff;
-  margin-bottom: 16px;
-  letter-spacing: -0.02em;
-}
-
-.contact-title em {
-  font-style: italic;
-  color: #b8acf6;
-}
-
-.contact-subtitle {
-  font-size: 0.92rem;
-  line-height: 1.7;
-  color: rgba(255, 255, 255, 0.6);
-  margin-bottom: 36px;
-  max-width: 320px;
-}
-
-.contact-details {
+  background: var(--bg);
   display: flex;
   flex-direction: column;
-  gap: 22px;
-}
-
-.contact-detail {
-  display: flex;
-  align-items: flex-start;
-  gap: 14px;
-}
-
-.contact-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  background: rgba(255, 255, 255, 0.08);
-  display: flex;
   align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
 }
 
-.contact-icon svg {
-  width: 20px;
-  height: 20px;
-  stroke: #b8acf6;
+/* ---- Header titre ---- */
+.contact-header {
+  text-align: center;
+  margin-bottom: 48px;
 }
 
-.contact-detail-label {
-  display: block;
-  font-size: 0.72rem;
-  font-weight: 500;
-  color: rgba(255, 255, 255, 0.4);
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-  margin-bottom: 2px;
-}
-
-.contact-detail-value {
-  font-size: 0.92rem;
-  color: rgba(255, 255, 255, 0.85);
-  font-weight: 500;
-  transition: var(--transition);
-}
-
-a.contact-detail-value:hover { color: #b8acf6; }
-
-.contact-deco {
-  position: absolute;
-  bottom: -80px;
-  right: -80px;
-  width: 220px;
-  height: 220px;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(94, 74, 208, 0.2) 0%, transparent 70%);
-  z-index: 1;
-}
-
-/* ---- Panneau form droite ---- */
-.contact-form-side {
-  background: var(--surface);
-  padding: 44px 40px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  overflow-y: auto;
-}
-
-.contact-form-title {
+.contact-heading {
   font-family: var(--font-display);
-  font-size: 1.25rem;
-  font-weight: 600;
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  font-weight: 700;
   color: var(--text);
-  margin-bottom: 20px;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  margin-bottom: 8px;
+}
+
+.contact-subheading {
+  font-family: var(--font-display);
+  font-size: clamp(1.4rem, 2.5vw, 2rem);
+  font-style: italic;
+  font-weight: 400;
+  color: var(--text-light);
+  letter-spacing: -0.01em;
+}
+
+/* ---- Widget container ---- */
+.contact-booking-wrapper {
+  width: 100%;
+  max-width: 1060px;
+  background: var(--surface);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+/* Cal.com inline embed */
+#cal-inline-embed {
+  width: 100%;
+  min-height: 680px;
+  overflow: hidden;
+}
+
+#cal-inline-embed iframe {
+  border: none;
 }
 
 /* ---- RESPONSIVE ---- */
-@media (max-width: 900px) {
-  .contact-card {
-    grid-template-columns: 1fr;
-    max-width: 540px;
+@media (max-width: 768px) {
+  .contact-section {
+    padding: 40px 16px 60px;
   }
-  .contact-info { padding: 32px 28px; }
-  .contact-title { font-size: 1.4rem; }
-  .contact-subtitle { margin-bottom: 24px; }
-  .contact-form-side { padding: 32px 28px; }
-}
 
-@media (max-width: 600px) {
-  .contact-section { padding: 16px; align-items: flex-start; padding-top: 24px; }
-  .contact-info { padding: 24px 20px; }
-  .contact-form-side { padding: 24px 20px; }
+  .contact-header {
+    margin-bottom: 32px;
+  }
+
+  #cal-inline-embed {
+    min-height: 800px;
+  }
 }

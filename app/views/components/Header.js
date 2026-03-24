@@ -11,9 +11,9 @@ const Header = {
     const user = UserModel.getUser();
     const role = UserModel.getRole();
     const initial = user ? (user.firstname || 'U').charAt(0).toUpperCase() : '';
-    const showEspace  = isLoggedIn && (role === 'client' || role === 'admin');
+    const showEspace  = isLoggedIn && ['brand', 'influencer', 'client', 'admin'].includes(role);
     const espaceHref  = role === 'admin' ? '#admin-dashboard' : '#espace';
-    const espaceLabel = role === 'admin' ? 'Administration' : 'Mon espace';
+    const espaceLabel = role === 'admin' ? 'Administration' : 'My space';
 
     return `
       <div class="scroll-progress" id="scrollProgress"></div>
@@ -36,7 +36,7 @@ const Header = {
             : `<a href="${menu.cta.href}" class="btn-connect desktop">${menu.cta.label}</a>`
           }
 
-          <button class="menu-toggle" id="menuToggle" aria-label="Ouvrir le menu">
+          <button class="menu-toggle" id="menuToggle" aria-label="Open menu">
             <span></span><span></span><span></span>
           </button>
 

@@ -1,13 +1,10 @@
 /* ===================================================
-   APP/VIEWS/PAGES/AUTHPAGE.JS — Login & Register
-   Même DA que le hero : dark card + form blanc
+   APP/VIEWS/PAGES/AUTHPAGE.JS — Login (passkey only)
    =================================================== */
 
 const AuthPage = {
 
-  render(mode = 'login') {
-    const isLogin = mode === 'login';
-
+  render() {
     return `
       ${Header.render()}
       ${MobileNav.render()}
@@ -15,196 +12,128 @@ const AuthPage = {
       <section class="auth-section">
         <div class="auth-card">
 
-          <!-- Panneau visuel gauche -->
           <div class="auth-visual">
             <div class="auth-visual-content">
-              <h2 class="auth-visual-title">
-                ${isLogin
-                  ? 'Ravis de vous <em>retrouver</em>'
-                  : 'Rejoignez l\'aventure <em>Influmatch</em>'
-                }
-              </h2>
-              <p class="auth-visual-text">
-                ${isLogin
-                  ? 'Connectez-vous pour accéder à votre espace et gérer vos collaborations.'
-                  : 'Créez votre compte et commencez à collaborer avec les meilleurs créateurs et marques.'
-                }
-              </p>
+              <h2 class="auth-visual-title">Great to see you <em>again</em></h2>
+              <p class="auth-visual-text">Sign in to access your space and manage your collaborations.</p>
               <div class="auth-visual-deco"></div>
             </div>
           </div>
 
-          <!-- Formulaire droite -->
           <div class="auth-form-side">
-
-            <div class="auth-tabs">
-              <button class="auth-tab ${isLogin ? 'active' : ''}" onclick="Router.navigate('login')">Connexion</button>
-              <button class="auth-tab ${!isLogin ? 'active' : ''}" onclick="Router.navigate('register')">Créer un compte</button>
-            </div>
-
             <div class="auth-message" id="authMessage"></div>
 
-            ${isLogin ? this._renderLoginForm() : this._renderRegisterForm()}
+            <div class="form-group" style="margin-bottom:16px">
+              <label for="loginEmail">Email address</label>
+              <input type="email" id="loginEmail" placeholder="your@email.com"
+                     autocomplete="email webauthn"
+                     onkeydown="if(event.key==='Enter') AuthPage.handlePasskeyAuth()">
+            </div>
 
+            <button type="button" class="btn-passkey" id="passkeyBtn"
+                    onclick="AuthPage.handlePasskeyAuth()">
+              <svg class="btn-passkey-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="8" cy="15" r="4"/>
+                <path d="M11.7 11.3L20 3"/>
+                <path d="M19 4l2 2"/>
+                <path d="M16 7l2 2"/>
+              </svg>
+              <span id="passkeyBtnText">Sign in with passkey</span>
+              <span class="btn-auth-loader" id="passkeyLoader" style="display:none"></span>
+            </button>
+
+            <p class="auth-switch" style="margin-top:20px">
+              Access by invitation only. <a href="#contact">Contact us</a>
+            </p>
           </div>
         </div>
       </section>
     `;
   },
 
-  _renderLoginForm() {
-    return `
-      <form class="auth-form" id="loginForm" onsubmit="AuthPage.handleLogin(event)">
-        <div class="form-group">
-          <label for="loginEmail">Email</label>
-          <input type="email" id="loginEmail" required placeholder="votre@email.com" autocomplete="email">
-        </div>
-        <div class="form-group">
-          <label for="loginPassword">Mot de passe</label>
-          <div class="password-wrapper">
-            <input type="password" id="loginPassword" required placeholder="••••••••" autocomplete="current-password" minlength="8">
-            <button type="button" class="password-toggle" onclick="AuthPage.togglePwd('loginPassword')" aria-label="Voir">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-            </button>
-          </div>
-        </div>
-        <button type="submit" class="btn-auth" id="loginBtn">
-          <span class="btn-auth-text">Se connecter</span>
-          <span class="btn-auth-loader"></span>
-        </button>
-        <p class="auth-switch">Pas encore de compte ? <a href="#register">Créer un compte</a></p>
-      </form>
-    `;
+  // ── Passkey helpers ──────────────────────────────────────
+  _b64u(buf) {
+    return btoa(String.fromCharCode(...new Uint8Array(buf instanceof ArrayBuffer ? buf : buf.buffer)))
+      .replace(/\+/g, '-').replace(/\//g, '_').replace(/=/g, '');
+  },
+  _fromb64u(str) {
+    str = str.replace(/-/g, '+').replace(/_/g, '/');
+    while (str.length % 4) str += '=';
+    return Uint8Array.from(atob(str), c => c.charCodeAt(0)).buffer;
   },
 
-  _renderRegisterForm() {
-    return `
-      <form class="auth-form" id="registerForm" onsubmit="AuthPage.handleRegister(event)">
-        <div class="form-row">
-          <div class="form-group">
-            <label for="regFirstname">Prénom</label>
-            <input type="text" id="regFirstname" required placeholder="Jean">
-          </div>
-          <div class="form-group">
-            <label for="regLastname">Nom</label>
-            <input type="text" id="regLastname" required placeholder="Dupont">
-          </div>
-        </div>
-        <div class="form-group">
-          <label for="regEmail">Email</label>
-          <input type="email" id="regEmail" required placeholder="votre@email.com" autocomplete="email">
-        </div>
-        <div class="form-group">
-          <label for="regPhone">Téléphone <span class="optional">(optionnel)</span></label>
-          <input type="tel" id="regPhone" placeholder="+33 6 12 34 56 78">
-        </div>
-        <div class="form-group">
-          <label for="regCompany">Entreprise <span class="optional">(optionnel)</span></label>
-          <input type="text" id="regCompany" placeholder="Ma Marque SAS">
-        </div>
-        <div class="form-group">
-          <label for="regPassword">Mot de passe</label>
-          <div class="password-wrapper">
-            <input type="password" id="regPassword" required placeholder="Min. 8 caractères" autocomplete="new-password" minlength="8">
-            <button type="button" class="password-toggle" onclick="AuthPage.togglePwd('regPassword')" aria-label="Voir">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-            </button>
-          </div>
-        </div>
-        <div class="form-group">
-          <label for="regPasswordConfirm">Confirmer le mot de passe</label>
-          <div class="password-wrapper">
-            <input type="password" id="regPasswordConfirm" required placeholder="••••••••" autocomplete="new-password" minlength="8">
-            <button type="button" class="password-toggle" onclick="AuthPage.togglePwd('regPasswordConfirm')" aria-label="Voir">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-            </button>
-          </div>
-        </div>
-        <button type="submit" class="btn-auth" id="registerBtn">
-          <span class="btn-auth-text">Créer mon compte</span>
-          <span class="btn-auth-loader"></span>
-        </button>
-        <p class="auth-switch">Déjà un compte ? <a href="#login">Se connecter</a></p>
-      </form>
-    `;
-  },
-
-  // ---- Handlers ----
-
-  async handleLogin(e) {
-    e.preventDefault();
-    const btn = document.getElementById('loginBtn');
-    this._setLoading(btn, true);
-    this._clearMsg();
-
-    const email = document.getElementById('loginEmail').value;
-    const password = document.getElementById('loginPassword').value;
-    const result = await UserModel.login(email, password);
-
-    this._setLoading(btn, false);
-
-    if (result.success) {
-      this._showMsg('Connexion réussie ! Redirection...', 'success');
-      setTimeout(() => Router.navigate('home'), 600);
-    } else {
-      this._showMsg(result.message, 'error');
-    }
-  },
-
-  async handleRegister(e) {
-    e.preventDefault();
-    const btn = document.getElementById('registerBtn');
-    this._setLoading(btn, true);
-    this._clearMsg();
-
-    const pw = document.getElementById('regPassword').value;
-    const pwConfirm = document.getElementById('regPasswordConfirm').value;
-
-    if (pw !== pwConfirm) {
-      this._showMsg('Les mots de passe ne correspondent pas.', 'error');
-      this._setLoading(btn, false);
+  async handlePasskeyAuth() {
+    if (!window.PublicKeyCredential) {
+      this._showMsg('Passkeys are not supported by your browser. Please update your browser or contact us.', 'error');
       return;
     }
+    const email  = document.getElementById('loginEmail')?.value?.trim() || '';
+    const btn    = document.getElementById('passkeyBtn');
+    const loader = document.getElementById('passkeyLoader');
+    const text   = document.getElementById('passkeyBtnText');
+    btn.disabled = true;
+    text.textContent = 'Waiting…';
+    loader.style.display = '';
+    this._clearMsg();
 
-    const result = await UserModel.register({
-      firstname: document.getElementById('regFirstname').value,
-      lastname:  document.getElementById('regLastname').value,
-      email:     document.getElementById('regEmail').value,
-      phone:     document.getElementById('regPhone').value,
-      company:   document.getElementById('regCompany').value,
-      password:  pw,
-    });
+    try {
+      // 1. Get challenge
+      const opts = await fetch('api/webauthn.php?action=auth_begin', {
+        method:      'POST',
+        headers:     { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body:        JSON.stringify({ email }),
+      }).then(r => r.json());
 
-    this._setLoading(btn, false);
+      // 2. Biometric / PIN prompt
+      const assertion = await navigator.credentials.get({
+        publicKey: {
+          challenge:        this._fromb64u(opts.challenge),
+          rpId:             opts.rpId,
+          userVerification: opts.userVerification,
+          timeout:          opts.timeout,
+          allowCredentials: (opts.allowCredentials || []).map(c => ({ ...c, id: this._fromb64u(c.id) })),
+        },
+      });
 
-    if (result.success) {
-      this._showMsg('Compte créé ! Redirection...', 'success');
-      setTimeout(() => Router.navigate('home'), 600);
-    } else {
-      this._showMsg(result.message, 'error');
+      // 3. Verify on server
+      const result = await fetch('api/webauthn.php?action=auth_finish', {
+        method:      'POST',
+        headers:     { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          id:                assertion.id,
+          clientDataJSON:    this._b64u(assertion.response.clientDataJSON),
+          authenticatorData: this._b64u(assertion.response.authenticatorData),
+          signature:         this._b64u(assertion.response.signature),
+        }),
+      }).then(r => r.json());
+
+      if (result.success) {
+        UserModel._setUser(result.user);
+        this._showMsg('Signed in! Redirecting…', 'success');
+        setTimeout(() => Router.navigate('home'), 600);
+      } else {
+        this._showMsg(result.message || 'Authentication failed.', 'error');
+      }
+    } catch (err) {
+      if (err.name !== 'NotAllowedError') {
+        this._showMsg('Passkey error: ' + err.message, 'error');
+      }
+    } finally {
+      btn.disabled = false;
+      text.textContent = 'Sign in with passkey';
+      loader.style.display = 'none';
     }
-  },
-
-  // ---- Helpers ----
-
-  togglePwd(id) {
-    const input = document.getElementById(id);
-    input.type = input.type === 'password' ? 'text' : 'password';
   },
 
   _showMsg(text, type) {
     const el = document.getElementById('authMessage');
     if (el) { el.textContent = text; el.className = 'auth-message ' + type; }
   },
-
   _clearMsg() {
     const el = document.getElementById('authMessage');
     if (el) { el.textContent = ''; el.className = 'auth-message'; }
   },
-
-  _setLoading(btn, on) {
-    if (!btn) return;
-    btn.disabled = on;
-    btn.classList.toggle('loading', on);
-  }
 };

@@ -9,11 +9,14 @@ const AgentController = {
   _loading: false,
 
   QUICK_ACTIONS: [
-    { id: 'prompt',     label: '✨ Prompt visuel',   msg: 'Génère un prompt détaillé pour Midjourney pour un visuel Instagram lifestyle beauté & wellness, moderne et épuré.' },
-    { id: 'brief',      label: '📋 Brief créatif',   msg: 'Rédige un brief créatif complet pour une campagne d\'influence Instagram autour d\'une marque de cosmétiques naturels. Inclus objectifs, tonalité, contraintes et exemples de visuels.' },
-    { id: 'hashtags',   label: '🏷 Hashtags',        msg: 'Propose 20 hashtags optimisés pour une campagne mode Instagram ciblant les 18-30 ans en France. Mix popularité haute, moyenne et niche.' },
-    { id: 'calendrier', label: '📅 Calendrier',      msg: 'Crée un calendrier de publication sur 4 semaines pour une campagne d\'influence (3 posts/semaine). Inclus jours, heures, type de contenu et objectif de chaque publication.' },
-    { id: 'tendances',  label: '📈 Tendances',       msg: 'Quelles sont les tendances actuelles du marketing d\'influence sur Instagram et TikTok en 2025 ? Donne 5 tendances clés avec des conseils d\'application concrets.' },
+    { id: 'analyse',    label: '🔍 Analyser une marque',     msg: 'Analyse cette entreprise pour moi : [nom de la marque]. Secteur, positionnement, cible, concurrents, actualité récente, et dis-moi si c\'est une bonne cible pour une campagne d\'influence.' },
+    { id: 'trigger',    label: '⚡ Levier de prospection',   msg: 'Trouve-moi des leviers de prospection (trigger events) pour contacter [nom de la marque] : lancement produit, levée de fonds, recrutement, expansion, événement à venir, nouveau CMO...' },
+    { id: 'email',      label: '✉️ Email de prospection',    msg: 'Rédige un email de prospection B2B percutant pour contacter [nom de la marque / poste du contact]. Angle : [trigger event]. Inclus objet + corps complet prêt à envoyer.' },
+    { id: 'sequence',   label: '📨 Séquence multi-touch',    msg: 'Crée une séquence de 3 emails de prospection (J+0 accroche, J+3 valeur, J+7 relance douce) pour approcher [nom de la marque] sur le sujet [angle/offre Influmatch].' },
+    { id: 'script',     label: '🎬 Script vidéo',            msg: 'Rédige un script vidéo complet pour [TikTok / Instagram Reels / YouTube Shorts] d\'une durée de [30s / 60s] pour [nom de la marque / produit]. Inclus timecodes et directions visuelles.' },
+    { id: 'brief',      label: '📋 Brief créatif influenceur', msg: 'Rédige un brief créatif complet pour un influenceur sur [plateforme] pour la marque [nom]. Inclus objectif, message clé, do/don\'t, et exemples de références.' },
+    { id: 'prompt',     label: '🎨 Prompt image IA',         msg: 'Génère un prompt détaillé pour Midjourney / DALL·E pour un visuel [style] adapté à [Instagram / LinkedIn / TikTok] pour une marque [secteur].' },
+    { id: 'linkedin',   label: '💼 Message LinkedIn',        msg: 'Rédige un message LinkedIn de prospection court et efficace (max 300 caractères) pour contacter [prénom + poste] chez [marque]. Angle : [trigger event].' },
   ],
 
   // ================================================================
@@ -37,7 +40,7 @@ const AgentController = {
     if (this._history.length > 0) {
       this._rerenderHistory();
     } else {
-      this._appendMsg('assistant', 'Bonjour 👋 Je suis votre agent marketing IA. Dites-moi ce dont vous avez besoin : prompts visuels, briefs créatifs, hashtags, stratégies de campagne… ou utilisez un raccourci ci-dessus !');
+      this._appendMsg('assistant', 'Bonjour 👋 Je suis votre assistant IA Influmatch. Je peux vous aider à analyser une entreprise, trouver un levier de prospection, rédiger un email ou une séquence outbound, créer des scripts vidéo et briefs créatifs, ou répondre à toute question sur vos campagnes.\n\nUtilisez les raccourcis ci-dessus, ou tapez directement votre demande. Tapez **/clear** pour réinitialiser la conversation.');
     }
 
     this._scrollBottom();
@@ -59,6 +62,12 @@ const AgentController = {
 
     input.value       = '';
     input.style.height = 'auto';
+
+    // /clear command
+    if (msg === '/clear') {
+      this.clearHistory();
+      return;
+    }
 
     this._appendMsg('user', msg);
     this._showLoading();

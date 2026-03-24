@@ -1,106 +1,135 @@
 <?php
 /* ===================================================
-   API/AGENT.PHP — Agent marketing IA (Claude)
-   Action : chat
+   API/AGENT.PHP — Agent IA Influmatch (Anthropic Claude)
+   POST ?action=chat
    =================================================== */
 
-require_once '../config/agent.php';
-session_start();
-
-header('Content-Type: application/json; charset=utf-8');
-
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(204); exit; }
+require_once __DIR__ . '/../config/agent.php';
+require_once __DIR__ . '/helpers.php';
 
 if (empty($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
-    http_response_code(403);
-    echo json_encode(['error' => 'Accès réservé aux admins']);
-    exit;
+    jsonResponse(['error' => 'Admin only.'], 403);
 }
 
 $action = $_GET['action'] ?? '';
-$body   = json_decode(file_get_contents('php://input'), true) ?? [];
+$body   = getJsonBody();
 
 switch ($action) {
     case 'chat':
         agentChat($body);
         break;
     default:
-        http_response_code(400);
-        echo json_encode(['error' => 'Action invalide']);
+        jsonResponse(['error' => 'Invalid action.'], 400);
 }
 
 // ================================================================
 
-function agentChat(array $body) {
-    if (OPENAI_API_KEY === 'YOUR_API_KEY_HERE') {
-        http_response_code(503);
-        echo json_encode(['error' => 'Clé API non configurée. Renseigne OPENAI_API_KEY dans config/agent.php']);
-        return;
+function agentChat(array $body): void {
+    if (!ANTHROPIC_API_KEY) {
+        jsonResponse(['error' => 'Clé API non configurée. Renseigne ANTHROPIC_API_KEY dans config/agent.php'], 503);
     }
 
     $userMsg = trim($body['message'] ?? '');
-    $history = $body['history']  ?? [];  // [{role, content}, ...]
+    $history = array_slice($body['history'] ?? [], -(int)AGENT_HISTORY_KEEP);
 
     if ($userMsg === '') {
-        http_response_code(400);
-        echo json_encode(['error' => 'Message vide']);
-        return;
+        jsonResponse(['error' => 'Message vide.'], 400);
     }
 
-    $system = "Tu es l'agent marketing IA d'Influmatch, une plateforme française de marketing d'influence B2B.\n"
-            . "Tu aides les équipes à :\n"
-            . "- Générer des prompts visuels pour Midjourney, DALL·E et Stable Diffusion\n"
-            . "- Rédiger des briefs créatifs personnalisés par campagne et par influenceur\n"
-            . "- Suggérer des légendes, hashtags viraux et calendriers de publication\n"
-            . "- Analyser les tendances de niche (Instagram, TikTok, YouTube) et recommander des angles éditoriaux\n"
-            . "- Créer des stratégies de campagne d'influence clé en main\n\n"
-            . "Réponds toujours en français. Sois concis, créatif et professionnel. "
-            . "Utilise du Markdown (titres ##, listes -, **gras**) quand c'est pertinent pour la lisibilité.";
+    // ── System prompt ────────────────────────────────────────
+    $system = <<<PROMPT
+Tu es l'assistant IA interne d'Influmatch, une agence française de marketing d'influence B2B. Tu travailles directement avec l'équipe au quotidien.
 
-    // OpenAI : le system prompt est le premier message du tableau
-    $messages   = [['role' => 'system', 'content' => $system]];
-    $messages   = array_merge($messages, array_slice($history, -AGENT_HISTORY_KEEP));
+## Tes missions
+
+### 1. Intelligence commerciale & recherche entreprise
+- Analyser une entreprise : secteur, positionnement, cibles, concurrents directs, chiffres clés
+- Identifier des **leviers de prospection** (trigger events) : lancement produit, levée de fonds, recrutement massif, expansion internationale, rebranding, nouveau partenariat, événement à venir, nomination d'un CMO/CDO
+- Évaluer si une marque est une cible pertinente pour une campagne d'influence (taille, budget estimé, maturité marketing)
+- Résumer rapidement l'actualité récente d'une marque à partir d'informations fournies
+
+### 2. Prospection par email (outbound B2B)
+- Rédiger des emails de prospection **personnalisés et percutants** avec un angle précis basé sur le trigger event
+- Créer des séquences multi-touch (J+0 accroche, J+3 valeur, J+7 relance douce)
+- Optimiser les objets d'email pour maximiser le taux d'ouverture
+- Adapter le ton selon le profil : startup (direct, créatif), PME (ROI-focused), grand compte (formel, case studies)
+- Rédiger des messages LinkedIn de prospection courts et efficaces
+
+### 3. Scripts créatifs & réseaux sociaux
+- Scripts vidéo complets pour **TikTok, Instagram Reels, YouTube Shorts** avec timecodes et directions visuelles
+- Briefs créatifs pour influenceurs : objectif, message clé, do/don't, exemples de références
+- Prompts détaillés pour Midjourney / DALL·E / Stable Diffusion
+- Captions engageantes, hooks d'accroche, call-to-action optimisés
+- Calendriers éditoriaux et plans de contenu sur mesure
+- Hashtag strategies (mix: viral, niche, branded)
+
+### 4. Assistance projet quotidienne Influmatch
+- Répondre à toute question sur le marketing d'influence, les métriques (ER, CPE, EMV, reach, impressions)
+- Aider à rédiger propositions commerciales, comptes rendus, présentations clients
+- Brainstormer des concepts de campagne originaux
+- Analyser des briefs clients et suggérer des angles créatifs
+- Expliquer les tendances plateformes (algorithmes, formats qui performent, nouvelles features)
+- Préparer des pitchs et réponses aux objections commerciales
+
+## Règles
+- Réponds en **français** par défaut, en anglais si le message est en anglais
+- Sois **direct et actionnable** — pas de remplissage, pas d'intro inutile
+- Utilise le Markdown (##, listes -, **gras**, `code`) pour structurer les longues réponses
+- Pour les **emails** : fournis toujours Objet + Corps complet, prêt à copier-coller
+- Pour les **scripts vidéo** : indique [0:00-0:05], [0:05-0:15], etc. avec instructions visuelles
+- Si tu manques d'info pour personnaliser (nom de marque, produit, cible), **demande-le** avant de répondre
+- Quand tu analyses une entreprise, structure toujours : Activité → Cible → Actualité → Angle Influmatch
+PROMPT;
+
+    // ── Construire les messages (format Anthropic) ────────────
+    // Anthropic exige : messages alternés user/assistant, premier = user
+    $messages = [];
+    foreach ($history as $m) {
+        if (isset($m['role'], $m['content']) && in_array($m['role'], ['user', 'assistant'])) {
+            $messages[] = ['role' => $m['role'], 'content' => (string)$m['content']];
+        }
+    }
     $messages[] = ['role' => 'user', 'content' => $userMsg];
 
     $payload = json_encode([
         'model'      => AGENT_MODEL,
-        'max_tokens' => AGENT_MAX_TOKENS,
+        'max_tokens' => (int)AGENT_MAX_TOKENS,
+        'system'     => $system,
         'messages'   => $messages,
     ]);
 
-    $ch = curl_init('https://api.openai.com/v1/chat/completions');
+    // ── Appel API Anthropic ───────────────────────────────────
+    $ch = curl_init('https://api.anthropic.com/v1/messages');
     curl_setopt_array($ch, [
-        CURLOPT_RETURNTRANSFER  => true,
-        CURLOPT_POST            => true,
-        CURLOPT_POSTFIELDS      => $payload,
-        CURLOPT_HTTPHEADER      => [
-            'Authorization: Bearer ' . OPENAI_API_KEY,
-            'Content-Type: application/json',
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_POST           => true,
+        CURLOPT_POSTFIELDS     => $payload,
+        CURLOPT_HTTPHEADER     => [
+            'x-api-key: '        . ANTHROPIC_API_KEY,
+            'anthropic-version: 2023-06-01',
+            'content-type: application/json',
         ],
-        CURLOPT_TIMEOUT         => 30,
-        // Fix SSL sur WAMP/XAMPP Windows (certificats non configurés en local)
-        CURLOPT_SSL_VERIFYPEER  => false,
-        CURLOPT_SSL_VERIFYHOST  => false,
+        CURLOPT_TIMEOUT        => 45,
+        CURLOPT_SSL_VERIFYPEER => (APP_ENV !== 'development'),
+        CURLOPT_SSL_VERIFYHOST => (APP_ENV !== 'development') ? 2 : 0,
     ]);
 
     $response  = curl_exec($ch);
     $httpCode  = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     $curlError = curl_error($ch);
+    curl_close($ch);
 
     if (!$response) {
-        http_response_code(502);
-        echo json_encode(['error' => 'Impossible de joindre l\'API OpenAI : ' . $curlError]);
-        return;
+        jsonResponse(['error' => 'Impossible de joindre l\'API : ' . $curlError], 502);
     }
 
     $data = json_decode($response, true);
 
-    if ($httpCode !== 200 || empty($data['choices'][0]['message']['content'])) {
-        $errMsg = $data['error']['message'] ?? 'Erreur API inconnue';
-        http_response_code(502);
-        echo json_encode(['error' => $errMsg]);
-        return;
+    if ($httpCode !== 200 || empty($data['content'][0]['text'])) {
+        $errMsg = $data['error']['message'] ?? ('Erreur API (HTTP ' . $httpCode . ')');
+        error_log('[Agent] Anthropic error: ' . $errMsg);
+        jsonResponse(['error' => $errMsg], 502);
     }
 
-    echo json_encode(['reply' => $data['choices'][0]['message']['content']]);
+    jsonResponse(['reply' => $data['content'][0]['text']]);
 }
