@@ -1,6 +1,6 @@
 <?php
 /* ===================================================
-   API/TASKS.PHP — Suivi de campagne (campaign_tasks)
+   API/TASKS.PHP - Campaign task tracking (campaign_tasks)
    GET  ?action=list&collab_id=X
    POST ?action=create
    POST ?action=update
@@ -35,16 +35,16 @@ switch ($action) {
     // ======================== LIST ========================
     case 'list':
         $collabId = (int)($_GET['collab_id'] ?? 0);
-        if (!$collabId) jsonResponse(['success' => false, 'message' => 'collab_id requis.'], 422);
+        if (!$collabId) jsonResponse(['success' => false, 'message' => 'collab_id required.'], 422);
 
         $db = getDB();
 
-        // Vérifie que l'utilisateur a accès à cette collaboration
+        // Verify user access to this collaboration
         if ($user['role'] !== 'admin') {
             $check = $db->prepare("SELECT id FROM collaborations WHERE id = ? AND (brand_id = ? OR influencer_id = ?)");
             $check->execute([$collabId, $user['id'], $user['id']]);
             if (!$check->fetch()) {
-                jsonResponse(['success' => false, 'message' => 'Accès non autorisé.'], 403);
+                jsonResponse(['success' => false, 'message' => 'Unauthorized access.'], 403);
             }
         }
 
@@ -63,16 +63,16 @@ switch ($action) {
     case 'create':
         $data     = getJsonBody();
         $collabId = (int)($data['collab_id'] ?? 0);
-        if (!$collabId) jsonResponse(['success' => false, 'message' => 'collab_id requis.'], 422);
-        if (empty(trim($data['title'] ?? ''))) jsonResponse(['success' => false, 'message' => 'Titre requis.'], 422);
+        if (!$collabId) jsonResponse(['success' => false, 'message' => 'collab_id required.'], 422);
+        if (empty(trim($data['title'] ?? ''))) jsonResponse(['success' => false, 'message' => 'Title required.'], 422);
 
         $db = getDB();
 
-        // Admins et influenceurs de la collab peuvent créer des tâches
+        // Admins and collaboration influencers can create tasks
         if ($user['role'] !== 'admin') {
             $check = $db->prepare("SELECT id FROM collaborations WHERE id = ? AND influencer_id = ?");
             $check->execute([$collabId, $user['id']]);
-            if (!$check->fetch()) jsonResponse(['success' => false, 'message' => 'Accès non autorisé.'], 403);
+            if (!$check->fetch()) jsonResponse(['success' => false, 'message' => 'Unauthorized access.'], 403);
         }
 
         $validStatuses = ['todo', 'in_progress', 'done', 'validated'];
@@ -109,11 +109,11 @@ switch ($action) {
     case 'update':
         $data = getJsonBody();
         $id   = (int)($data['id'] ?? 0);
-        if (!$id) jsonResponse(['success' => false, 'message' => 'ID invalide.'], 422);
+        if (!$id) jsonResponse(['success' => false, 'message' => 'Invalid ID.'], 422);
 
         $db = getDB();
 
-        // Vérifie que la tâche existe et que l'utilisateur a accès
+        // Verify task exists and user has access
         $task = $db->prepare("
             SELECT t.*, c.brand_id, c.influencer_id
             FROM campaign_tasks t
@@ -122,31 +122,31 @@ switch ($action) {
         ");
         $task->execute([$id]);
         $t = $task->fetch();
-        if (!$t) jsonResponse(['success' => false, 'message' => 'Tâche introuvable.'], 404);
+        if (!$t) jsonResponse(['success' => false, 'message' => 'Task not found.'], 404);
 
         $isBrand      = (int)$t['brand_id']      === (int)$user['id'];
         $isInfluencer = (int)$t['influencer_id'] === (int)$user['id'];
         $isAdmin      = $user['role'] === 'admin';
 
-        // Brand (marque) : peut uniquement valider ou annuler la validation
+        // Brand: can only validate or undo validation
         if ($isBrand && !$isAdmin && !$isInfluencer) {
             $newStatus = $data['status'] ?? null;
             $allowed   = ($t['status'] === 'done' && $newStatus === 'validated')
                       || ($t['status'] === 'validated' && $newStatus === 'done');
-            if (!$allowed) jsonResponse(['success' => false, 'message' => 'Les marques peuvent uniquement valider les tâches terminées.'], 403);
+            if (!$allowed) jsonResponse(['success' => false, 'message' => 'Brands can only validate completed tasks.'], 403);
             $db->prepare("UPDATE campaign_tasks SET status = ? WHERE id = ?")->execute([$newStatus, $id]);
-            jsonResponse(['success' => true, 'message' => 'Statut mis à jour.']);
+            jsonResponse(['success' => true, 'message' => 'Status updated.']);
         }
 
-        // Influencer ou admin seulement pour les modifications complètes
+        // Influencer or admin can perform full edits
         if (!$isAdmin && !$isInfluencer) {
-            jsonResponse(['success' => false, 'message' => 'Accès non autorisé.'], 403);
+            jsonResponse(['success' => false, 'message' => 'Unauthorized access.'], 403);
         }
 
         $validStatuses = ['todo', 'in_progress', 'done', 'validated'];
-        // L'influenceur ne peut pas forcer le statut "validé" (réservé à la marque)
+        // Influencer cannot force "validated" status (brand only)
         if (!$isAdmin && ($data['status'] ?? '') === 'validated') {
-            jsonResponse(['success' => false, 'message' => 'Seule la marque peut valider une tâche.'], 403);
+            jsonResponse(['success' => false, 'message' => 'Only the brand can validate a task.'], 403);
         }
         $allowed = ['title', 'content_type', 'platform', 'status', 'due_date', 'published_url', 'notes'];
         $sets = []; $vals = [];
@@ -158,22 +158,22 @@ switch ($action) {
                 $vals[] = ($val === '' && in_array($col, ['due_date', 'published_url', 'content_type', 'platform'])) ? null : $val;
             }
         }
-        if (empty($sets)) jsonResponse(['success' => false, 'message' => 'Rien à mettre à jour.'], 422);
+        if (empty($sets)) jsonResponse(['success' => false, 'message' => 'Nothing to update.'], 422);
 
         $vals[] = $id;
         $db->prepare("UPDATE campaign_tasks SET " . implode(', ', $sets) . " WHERE id = ?")->execute($vals);
-        jsonResponse(['success' => true, 'message' => 'Tâche mise à jour.']);
+        jsonResponse(['success' => true, 'message' => 'Task updated.']);
         break;
 
     // ======================== DELETE ========================
     case 'delete':
         $data = getJsonBody();
         $id   = (int)($data['id'] ?? 0);
-        if (!$id) jsonResponse(['success' => false, 'message' => 'ID invalide.'], 422);
+        if (!$id) jsonResponse(['success' => false, 'message' => 'Invalid ID.'], 422);
 
         $db = getDB();
 
-        // Seuls les admins et l'influenceur de la collab peuvent supprimer
+        // Only admins and collaboration influencer can delete
         if ($user['role'] !== 'admin') {
             $check = $db->prepare("
                 SELECT t.id FROM campaign_tasks t
@@ -181,13 +181,15 @@ switch ($action) {
                 WHERE t.id = ? AND c.influencer_id = ?
             ");
             $check->execute([$id, $user['id']]);
-            if (!$check->fetch()) jsonResponse(['success' => false, 'message' => 'Accès non autorisé.'], 403);
+            if (!$check->fetch()) jsonResponse(['success' => false, 'message' => 'Unauthorized access.'], 403);
         }
 
         $db->prepare("DELETE FROM campaign_tasks WHERE id = ?")->execute([$id]);
-        jsonResponse(['success' => true, 'message' => 'Tâche supprimée.']);
+        jsonResponse(['success' => true, 'message' => 'Task deleted.']);
         break;
 
     default:
-        jsonResponse(['success' => false, 'message' => 'Action inconnue.'], 400);
+        jsonResponse(['success' => false, 'message' => 'Unknown action.'], 400);
 }
+
+

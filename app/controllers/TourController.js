@@ -1,7 +1,7 @@
 /* ===================================================
    APP/CONTROLLERS/TOURCONTROLLER.JS
-   Onboarding tour — modal centré, overlay sombre,
-   pas de navigation automatique.
+   Onboarding tour — centered modal, dark overlay,
+   no auto-navigation.
    =================================================== */
 
 const TourController = {
@@ -20,39 +20,39 @@ const TourController = {
     setTimeout(() => this._show(), 700);
   },
 
-  // ── Étapes ───────────────────────────────────────────────
+  // ── Steps ─────────────────────────────────────────
 
   _influencerSteps() {
     return [
       {
         icon:  '👋',
-        title: 'Bienvenue sur Influmatch !',
-        text:  'On est ravis de t\'avoir avec nous. En quelques étapes, on te montre comment fonctionne ton espace personnel.',
+        title: 'Welcome to Influmatch!',
+        text:  'We\'re thrilled to have you here. In a few steps, we\'ll show you how your personal space works.',
       },
       {
         icon:  '💬',
-        title: 'Tes messages',
-        text:  'Dans l\'onglet <strong>Mes messages</strong> tu retrouves ta conversation directe avec l\'équipe Influmatch. C\'est ici qu\'on te partage les briefs, qu\'on répond à tes questions et qu\'on valide ensemble les détails de chaque campagne.',
+        title: 'Your messages',
+        text:  'In the <strong>My messages</strong> tab you\'ll find your direct conversation with the Influmatch team. This is where we share briefs, answer your questions, and finalize the details of each campaign together.',
       },
       {
         icon:  '🤝',
-        title: 'Mes collaborations',
-        text:  'L\'onglet <strong>Mes collaborations</strong> liste toutes tes campagnes en cours. Pour chacune, tu vois son avancement, les livrables attendus et les tâches que la marque t\'a assignées.',
+        title: 'My collaborations',
+        text:  'The <strong>My collaborations</strong> tab lists all your active campaigns. For each one, you can see progress, expected deliverables, and the tasks assigned to you.',
       },
       {
         icon:  '✍️',
-        title: 'Mes contrats',
-        text:  'Avant de démarrer une campagne, un contrat de partenariat t\'est envoyé pour signature dans l\'onglet <strong>Mes contrats</strong>. Signe-le en quelques secondes directement depuis ton espace.',
+        title: 'My contracts',
+        text:  'Before starting a campaign, a partnership agreement will be sent for your signature in the <strong>My contracts</strong> tab. Sign it in seconds directly from your space.',
       },
       {
         icon:  '📊',
-        title: 'Ton tableau de bord',
-        text:  'La page d\'accueil te donne une vue rapide sur tout : collaborations actives, contrats en attente de signature et messages non lus. Un coup d\'œil suffit pour savoir où en sont tes campagnes.',
+        title: 'Your dashboard',
+        text:  'The home page gives you a quick overview of everything: active collaborations, contracts pending signature, and unread messages — at a glance.',
       },
       {
         icon:  '🚀',
-        title: 'C\'est parti !',
-        text:  'Ton espace est prêt. L\'équipe Influmatch revient vers toi très vite pour démarrer ta première collaboration. En attendant, n\'hésite pas à écrire dans <strong>Mes messages</strong> si tu as la moindre question.',
+        title: 'You\'re all set!',
+        text:  'Your space is ready. The Influmatch team will reach out very soon to kick off your first collaboration. In the meantime, feel free to write to us in <strong>My messages</strong> if you have any questions.',
         last:  true,
       },
     ];
@@ -62,34 +62,34 @@ const TourController = {
     return [
       {
         icon:  '👋',
-        title: 'Bienvenue sur Influmatch !',
-        text:  'Votre espace marque est prêt. Voici un rapide tour des sections clés pour vous repérer facilement.',
+        title: 'Welcome to Influmatch!',
+        text:  'Your brand space is ready. Here\'s a quick tour of the key sections to help you find your way.',
       },
       {
         icon:  '💬',
-        title: 'Messagerie directe',
-        text:  'Dans l\'onglet <strong>Mes messages</strong>, vous avez une ligne directe avec James et Lucas. Brief de campagne, sélection d\'influenceurs, retours sur les livrables — tout se passe ici.',
+        title: 'Direct messaging',
+        text:  'In the <strong>My messages</strong> tab, you have a direct line with James and Lucas. Campaign briefs, creator selection, deliverable feedback — everything happens here.',
       },
       {
         icon:  '🤝',
-        title: 'Mes collaborations',
-        text:  'L\'onglet <strong>Mes collaborations</strong> vous permet de suivre l\'avancement de chaque campagne en temps réel : statut, influenceurs impliqués et livrables attendus.',
+        title: 'My collaborations',
+        text:  'The <strong>My collaborations</strong> tab lets you track the progress of each campaign in real time: status, influencers involved, and expected deliverables.',
       },
       {
         icon:  '📊',
-        title: 'Votre tableau de bord',
-        text:  'La page d\'accueil centralise l\'essentiel : campagnes actives, contrats à valider et messages non lus. Tout en un seul coup d\'œil.',
+        title: 'Your dashboard',
+        text:  'The home page centralizes everything: active campaigns, contracts to approve, and unread messages — all in one glance.',
       },
       {
         icon:  '🚀',
-        title: 'C\'est parti !',
-        text:  'L\'équipe Influmatch prend contact avec vous très rapidement pour lancer votre première campagne. D\'ici là, vous pouvez déjà nous écrire dans <strong>Mes messages</strong>.',
+        title: 'Let\'s go!',
+        text:  'The Influmatch team will contact you very shortly to launch your first campaign. In the meantime, you can already reach us in <strong>My messages</strong>.',
         last:  true,
       },
     ];
   },
 
-  // ── Moteur ───────────────────────────────────────────────
+  // ── Engine ────────────────────────────────────────
 
   _show() {
     this._clear();
@@ -103,7 +103,7 @@ const TourController = {
     document.body.appendChild(ov);
     requestAnimationFrame(() => requestAnimationFrame(() => ov.classList.add('tour-overlay--in')));
 
-    // Bulle
+    // Bubble
     const isFirst = this._step === 0;
     const isLast  = !!step.last;
 
@@ -120,17 +120,17 @@ const TourController = {
             '"></div>'
           ).join('') +
         '</div>' +
-        '<button class="tour-skip" onclick="TourController._finish()">Passer</button>' +
+        '<button class="tour-skip" onclick="TourController._finish()">Skip</button>' +
       '</div>' +
       '<div class="tour-icon">' + (step.icon || '') + '</div>' +
       '<div class="tour-title">' + step.title + '</div>' +
       '<div class="tour-text">'  + step.text  + '</div>' +
       '<div class="tour-footer">' +
         (!isFirst
-          ? '<button class="tour-btn tour-btn--ghost" onclick="TourController._prev()">← Retour</button>'
+          ? '<button class="tour-btn tour-btn--ghost" onclick="TourController._prev()">← Back</button>'
           : '<span></span>') +
         '<button class="tour-btn tour-btn--primary" onclick="TourController._next()">' +
-          (isLast ? 'Commencer !' : 'Suivant →') +
+          (isLast ? 'Get started!' : 'Next →') +
         '</button>' +
       '</div>';
 
@@ -138,7 +138,7 @@ const TourController = {
     requestAnimationFrame(() => requestAnimationFrame(() => bubble.classList.add('tour-bubble--in')));
   },
 
-  // ── Boutons ──────────────────────────────────────────────
+  // ── Buttons ───────────────────────────────────────
 
   _next() {
     this._step++;
@@ -159,7 +159,7 @@ const TourController = {
     this._clear();
   },
 
-  // ── Helpers ──────────────────────────────────────────────
+  // ── Helpers ───────────────────────────────────────
 
   _clear() {
     document.getElementById('tourOverlay')?.remove();

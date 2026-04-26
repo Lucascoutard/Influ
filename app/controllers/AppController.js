@@ -99,6 +99,13 @@ const AppController = {
     // Session chip — persiste entre les pages
     this._renderSessionChip();
 
+    // HelpBot: only on landing page (vitrine), never inside the app tool.
+    if (route === 'home' || route === undefined) {
+      HelpBot.init();
+    } else {
+      HelpBot.destroy();
+    }
+
     // Bind interactions après le render
     NavigationController.bind();
 
@@ -138,7 +145,7 @@ const AppController = {
         <div class="sc-greeting">Hello, ${prenom}</div>
         <div class="sc-status">Active account</div>
       </div>
-      <a href="#logout" class="sc-logout" title="Se déconnecter">
+      <a href="#logout" class="sc-logout" title="Log out">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
           <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
           <polyline points="16 17 21 12 16 7"/>

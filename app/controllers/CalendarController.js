@@ -12,7 +12,7 @@ const CalendarController = {
   _clients: [],
 
   // ================================================================
-  //  RENDER — synchrone, retourne le HTML du squelette
+  //  RENDER — synchronous, returns skeleton HTML
   // ================================================================
 
   renderCalendar(isAdmin) {
@@ -20,24 +20,24 @@ const CalendarController = {
     return `
       <div class="dash-page-header">
         <div>
-          <h1 class="dash-page-title">Calendrier</h1>
-          <p class="dash-page-desc">Vos appels et événements planifiés.</p>
+          <h1 class="dash-page-title">Calendar</h1>
+          <p class="dash-page-desc">Your scheduled calls and events.</p>
         </div>
         ${isAdmin
-          ? `<button class="btn btn--primary btn--sm" onclick="CalendarController.openCreateModal()">+ Ajouter</button>`
+          ? `<button class="btn btn--primary btn--sm" onclick="CalendarController.openCreateModal()">+ Add</button>`
           : ''}
       </div>
 
       <div class="cal-card">
         <div class="cal-header">
-          <button class="cal-nav-btn" onclick="CalendarController.prevMonth()" title="Mois précédent">
+          <button class="cal-nav-btn" onclick="CalendarController.prevMonth()" title="Previous month">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
                  stroke-linecap="round" stroke-linejoin="round">
               <polyline points="15 18 9 12 15 6"/>
             </svg>
           </button>
-          <span class="cal-month-label" id="calMonthLabel">Chargement…</span>
-          <button class="cal-nav-btn" onclick="CalendarController.nextMonth()" title="Mois suivant">
+          <span class="cal-month-label" id="calMonthLabel">Loading…</span>
+          <button class="cal-nav-btn" onclick="CalendarController.nextMonth()" title="Next month">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
                  stroke-linecap="round" stroke-linejoin="round">
               <polyline points="9 18 15 12 9 6"/>
@@ -46,20 +46,20 @@ const CalendarController = {
         </div>
 
         <div class="cal-days-header">
-          ${['Lun','Mar','Mer','Jeu','Ven','Sam','Dim'].map(d =>
+          ${['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(d =>
             `<div class="cal-day-name">${d}</div>`
           ).join('')}
         </div>
 
         <div class="cal-grid" id="calGrid">
-          <div class="cal-grid-loading">Chargement…</div>
+          <div class="cal-grid-loading">Loading…</div>
         </div>
       </div>
     `;
   },
 
   // ================================================================
-  //  INIT — async, charge les données après le render
+  //  INIT — async, loads data after render
   // ================================================================
 
   async init(isAdmin) {
@@ -102,7 +102,7 @@ const CalendarController = {
       this._renderGrid();
     } catch (_) {
       const g = document.getElementById('calGrid');
-      if (g) g.innerHTML = '<div class="cal-grid-loading">Erreur de chargement</div>';
+      if (g) g.innerHTML = '<div class="cal-grid-loading">Failed to load</div>';
     }
   },
 
@@ -122,7 +122,7 @@ const CalendarController = {
     const label = document.getElementById('calMonthLabel');
     if (label) {
       const d = new Date(this._year, this._month, 1);
-      const s = d.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+      const s = d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
       label.textContent = s.charAt(0).toUpperCase() + s.slice(1);
     }
 
@@ -159,7 +159,7 @@ const CalendarController = {
                 <span class="cal-event-label">${this._esc(ev.title)}</span>
               </div>
             `).join('')}
-            ${evs.length > 3 ? `<div class="cal-event-more">+${evs.length - 3} autre${evs.length - 3 > 1 ? 's' : ''}</div>` : ''}
+            ${evs.length > 3 ? `<div class="cal-event-more">+${evs.length - 3} more</div>` : ''}
           </div>
         </div>
       `;
@@ -167,7 +167,7 @@ const CalendarController = {
   },
 
   // ================================================================
-  //  MODALS — Créer un événement
+  //  MODALS — Create event
   // ================================================================
 
   openCreateModal(date = '') {
@@ -183,31 +183,31 @@ const CalendarController = {
     overlay.innerHTML = `
       <div class="cal-modal">
         <div class="cal-modal-header">
-          <h3 class="cal-modal-title">Nouvel événement</h3>
+          <h3 class="cal-modal-title">New event</h3>
           <button class="cal-modal-close" onclick="document.getElementById('calModalOverlay').remove()">✕</button>
         </div>
         <div class="cal-modal-body">
 
           <div class="cal-form-row">
-            <label class="cal-form-label">Titre *</label>
+            <label class="cal-form-label">Title *</label>
             <input type="text" class="cal-form-input" id="calTitle"
-                   placeholder="Ex : Appel stratégie Q2" autocomplete="off">
+                   placeholder="e.g. Q2 strategy call" autocomplete="off">
           </div>
 
           <div class="cal-form-2col">
             <div class="cal-form-row">
               <label class="cal-form-label">Type</label>
               <select class="cal-form-input" id="calType">
-                <option value="call">📞 Appel</option>
-                <option value="meeting">👥 Réunion</option>
-                <option value="demo">🖥️ Démo</option>
-                <option value="other">📌 Autre</option>
+                <option value="call">📞 Call</option>
+                <option value="meeting">👥 Meeting</option>
+                <option value="demo">🖥️ Demo</option>
+                <option value="other">📌 Other</option>
               </select>
             </div>
             <div class="cal-form-row">
               <label class="cal-form-label">Client</label>
               <select class="cal-form-input" id="calClient">
-                <option value="">— Aucun —</option>
+                <option value="">— None —</option>
                 ${clientOptions}
               </select>
             </div>
@@ -219,34 +219,34 @@ const CalendarController = {
               <input type="date" class="cal-form-input" id="calDate" value="${date}">
             </div>
             <div class="cal-form-row">
-              <label class="cal-form-label">Heure début</label>
+              <label class="cal-form-label">Start time</label>
               <input type="time" class="cal-form-input" id="calTimeStart">
             </div>
           </div>
 
           <div class="cal-form-2col">
             <div class="cal-form-row">
-              <label class="cal-form-label">Heure fin</label>
+              <label class="cal-form-label">End time</label>
               <input type="time" class="cal-form-input" id="calTimeEnd">
             </div>
             <div class="cal-form-row">
-              <label class="cal-form-label">Lieu / lien</label>
+              <label class="cal-form-label">Location / link</label>
               <input type="text" class="cal-form-input" id="calLocation"
-                     placeholder="Google Meet, Bureau…">
+                     placeholder="Google Meet, Office…">
             </div>
           </div>
 
           <div class="cal-form-row">
             <label class="cal-form-label">Description</label>
             <textarea class="cal-form-input cal-form-textarea" id="calDesc"
-                      placeholder="Ordre du jour, notes…"></textarea>
+                      placeholder="Agenda, notes…"></textarea>
           </div>
 
         </div>
         <div class="cal-modal-footer">
-          <button class="cal-btn-cancel" onclick="document.getElementById('calModalOverlay').remove()">Annuler</button>
+          <button class="cal-btn-cancel" onclick="document.getElementById('calModalOverlay').remove()">Cancel</button>
           <button class="cal-btn-submit" id="calSubmitBtn"
-                  onclick="CalendarController.submitCreate(this)">Créer</button>
+                  onclick="CalendarController.submitCreate(this)">Create</button>
         </div>
       </div>
     `;
@@ -271,7 +271,7 @@ const CalendarController = {
     const endAt   = timeEnd   ? `${date} ${timeEnd}:00`   : null;
 
     btn.disabled    = true;
-    btn.textContent = 'Création…';
+    btn.textContent = 'Creating…';
 
     try {
       const res  = await fetch('api/calendar.php?action=create', {
@@ -289,18 +289,18 @@ const CalendarController = {
         document.getElementById('calModalOverlay')?.remove();
         await this._loadEvents();
       } else {
-        alert(data.error || 'Erreur lors de la création');
+        alert(data.error || 'Error creating event');
         btn.disabled    = false;
-        btn.textContent = 'Créer';
+        btn.textContent = 'Create';
       }
     } catch (_) {
       btn.disabled    = false;
-      btn.textContent = 'Créer';
+      btn.textContent = 'Create';
     }
   },
 
   // ================================================================
-  //  MODALS — Voir un événement
+  //  MODALS — View event
   // ================================================================
 
   openEventModal(id) {
@@ -309,7 +309,7 @@ const CalendarController = {
     const ev = this._events.find(e => parseInt(e.id) === parseInt(id));
     if (!ev) return;
 
-    const typeLabels = { call: '📞 Appel', meeting: '👥 Réunion', demo: '🖥️ Démo', other: '📌 Autre' };
+    const typeLabels = { call: '📞 Call', meeting: '👥 Meeting', demo: '🖥️ Demo', other: '📌 Other' };
     const typeLabel  = typeLabels[ev.type] || ev.type;
     const startFmt   = this._fmtDateTimeFull(ev.start_at);
     const endFmt     = ev.end_at && !ev.end_at.endsWith('00:00:00')
@@ -364,9 +364,9 @@ const CalendarController = {
 
         <div class="cal-modal-footer">
           ${this._isAdmin
-            ? `<button class="cal-btn-danger" onclick="CalendarController.deleteEvent(${ev.id}, this)">Supprimer</button>`
+            ? `<button class="cal-btn-danger" onclick="CalendarController.deleteEvent(${ev.id}, this)">Delete</button>`
             : ''}
-          <button class="cal-btn-cancel" onclick="document.getElementById('calEventOverlay').remove()">Fermer</button>
+          <button class="cal-btn-cancel" onclick="document.getElementById('calEventOverlay').remove()">Close</button>
         </div>
       </div>
     `;
@@ -374,9 +374,9 @@ const CalendarController = {
   },
 
   async deleteEvent(id, btn) {
-    if (!confirm('Supprimer cet événement ?')) return;
+    if (!confirm('Delete this event?')) return;
     btn.disabled    = true;
-    btn.textContent = 'Suppression…';
+    btn.textContent = 'Deleting…';
     try {
       const res  = await fetch(`api/calendar.php?action=delete&id=${id}`);
       const data = await res.json();
@@ -384,13 +384,13 @@ const CalendarController = {
         document.getElementById('calEventOverlay')?.remove();
         await this._loadEvents();
       } else {
-        alert(data.error || 'Erreur');
+        alert(data.error || 'Error');
         btn.disabled    = false;
-        btn.textContent = 'Supprimer';
+        btn.textContent = 'Delete';
       }
     } catch (_) {
       btn.disabled    = false;
-      btn.textContent = 'Supprimer';
+      btn.textContent = 'Delete';
     }
   },
 
@@ -431,16 +431,16 @@ const CalendarController = {
 
   _fmtTime(str) {
     const d = new Date(str.replace(' ', 'T'));
-    return d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
   },
 
   _fmtDateTimeFull(str) {
     const d = new Date(str.replace(' ', 'T'));
-    const date = d.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+    const date = d.toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
     const isAllDay = str.endsWith('00:00:00');
     if (isAllDay) return date.charAt(0).toUpperCase() + date.slice(1);
-    const time = d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
-    return (date.charAt(0).toUpperCase() + date.slice(1)) + ' à ' + time;
+    const time = d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    return (date.charAt(0).toUpperCase() + date.slice(1)) + ' at ' + time;
   },
 
   _esc(str) {

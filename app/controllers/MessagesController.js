@@ -1,6 +1,6 @@
 /* ===================================================
    APP/CONTROLLERS/MESSAGESCONTROLLER.JS
-   Messagerie temps réel — polling 3s
+   Real-time messaging - polling every 3s
    =================================================== */
 
 const MessagesController = {
@@ -18,7 +18,7 @@ const MessagesController = {
   _visibilityHandler: null,
 
   // ================================================================
-  //  RENDER — appelé depuis _discussions() dans les dashboards
+  //  RENDER - called from _discussions() in dashboards
   // ================================================================
 
   renderDiscussions(isAdmin) {
@@ -28,13 +28,13 @@ const MessagesController = {
         <!-- Sidebar : liste des conversations -->
         <div class="chat-sidebar">
           <div class="chat-sidebar-header">
-            <span class="chat-sidebar-title">${isAdmin ? 'Discussions' : 'Mes messages'}</span>
+            <span class="chat-sidebar-title">${isAdmin ? 'Conversations' : 'My messages'}</span>
             ${isAdmin
-              ? `<button class="chat-new-btn" onclick="MessagesController.openCreateGroup()">+ Groupe</button>`
+              ? `<button class="chat-new-btn" onclick="MessagesController.openCreateGroup()">+ Group</button>`
               : ''}
           </div>
           <div class="chat-conv-list" id="convList">
-            <div class="chat-state-msg">Chargement…</div>
+            <div class="chat-state-msg">Loading...</div>
           </div>
         </div>
 
@@ -47,7 +47,7 @@ const MessagesController = {
                 <path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
               </svg>
             </div>
-            <div class="chat-placeholder-text">Sélectionnez une conversation</div>
+            <div class="chat-placeholder-text">Select a conversation</div>
           </div>
         </div>
 
@@ -56,11 +56,11 @@ const MessagesController = {
   },
 
   // ================================================================
-  //  INIT — appelé après le render (via setTimeout)
+  //  INIT - called after render (via setTimeout)
   // ================================================================
 
   async init(isAdmin) {
-    this.destroy(); // Nettoie un éventuel poll précédent
+    this.destroy(); // Clean previous poll if any
 
     const chip = document.getElementById('sessionChip');
     if (chip) chip.style.display = 'none';
@@ -74,22 +74,22 @@ const MessagesController = {
     // Demande permission notifications navigateur
     this._requestNotifPermission();
 
-    // Pause polling quand l'onglet est masqué
+    // Pause polling when tab is hidden
     this._visibilityHandler = () => {
       if (document.hidden) { this._stopPolling(); }
       else                 { this._startPolling(); }
     };
     document.addEventListener('visibilitychange', this._visibilityHandler);
 
-    // Démarre l'écoute des appels entrants
+    // Start listening for incoming calls
     CallController.startListening();
 
-    // Auto-ouvre la première conversation
+    // Auto-open first conversation
     if (this._conversations.length > 0) {
       this.openConversation(this._conversations[0].id);
     }
 
-    // Démarre le polling même sans conversation ouverte (détecte les nouvelles convs)
+    // Start polling even with no conversation open (detect new conversations)
     this._startPolling();
   },
 
@@ -103,13 +103,13 @@ const MessagesController = {
 
   async _loadConversations() {
     try {
-      const res  = await fetch('api/messages.php?action=conversations');
+      const res  = await fetch('api/messages.php?action=conversations', { cache: 'no-store' });
       const data = await res.json();
       this._conversations = data.conversations || [];
       this._renderConvList();
     } catch (_) {
       const el = document.getElementById('convList');
-      if (el) el.innerHTML = '<div class="chat-state-msg">Erreur de chargement</div>';
+      if (el) el.innerHTML = '<div class="chat-state-msg">Loading error</div>';
     }
   },
 
@@ -118,12 +118,12 @@ const MessagesController = {
     if (!list) return;
 
     if (this._conversations.length === 0) {
-      list.innerHTML = '<div class="chat-state-msg">Aucune conversation</div>';
+      list.innerHTML = '<div class="chat-state-msg">No conversation</div>';
       return;
     }
 
     const me = UserModel.getUser();
-    // Épingler la conversation Équipe Influmatch en premier
+    // Pin Influmatch team conversation first
     const convs = [...this._conversations].sort((a, b) => {
       const aPin = this._isInflumatchConv(a, me) ? -1 : 0;
       const bPin = this._isInflumatchConv(b, me) ? -1 : 0;
@@ -144,7 +144,7 @@ const MessagesController = {
              onclick="MessagesController.openConversation(${conv.id})">
           <div class="chat-conv-avatar">${initials}</div>
           <div class="chat-conv-info">
-            <div class="chat-conv-name">${this._esc(name)}${pinned ? ' <span class="chat-conv-pin">📌</span>' : ''}</div>
+            <div class="chat-conv-name">${this._esc(name)}${pinned ? ' <span class="chat-conv-pin">PIN</span>' : ''}</div>
             <div class="chat-conv-preview ${unread ? 'chat-conv-preview--unread' : ''}">${this._esc(preview)}</div>
           </div>
           <div class="chat-conv-meta">
@@ -179,11 +179,13 @@ const MessagesController = {
     const chatMain = document.getElementById('chatMain');
     if (!chatMain) return;
 
-    const isDirect = conv && conv.type === 'direct';
+    const isDirect  = conv && conv.type === 'direct';
+    const isGroup   = conv && conv.type === 'group';
+    const isAdmin   = me && me.role === 'admin';
 
     chatMain.innerHTML = `
       <div class="chat-header">
-        <button class="chat-back-btn" onclick="MessagesController.closeConversation()" title="Retour">
+        <button class="chat-back-btn" onclick="MessagesController.closeConversation()" title="Back">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
                stroke-linecap="round" stroke-linejoin="round">
             <polyline points="15 18 9 12 15 6"/>
@@ -196,14 +198,14 @@ const MessagesController = {
         </div>
         ${isDirect ? `
         <div class="chat-call-actions">
-          <button class="chat-call-btn" title="Appel audio"
+          <button class="chat-call-btn" title="Audio call"
                   onclick="CallController.startCall(${convId}, '${this._esc(name)}', false)">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                  stroke-linecap="round" stroke-linejoin="round">
               <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.22 1.18 2 2 0 012.22 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.09a16 16 0 006 6l.56-.56a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92z"/>
             </svg>
           </button>
-          <button class="chat-call-btn" title="Appel vidéo"
+          <button class="chat-call-btn" title="Video call"
                   onclick="CallController.startCall(${convId}, '${this._esc(name)}', true)">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                  stroke-linecap="round" stroke-linejoin="round">
@@ -212,10 +214,29 @@ const MessagesController = {
             </svg>
           </button>
         </div>` : ''}
+        ${isGroup && isAdmin ? `
+        <div class="chat-call-actions">
+          <button class="chat-call-btn" title="Edit group"
+                  onclick="MessagesController.openEditGroup(${convId})">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round">
+              <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+              <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+          </button>
+          <button class="chat-call-btn" title="Delete group"
+                  onclick="MessagesController.deleteGroup(${convId})">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/>
+              <path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/>
+            </svg>
+          </button>
+        </div>` : ''}
       </div>
 
       <div class="chat-messages" id="chatMessages">
-        <div class="chat-state-msg">Chargement…</div>
+        <div class="chat-state-msg">Loading...</div>
       </div>
 
       <button id="chatScrollBtn" class="chat-scroll-btn" style="display:none"
@@ -228,7 +249,7 @@ const MessagesController = {
       </button>
 
       <div class="chat-input-area">
-        <label class="chat-attach-btn" title="Joindre un fichier ou une image">
+        <label class="chat-attach-btn" title="Attach a file or an image">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"
                stroke-linecap="round" stroke-linejoin="round">
             <path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/>
@@ -237,7 +258,7 @@ const MessagesController = {
                  onchange="MessagesController.handleFile(this)">
         </label>
         <input type="text" class="chat-input" id="messageInput"
-               placeholder="Écrire un message…"
+               placeholder="Write a message..."
                onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();MessagesController.sendMessage();}">
         <button class="chat-send-btn" onclick="MessagesController.sendMessage()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
@@ -254,7 +275,7 @@ const MessagesController = {
 
     await this._loadMessages(convId);
     this._startPolling();
-    fetch(`api/messages.php?action=mark_read&conversation_id=${convId}`).catch(() => {});
+    this._markConversationRead(convId);
 
     // Mobile: show main panel
     const layout = document.getElementById('chatLayout');
@@ -267,7 +288,7 @@ const MessagesController = {
 
   async _loadMessages(convId) {
     try {
-      const res  = await fetch(`api/messages.php?action=messages&conversation_id=${convId}`);
+      const res  = await fetch(`api/messages.php?action=messages&conversation_id=${convId}`, { cache: 'no-store' });
       const data = await res.json();
       const msgs = data.messages || [];
 
@@ -277,7 +298,7 @@ const MessagesController = {
       this._scrollBottom();
     } catch (_) {
       const el = document.getElementById('chatMessages');
-      if (el) el.innerHTML = '<div class="chat-state-msg">Erreur de chargement</div>';
+      if (el) el.innerHTML = '<div class="chat-state-msg">Loading error</div>';
     }
   },
 
@@ -286,7 +307,7 @@ const MessagesController = {
     if (!el) return;
 
     if (msgs.length === 0) {
-      el.innerHTML = '<div class="chat-state-msg chat-state-msg--empty">Aucun message. Commencez la conversation !</div>';
+      el.innerHTML = '<div class="chat-state-msg chat-state-msg--empty">No messages yet. Start the conversation!</div>';
       return;
     }
 
@@ -314,21 +335,21 @@ const MessagesController = {
     const time    = this._fmtTime(msg.created_at);
     const initial = (msg.firstname || '?').charAt(0).toUpperCase();
 
-    // Événement d'appel : bulle centrée (pas de wrapper sender/receiver)
+    // Call event: centered bubble (no sender/receiver wrapper)
     if (msg.type === 'call_event') {
       let parsed = {};
       try { parsed = JSON.parse(msg.content); } catch (_) {}
-      const callType = parsed.call_type === 'video' ? 'vidéo' : 'audio';
+      const callType = parsed.call_type === 'video' ? 'video' : 'audio';
       const duration = parsed.duration;
       let icon, label, cls;
       if (parsed.status === 'ended') {
-        const dur = duration ? ' · ' + this._fmtDuration(duration) : '';
-        icon  = '📞';
-        label = `Appel ${callType}${dur}`;
+        const dur = duration ? ' - ' + this._fmtDuration(duration) : '';
+        icon  = 'Call';
+        label = `Call ${callType}${dur}`;
         cls   = '';
       } else {
-        icon  = '📵';
-        label = `Appel ${callType} manqué`;
+        icon  = 'Missed';
+        label = `Call ${callType} missed`;
         cls   = 'chat-call-event--missed';
       }
       return `<div class="chat-call-event ${cls}"><span>${icon}</span><span>${label}</span></div>`;
@@ -363,12 +384,34 @@ const MessagesController = {
       `;
     }
 
+    const editedTag  = msg.edited_at ? `<span class="chat-msg-edited">edited</span>` : '';
+    const avatarHtml = msg.avatar
+      ? `<img src="${msg.avatar}" class="chat-msg-avatar-sm chat-msg-avatar-img" alt="">`
+      : `<div class="chat-msg-avatar-sm">${initial}</div>`;
+
+    const msgActions = mine && msg.type === 'text' ? `
+      <div class="chat-msg-actions">
+        <button class="chat-msg-action-btn" title="Edit" onclick="MessagesController.startEdit(${msg.id}, this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/>
+            <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/>
+          </svg>
+        </button>
+        <button class="chat-msg-action-btn chat-msg-action-btn--delete" title="Delete" onclick="MessagesController.deleteMsg(${msg.id}, this)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/>
+            <path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/>
+          </svg>
+        </button>
+      </div>` : '';
+
     if (mine) {
       return `
         <div class="chat-msg chat-msg--sent${grouped ? ' chat-msg--grouped' : ''}" data-sender="${msg.sender_id}" data-id="${msg.id}">
+          ${msgActions}
           <div class="chat-bubble">
             ${body}
-            <span class="chat-msg-time">${time}</span>
+            <span class="chat-msg-time">${time}${editedTag}</span>
           </div>
         </div>
       `;
@@ -378,12 +421,12 @@ const MessagesController = {
       <div class="chat-msg chat-msg--received${grouped ? ' chat-msg--grouped' : ''}" data-sender="${msg.sender_id}">
         ${grouped
           ? `<div class="chat-msg-avatar-gap"></div>`
-          : `<div class="chat-msg-avatar-sm">${initial}</div>`}
+          : avatarHtml}
         <div class="chat-msg-body">
           ${grouped ? '' : `<div class="chat-msg-sender">${this._esc(msg.firstname)}</div>`}
           <div class="chat-bubble">
             ${body}
-            <span class="chat-msg-time">${time}</span>
+            <span class="chat-msg-time">${time}${editedTag}</span>
           </div>
         </div>
       </div>
@@ -457,6 +500,167 @@ const MessagesController = {
   },
 
   // ================================================================
+  //  GROUP MANAGEMENT (admin)
+  // ================================================================
+
+  openEditGroup(convId) {
+    const conv = this._conversations.find(c => c.id === convId);
+    if (!conv) return;
+
+    const overlay = document.createElement('div');
+    overlay.id = 'groupEditOverlay';
+    overlay.className = 'chat-preview-overlay';
+    overlay.innerHTML = `
+      <div class="chat-preview-modal" style="max-width:420px">
+        <div class="chat-preview-header">
+          <span>Edit group</span>
+          <button onclick="document.getElementById('groupEditOverlay').remove()">x</button>
+        </div>
+        <div style="padding:20px;display:flex;flex-direction:column;gap:12px">
+          <label style="font-size:.82rem;font-weight:600;color:var(--muted)">Group name</label>
+          <input id="groupEditName" class="chat-input" style="border:1px solid var(--border);border-radius:10px;padding:10px 14px;font-size:.9rem"
+                 value="${this._esc(conv.name || '')}" placeholder="Group name">
+          <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:4px">
+            <button class="chat-edit-cancel" onclick="document.getElementById('groupEditOverlay').remove()">Cancel</button>
+            <button class="chat-edit-save" onclick="MessagesController._saveEditGroup(${convId})">Save</button>
+          </div>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+    document.getElementById('groupEditName').focus();
+  },
+
+  async _saveEditGroup(convId) {
+    const name = document.getElementById('groupEditName')?.value.trim();
+    if (!name) return;
+    try {
+      const res  = await fetch('api/messages.php?action=update_group', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ conversation_id: convId, name })
+      });
+      const data = await res.json();
+      if (data.ok || data.conversation) {
+        document.getElementById('groupEditOverlay')?.remove();
+        await this._loadConversations();
+        this.openConversation(convId);
+      }
+    } catch (_) {}
+  },
+
+  async deleteGroup(convId) {
+    const conv = this._conversations.find(c => c.id === convId);
+    const name = conv?.name || 'this group';
+    if (!confirm(`Delete "${name}" et tous ses messages ?`)) return;
+    try {
+      const res  = await fetch('api/messages.php?action=delete_group', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ conversation_id: convId })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        this._activeConvId = null;
+        await this._loadConversations();
+        document.getElementById('chatMain').innerHTML = `
+          <div class="chat-placeholder">
+            <div class="chat-placeholder-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"
+                   stroke-linecap="round" stroke-linejoin="round">
+                <path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+              </svg>
+            </div>
+            <div class="chat-placeholder-text">Group deleted</div>
+          </div>`;
+      }
+    } catch (_) {}
+  },
+
+  // ================================================================
+  //  EDIT / DELETE
+  // ================================================================
+
+  startEdit(msgId, btn) {
+    const msgEl = btn.closest('.chat-msg');
+    const bubble = msgEl.querySelector('.chat-bubble');
+    const textEl = bubble.querySelector('.chat-bubble-text');
+    if (!textEl) return;
+
+    const current = textEl.innerText;
+    textEl.style.display = 'none';
+
+    const editArea = document.createElement('div');
+    editArea.className = 'chat-edit-area';
+    editArea.innerHTML = `
+      <textarea class="chat-edit-input">${this._esc(current)}</textarea>
+      <div class="chat-edit-btns">
+        <button class="chat-edit-cancel" onclick="MessagesController._cancelEdit(${msgId})">Cancel</button>
+        <button class="chat-edit-save"   onclick="MessagesController._saveEdit(${msgId})">Save</button>
+      </div>
+    `;
+    bubble.insertBefore(editArea, bubble.querySelector('.chat-msg-time'));
+
+    const ta = editArea.querySelector('textarea');
+    ta.focus();
+    ta.setSelectionRange(ta.value.length, ta.value.length);
+    ta.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); this._saveEdit(msgId); }
+      if (e.key === 'Escape') this._cancelEdit(msgId);
+    });
+  },
+
+  _cancelEdit(msgId) {
+    const msgEl = document.querySelector(`.chat-msg[data-id="${msgId}"]`);
+    if (!msgEl) return;
+    msgEl.querySelector('.chat-bubble-text').style.display = '';
+    msgEl.querySelector('.chat-edit-area')?.remove();
+  },
+
+  async _saveEdit(msgId) {
+    const msgEl = document.querySelector(`.chat-msg[data-id="${msgId}"]`);
+    if (!msgEl) return;
+    const ta = msgEl.querySelector('.chat-edit-input');
+    const content = ta?.value.trim();
+    if (!content) return;
+
+    try {
+      const res  = await fetch('api/messages.php?action=edit', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ message_id: msgId, content })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        const textEl = msgEl.querySelector('.chat-bubble-text');
+        textEl.innerHTML = this._nl2br(this._esc(content));
+        textEl.style.display = '';
+        msgEl.querySelector('.chat-edit-area')?.remove();
+        // Add edited tag if not present yet
+        if (!msgEl.querySelector('.chat-msg-edited')) {
+          msgEl.querySelector('.chat-msg-time').insertAdjacentHTML('beforeend', '<span class="chat-msg-edited">edited</span>');
+        }
+      }
+    } catch (_) {}
+  },
+
+  async deleteMsg(msgId, btn) {
+    if (!confirm('Delete this message?')) return;
+    try {
+      const res  = await fetch('api/messages.php?action=delete', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ message_id: msgId })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        btn.closest('.chat-msg')?.remove();
+        this._loadConversations();
+      }
+    } catch (_) {}
+  },
+
+  // ================================================================
   //  FILE UPLOAD
   // ================================================================
 
@@ -486,17 +690,17 @@ const MessagesController = {
     overlay.innerHTML = `
       <div class="chat-preview-modal">
         <div class="chat-preview-header">
-          <span class="chat-preview-title">Aperçu avant envoi</span>
-          <button class="chat-modal-close" onclick="MessagesController._cancelPreview()">✕</button>
+          <span class="chat-preview-title">Preview before sending</span>
+          <button class="chat-modal-close" onclick="MessagesController._cancelPreview()">x</button>
         </div>
         <div class="chat-preview-body">
-          <img src="${this._pendingFileUrl}" class="chat-preview-img" alt="Aperçu">
+          <img src="${this._pendingFileUrl}" class="chat-preview-img" alt="Preview">
           <div class="chat-preview-filename">${this._esc(file.name)}</div>
         </div>
         <div class="chat-modal-footer">
-          <button class="chat-modal-cancel" onclick="MessagesController._cancelPreview()">Annuler</button>
+          <button class="chat-modal-cancel" onclick="MessagesController._cancelPreview()">Cancel</button>
           <button class="chat-modal-submit" id="previewSendBtn"
-                  onclick="MessagesController._confirmSendImage(this)">Envoyer</button>
+                  onclick="MessagesController._confirmSendImage(this)">Send</button>
         </div>
       </div>
     `;
@@ -514,7 +718,7 @@ const MessagesController = {
     const file = this._pendingFile;
     if (!file) return;
     btn.disabled    = true;
-    btn.textContent = 'Envoi…';
+    btn.textContent = 'Sending...';
     const f = file;
     this._cancelPreview();
     await this._doUpload(f);
@@ -538,7 +742,7 @@ const MessagesController = {
   },
 
   // ================================================================
-  //  POLLING — toutes les 3 secondes
+  //  POLLING - every 3 seconds
   // ================================================================
 
   _startPolling() {
@@ -551,12 +755,15 @@ const MessagesController = {
   },
 
   async _poll() {
-    // Rafraîchit toujours la liste (détecte nouvelles convs et previews)
+    // Always refresh list (detects new conversations and previews)
     await this._loadConversations();
 
     if (!this._activeConvId) return;
     try {
-      const res  = await fetch(`api/messages.php?action=messages&conversation_id=${this._activeConvId}&after=${this._lastMsgId}`);
+      const res  = await fetch(
+        `api/messages.php?action=messages&conversation_id=${this._activeConvId}&after=${this._lastMsgId}`,
+        { cache: 'no-store' }
+      );
       const data = await res.json();
 
       // Update seen indicator (read_status may change even without new messages)
@@ -576,12 +783,32 @@ const MessagesController = {
       this._scrollBottom();
 
       // Mark conversation as read since user is actively viewing it
-      fetch(`api/messages.php?action=mark_read&conversation_id=${this._activeConvId}`).catch(() => {});
+      this._markConversationRead(this._activeConvId);
+    } catch (_) {}
+  },
+
+  async _markConversationRead(convId) {
+    if (!convId) return;
+    try {
+      await fetch('api/messages.php?action=mark_read', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        cache:   'no-store',
+        body:    JSON.stringify({ conversation_id: convId }),
+      });
+
+      // Sync local unread badges instantly.
+      const conv = this._conversations.find(c => parseInt(c.id) === parseInt(convId));
+      if (conv) conv.unread_count = 0;
+      this._renderConvList();
+
+      // Notify dashboard widgets (sidebar/home cards) to refresh counts.
+      window.dispatchEvent(new CustomEvent('influmatch:messages-read'));
     } catch (_) {}
   },
 
   // ================================================================
-  //  ADMIN — Créer un groupe
+  //  ADMIN - Create group
   // ================================================================
 
   async openCreateGroup() {
@@ -592,7 +819,7 @@ const MessagesController = {
       const data = await res.json();
       users = data.users || [];
     } catch (_) {
-      alert('Erreur lors du chargement des utilisateurs');
+      alert('Error while loading users');
       return;
     }
 
@@ -602,12 +829,12 @@ const MessagesController = {
     overlay.innerHTML = `
       <div class="chat-modal">
         <div class="chat-modal-header">
-          <h3 class="chat-modal-title">Nouveau groupe</h3>
-          <button class="chat-modal-close" onclick="this.closest('.chat-modal-overlay').remove()">✕</button>
+          <h3 class="chat-modal-title">New group</h3>
+          <button class="chat-modal-close" onclick="this.closest('.chat-modal-overlay').remove()">x</button>
         </div>
         <div class="chat-modal-body">
-          <label class="chat-modal-label">Nom du groupe</label>
-          <input type="text" class="chat-modal-input" id="groupName" placeholder="Ex : Campagne Été 2025">
+          <label class="chat-modal-label">Group name</label>
+          <input type="text" class="chat-modal-input" id="groupName" placeholder="Example: Summer Campaign 2025">
 
           <label class="chat-modal-label" style="margin-top:18px">Participants</label>
           <div class="chat-modal-users">
@@ -621,8 +848,8 @@ const MessagesController = {
           </div>
         </div>
         <div class="chat-modal-footer">
-          <button class="chat-modal-cancel" onclick="this.closest('.chat-modal-overlay').remove()">Annuler</button>
-          <button class="chat-modal-submit" onclick="MessagesController._submitGroup(this)">Créer le groupe</button>
+          <button class="chat-modal-cancel" onclick="this.closest('.chat-modal-overlay').remove()">Cancel</button>
+          <button class="chat-modal-submit" onclick="MessagesController._submitGroup(this)">Create group</button>
         </div>
       </div>
     `;
@@ -635,11 +862,11 @@ const MessagesController = {
     const name     = document.getElementById('groupName')?.value.trim();
     const checked  = [...overlay.querySelectorAll('input[type=checkbox]:checked')].map(el => parseInt(el.value));
 
-    if (!name)            { alert('Veuillez saisir un nom de groupe'); return; }
-    if (!checked.length)  { alert('Sélectionnez au moins un participant'); return; }
+    if (!name)            { alert('Please enter a group name'); return; }
+    if (!checked.length)  { alert('Select at least one participant'); return; }
 
     btn.disabled = true;
-    btn.textContent = 'Création…';
+    btn.textContent = 'Creating...';
 
     try {
       const res  = await fetch('api/messages.php?action=create_group', {
@@ -656,7 +883,7 @@ const MessagesController = {
       }
     } catch (_) {
       btn.disabled = false;
-      btn.textContent = 'Créer le groupe';
+      btn.textContent = 'Create group';
     }
   },
 
@@ -702,7 +929,7 @@ const MessagesController = {
     const el = document.getElementById('chatMessages');
     if (!el) return;
 
-    // Remove existing Vu indicator
+    // Remove existing Seen indicator
     el.querySelector('.chat-seen-vu')?.remove();
 
     // Max read msg id across all other participants
@@ -721,7 +948,7 @@ const MessagesController = {
 
     const vu = document.createElement('div');
     vu.className = 'chat-seen-vu';
-    vu.textContent = 'Vu';
+    vu.textContent = 'Seen';
     target.after(vu);
   },
 
@@ -734,9 +961,9 @@ const MessagesController = {
   _convName(conv, me) {
     if (conv.name) return conv.name;
     const others = (conv.participants || []).filter(p => parseInt(p.id) !== me.id);
-    if (!others.length) return 'Vous';
+    if (!others.length) return 'You';
     const admins = others.filter(p => p.role === 'admin');
-    if (admins.length > 0 && admins.length === others.length) return 'Équipe Influmatch';
+    if (admins.length > 0 && admins.length === others.length) return 'Influmatch team';
     if (others.length === 1) return `${others[0].firstname} ${others[0].lastname}`;
     return others.map(p => p.firstname).join(', ');
   },
@@ -754,23 +981,23 @@ const MessagesController = {
     if (!conv) return '';
     const others = (conv.participants || []).filter(p => parseInt(p.id) !== me.id);
     const admins = others.filter(p => p.role === 'admin');
-    if (admins.length > 0 && conv.type === 'direct') return 'Influmatch · Co-fondateurs';
+    if (admins.length > 0 && conv.type === 'direct') return 'Influmatch - Co-founders';
     if (conv.type === 'group') return `${(conv.participants || []).length} participants`;
     return '';
   },
 
   _convPreview(conv) {
-    if (!conv.last_content) return 'Aucun message';
+    if (!conv.last_content) return 'No message';
     if (conv.last_type === 'call_event') {
       let parsed = {};
       try { parsed = JSON.parse(conv.last_content); } catch (_) {}
-      return parsed.status === 'missed' ? '📵 Appel manqué' : '📞 Appel';
+      return parsed.status === 'missed' ? 'Missed call' : 'Call';
     }
-    if (conv.last_type === 'image') return '📷 Image';
-    if (conv.last_type === 'file' && this._isVideoFile(conv.last_content)) return '🎥 Vidéo';
-    if (conv.last_type === 'file')  return '📎 Fichier';
+    if (conv.last_type === 'image') return 'Image';
+    if (conv.last_type === 'file' && this._isVideoFile(conv.last_content)) return 'Video';
+    if (conv.last_type === 'file')  return 'File';
     const t = conv.last_content;
-    return t.length > 42 ? t.substring(0, 42) + '…' : t;
+    return t.length > 42 ? t.substring(0, 42) + '...' : t;
   },
 
   _scrollBottom() {
@@ -816,12 +1043,12 @@ const MessagesController = {
 
   _showBrowserNotif(msg) {
     if (!('Notification' in window) || Notification.permission !== 'granted') return;
-    const sender = msg.firstname ? msg.firstname : 'Nouveau message';
+    const sender = msg.firstname ? msg.firstname : 'New message';
     const body   = msg.type === 'text'
       ? (msg.content || '').substring(0, 80)
-      : msg.type === 'image' ? '📷 Image' : '📎 Fichier';
+      : msg.type === 'image' ? 'Image' : 'File';
     try {
-      const n = new Notification(`Influmatch — ${sender}`, { body, icon: '/public/assets/images/logo.svg', tag: 'influmatch-msg' });
+      const n = new Notification(`Influmatch - ${sender}`, { body, icon: '/public/assets/images/logo.svg', tag: 'influmatch-msg' });
       n.onclick = () => { window.focus(); n.close(); };
       setTimeout(() => n.close(), 5000);
     } catch (_) {}
@@ -846,8 +1073,8 @@ const MessagesController = {
         osc.stop(t + start + dur);
       };
 
-      _note(988, 0,    0.28); // Si5 — première frappe
-      _note(784, 0.18, 0.38); // Sol5 — deuxième frappe (légère superposition)
+      _note(988, 0,    0.28); // Note 1
+      _note(784, 0.18, 0.38); // Note 2 with slight overlap
     } catch (_) {}
   },
 
@@ -856,7 +1083,7 @@ const MessagesController = {
     clearInterval(this._titleInterval);
     let on = true;
     this._titleInterval = setInterval(() => {
-      document.title = on ? '💬 Nouveau message — Influmatch' : this._origTitle;
+      document.title = on ? 'New message - Influmatch' : this._origTitle;
       on = !on;
     }, 1000);
     const restore = () => {
@@ -872,25 +1099,25 @@ const MessagesController = {
     const d   = new Date(str);
     const now = new Date();
     if (d.toDateString() === now.toDateString()) {
-      return d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+      return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
     }
-    return d.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' });
+    return d.toLocaleDateString('en-US', { day: '2-digit', month: '2-digit' });
   },
 
   _fmtDateSep(str) {
     const d   = new Date(str);
     const now = new Date();
     const yesterday = new Date(now); yesterday.setDate(now.getDate() - 1);
-    if (d.toDateString() === now.toDateString())       return 'Aujourd\'hui';
-    if (d.toDateString() === yesterday.toDateString()) return 'Hier';
-    return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+    if (d.toDateString() === now.toDateString())       return 'Today';
+    if (d.toDateString() === yesterday.toDateString()) return 'Yesterday';
+    return d.toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' });
   },
 
   _fmtSize(bytes) {
     if (!bytes) return '';
-    if (bytes < 1024)       return bytes + ' o';
-    if (bytes < 1048576)    return Math.round(bytes / 1024) + ' Ko';
-    return (bytes / 1048576).toFixed(1) + ' Mo';
+    if (bytes < 1024)       return bytes + ' B';
+    if (bytes < 1048576)    return Math.round(bytes / 1024) + ' KB';
+    return (bytes / 1048576).toFixed(1) + ' MB';
   },
 
   _esc(str) {
@@ -910,3 +1137,5 @@ const MessagesController = {
     return `${m}:${s}`;
   }
 };
+
+

@@ -1,6 +1,6 @@
 <?php
 /* ===================================================
-   API/COLLABORATIONS.PHP — Gestion des collaborations
+   API/COLLABORATIONS.PHP - Collaboration management
    GET  ?action=list
    POST ?action=create
    PUT  ?action=update
@@ -83,7 +83,7 @@ switch ($action) {
         requireRole('admin');
         $data = getJsonBody();
         $id   = (int)($data['id'] ?? 0);
-        if (!$id) jsonResponse(['success' => false, 'message' => 'ID invalide.'], 422);
+        if (!$id) jsonResponse(['success' => false, 'message' => 'Invalid ID.'], 422);
 
         $allowed = ['title','status','budget','start_date','end_date','description'];
         $sets = []; $vals = [];
@@ -92,16 +92,16 @@ switch ($action) {
                 $sets[] = "$col = ?";
                 $val = $data[$col];
                 if ($col === 'status' && !in_array($val, ['pending','active','completed','cancelled']))
-                    jsonResponse(['success' => false, 'message' => 'Statut invalide.'], 422);
+                    jsonResponse(['success' => false, 'message' => 'Invalid status.'], 422);
                 $vals[] = ($val === '' && in_array($col, ['budget','start_date','end_date'])) ? null : $val;
             }
         }
-        if (empty($sets)) jsonResponse(['success' => false, 'message' => 'Rien à mettre à jour.'], 422);
+        if (empty($sets)) jsonResponse(['success' => false, 'message' => 'Nothing to update.'], 422);
 
         $db = getDB();
         $vals[] = $id;
         $db->prepare("UPDATE collaborations SET " . implode(', ', $sets) . " WHERE id = ?")->execute($vals);
-        jsonResponse(['success' => true, 'message' => 'Collaboration mise à jour.']);
+        jsonResponse(['success' => true, 'message' => 'Collaboration updated.']);
         break;
 
     // ======================== DELETE ========================
@@ -109,10 +109,10 @@ switch ($action) {
         requireRole('admin');
         $data = getJsonBody();
         $id   = (int)($data['id'] ?? 0);
-        if (!$id) jsonResponse(['success' => false, 'message' => 'ID invalide.'], 422);
+        if (!$id) jsonResponse(['success' => false, 'message' => 'Invalid ID.'], 422);
         $db = getDB();
         $db->prepare('DELETE FROM collaborations WHERE id = ?')->execute([$id]);
-        jsonResponse(['success' => true, 'message' => 'Collaboration supprimée.']);
+        jsonResponse(['success' => true, 'message' => 'Collaboration deleted.']);
         break;
 
     // ======================== MY COLLABS (client / influencer) ========================
@@ -142,5 +142,7 @@ switch ($action) {
         break;
 
     default:
-        jsonResponse(['success' => false, 'message' => 'Action inconnue.'], 400);
+        jsonResponse(['success' => false, 'message' => 'Unknown action.'], 400);
 }
+
+

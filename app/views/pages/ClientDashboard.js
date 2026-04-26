@@ -7,9 +7,11 @@
 const ClientDashboard = {
 
   _page: 'accueil',
+  _unreadSyncBound: false,
 
   render(page = null) {
     if (page) this._page = page;
+    this._ensureUnreadSyncHook();
     setTimeout(() => ClientDashboard._refreshUnreadBadge(),   300);
     setTimeout(() => ClientDashboard._refreshContractBadge(), 400);
     setTimeout(() => TourController.maybeStart(), 800);
@@ -156,6 +158,7 @@ const ClientDashboard = {
 
     if (page === 'discussions') ClientDashboard._setBadge('discussions', 0);
     if (page === 'contrats')    ClientDashboard._setBadge('contrats', 0);
+    if (page !== 'discussions') setTimeout(() => ClientDashboard._refreshUnreadBadge(), 120);
 
     // Close mobile sidebar after navigation
     const sidebar = document.querySelector('.dash-sidebar');
@@ -166,12 +169,21 @@ const ClientDashboard = {
 
   async _refreshUnreadBadge() {
     try {
-      const res   = await fetch('api/messages.php?action=conversations');
+      const res   = await fetch('api/messages.php?action=conversations', { cache: 'no-store' });
       const data  = await res.json();
       const convs = data.conversations || [];
       const n     = convs.reduce((sum, c) => sum + (parseInt(c.unread_count) || 0), 0);
       ClientDashboard._setBadge('discussions', this._page === 'discussions' ? 0 : n);
     } catch (_) {}
+  },
+
+  _ensureUnreadSyncHook() {
+    if (this._unreadSyncBound) return;
+    this._unreadSyncBound = true;
+    window.addEventListener('influmatch:messages-read', () => {
+      this._refreshUnreadBadge();
+      if (this._page === 'accueil') this._loadAccueil();
+    });
   },
 
   async _refreshContractBadge() {
@@ -285,7 +297,7 @@ const ClientDashboard = {
       const [collabsRes, contractsRes, convRes, tasksRes] = await Promise.all([
         fetch('api/collaborations.php?action=my_collabs'),
         fetch('api/contracts.php?action=my_contracts'),
-        fetch('api/messages.php?action=conversations'),
+        fetch('api/messages.php?action=conversations', { cache: 'no-store' }),
         fetch('api/tasks.php?action=my_tasks'),
       ]);
       const collabsData   = await collabsRes.json();
@@ -391,7 +403,7 @@ const ClientDashboard = {
               </div>
               <div class="ac-todo-empty">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="width:28px;height:28px;color:var(--muted)"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg>
-                <p>Aucune tâche en attente — l'équipe Influmatch t'en assignera bientôt.</p>
+                <p>No pending tasks - the Influmatch team will assign one soon.</p>
               </div>
             </div>
           `;
@@ -554,7 +566,6 @@ const ClientDashboard = {
       bodyEl.innerHTML = html;
 
     } catch (err) {
-      console.error('[Home]', err);
       const bodyEl = document.getElementById('accueilBody');
       if (bodyEl) bodyEl.innerHTML = '<div style="color:var(--muted);font-size:.85rem;padding:24px 0">Loading error.</div>';
     }
@@ -1158,40 +1169,40 @@ const ClientDashboard = {
     return `
       <div class="stt-layout">
 
-        <!-- ══ SETTINGS SIDEBAR ══ -->
-        <aside class="stt-sidebar">
-          <!-- Avatar -->
-          <div class="stt-profile-block">
-            <div class="stt-avatar-wrap" onclick="document.getElementById('avatarInput').click()" title="Change photo">
-              ${avatarHtml}
-              <div class="stt-avatar-overlay">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/>
-                  <circle cx="12" cy="13" r="4"/>
-                </svg>
-              </div>
-              <input type="file" id="avatarInput" accept="image/*" style="display:none"
-                     onchange="ClientDashboard._uploadAvatar(this)">
+        <!-- ══ PROFILE HEADER ══ -->
+        <div class="stt-profile-header">
+          <div class="stt-avatar-wrap" onclick="document.getElementById('avatarInput').click()" title="Change photo">
+            ${avatarHtml}
+            <div class="stt-avatar-overlay">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/>
+                <circle cx="12" cy="13" r="4"/>
+              </svg>
             </div>
+            <input type="file" id="avatarInput" accept="image/*" style="display:none"
+                   onchange="ClientDashboard._uploadAvatar(this)">
+          </div>
+          <div class="stt-profile-info">
             <div class="stt-profile-name">${user.firstname || ''} ${user.lastname || ''}</div>
             <div class="stt-profile-email">${user.email || ''}</div>
             ${joinDate ? `<div class="stt-profile-join">Member since ${joinDate}</div>` : ''}
           </div>
+        </div>
 
-          <!-- Nav tabs -->
-          <nav class="stt-nav">
-            ${tabs.map(t => `
-              <button class="stt-nav-item ${tab === t.id ? 'active' : ''}"
-                      onclick="ClientDashboard._switchCompteTab('${t.id}')">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
-                     stroke-linecap="round" stroke-linejoin="round">
-                  ${t.icon}
-                </svg>
-                ${t.label}
-              </button>
-            `).join('')}
-          </nav>
-        </aside>
+        <!-- ══ TABS HORIZONTAUX ══ -->
+        <nav class="stt-tabs">
+          ${tabs.map(t => `
+            <button class="stt-tab-btn ${tab === t.id ? 'active' : ''}"
+                    data-tab="${t.id}"
+                    onclick="ClientDashboard._switchCompteTab('${t.id}')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+                   stroke-linecap="round" stroke-linejoin="round">
+                ${t.icon}
+              </svg>
+              ${t.label}
+            </button>
+          `).join('')}
+        </nav>
 
         <!-- ══ TAB CONTENT ══ -->
         <div class="stt-content" id="sttContent">
@@ -1383,8 +1394,8 @@ const ClientDashboard = {
   _switchCompteTab(tab) {
     ClientDashboard._compteTab = tab;
     // Update active buttons
-    document.querySelectorAll('.stt-nav-item').forEach(b => {
-      b.classList.toggle('active', b.textContent.trim().toLowerCase().startsWith(tab === 'securite' ? 'sec' : tab === 'collabs' ? 'col' : 'pro'));
+    document.querySelectorAll('.stt-tab-btn').forEach(b => {
+      b.classList.toggle('active', b.dataset.tab === tab);
     });
     const content = document.getElementById('sttContent');
     if (content) {

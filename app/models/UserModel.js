@@ -31,8 +31,7 @@ const UserModel = {
       if (data.success && data.user) this._setUser(data.user);
       return data;
     } catch (err) {
-      console.error('Register error:', err);
-      return { success: false, message: 'Erreur réseau. Vérifie que ton serveur PHP est lancé.' };
+      return { success: false, message: 'Network error. Check your connection and try again.' };
     }
   },
 
@@ -48,8 +47,7 @@ const UserModel = {
       if (data.success && data.user) this._setUser(data.user);
       return data;
     } catch (err) {
-      console.error('Login error:', err);
-      return { success: false, message: 'Erreur réseau. Vérifie que ton serveur PHP est lancé.' };
+      return { success: false, message: 'Network error. Check your connection and try again.' };
     }
   },
 
@@ -64,7 +62,7 @@ const UserModel = {
     this._notify();
   },
 
-  // ---- API: Check session (appelé au boot) ----
+  // ---- API: Check session (called on boot) ----
   async checkSession() {
     try {
       const res = await fetch('api/auth.php?action=me');
@@ -74,8 +72,7 @@ const UserModel = {
         return true;
       }
     } catch (e) {
-      // Pas de serveur PHP → mode offline, pas grave
-      console.warn('API non disponible — mode offline');
+      // API unavailable — offline mode
     }
     return false;
   },

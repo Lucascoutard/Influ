@@ -1,6 +1,6 @@
 /* ===================================================
    APP/CONTROLLERS/AGENTCONTROLLER.JS
-   Agent marketing IA — interface de chat avec Claude
+   AI marketing agent — chat interface with Claude
    =================================================== */
 
 const AgentController = {
@@ -9,14 +9,14 @@ const AgentController = {
   _loading: false,
 
   QUICK_ACTIONS: [
-    { id: 'analyse',    label: '🔍 Analyser une marque',     msg: 'Analyse cette entreprise pour moi : [nom de la marque]. Secteur, positionnement, cible, concurrents, actualité récente, et dis-moi si c\'est une bonne cible pour une campagne d\'influence.' },
-    { id: 'trigger',    label: '⚡ Levier de prospection',   msg: 'Trouve-moi des leviers de prospection (trigger events) pour contacter [nom de la marque] : lancement produit, levée de fonds, recrutement, expansion, événement à venir, nouveau CMO...' },
-    { id: 'email',      label: '✉️ Email de prospection',    msg: 'Rédige un email de prospection B2B percutant pour contacter [nom de la marque / poste du contact]. Angle : [trigger event]. Inclus objet + corps complet prêt à envoyer.' },
-    { id: 'sequence',   label: '📨 Séquence multi-touch',    msg: 'Crée une séquence de 3 emails de prospection (J+0 accroche, J+3 valeur, J+7 relance douce) pour approcher [nom de la marque] sur le sujet [angle/offre Influmatch].' },
-    { id: 'script',     label: '🎬 Script vidéo',            msg: 'Rédige un script vidéo complet pour [TikTok / Instagram Reels / YouTube Shorts] d\'une durée de [30s / 60s] pour [nom de la marque / produit]. Inclus timecodes et directions visuelles.' },
-    { id: 'brief',      label: '📋 Brief créatif influenceur', msg: 'Rédige un brief créatif complet pour un influenceur sur [plateforme] pour la marque [nom]. Inclus objectif, message clé, do/don\'t, et exemples de références.' },
-    { id: 'prompt',     label: '🎨 Prompt image IA',         msg: 'Génère un prompt détaillé pour Midjourney / DALL·E pour un visuel [style] adapté à [Instagram / LinkedIn / TikTok] pour une marque [secteur].' },
-    { id: 'linkedin',   label: '💼 Message LinkedIn',        msg: 'Rédige un message LinkedIn de prospection court et efficace (max 300 caractères) pour contacter [prénom + poste] chez [marque]. Angle : [trigger event].' },
+    { id: 'analyse',    label: '🔍 Analyze a brand',          msg: 'Analyze this company for me: [brand name]. Sector, positioning, target audience, competitors, recent news — and tell me if it\'s a good fit for an influencer campaign.' },
+    { id: 'trigger',    label: '⚡ Prospecting trigger',       msg: 'Find me prospecting trigger events to contact [brand name]: product launch, fundraising, hiring spree, expansion, upcoming event, new CMO…' },
+    { id: 'email',      label: '✉️ Outreach email',            msg: 'Write a punchy B2B outreach email to contact [brand name / contact\'s title]. Angle: [trigger event]. Include subject line + full ready-to-send body.' },
+    { id: 'sequence',   label: '📨 Multi-touch sequence',      msg: 'Create a 3-email outreach sequence (Day 0 hook, Day 3 value, Day 7 soft follow-up) to approach [brand name] on the topic of [Influmatch angle/offer].' },
+    { id: 'script',     label: '🎬 Video script',              msg: 'Write a complete video script for [TikTok / Instagram Reels / YouTube Shorts] lasting [30s / 60s] for [brand name / product]. Include timecodes and visual directions.' },
+    { id: 'brief',      label: '📋 Influencer creative brief', msg: 'Write a complete creative brief for an influencer on [platform] for the brand [name]. Include objective, key message, do/don\'t list, and reference examples.' },
+    { id: 'prompt',     label: '🎨 AI image prompt',           msg: 'Generate a detailed prompt for Midjourney / DALL·E for a [style] visual suited for [Instagram / LinkedIn / TikTok] for a [sector] brand.' },
+    { id: 'linkedin',   label: '💼 LinkedIn message',          msg: 'Write a short, effective LinkedIn prospecting message (max 300 characters) to contact [first name + title] at [brand]. Angle: [trigger event].' },
   ],
 
   // ================================================================
@@ -27,7 +27,6 @@ const AgentController = {
     const el = document.getElementById('agentMessages');
     if (!el) return;
 
-    // Auto-resize du textarea
     const input = document.getElementById('agentInput');
     if (input) {
       input.addEventListener('input', () => {
@@ -36,11 +35,10 @@ const AgentController = {
       });
     }
 
-    // Réaffiche l'historique si on revient sur la page
     if (this._history.length > 0) {
       this._rerenderHistory();
     } else {
-      this._appendMsg('assistant', 'Bonjour 👋 Je suis votre assistant IA Influmatch. Je peux vous aider à analyser une entreprise, trouver un levier de prospection, rédiger un email ou une séquence outbound, créer des scripts vidéo et briefs créatifs, ou répondre à toute question sur vos campagnes.\n\nUtilisez les raccourcis ci-dessus, ou tapez directement votre demande. Tapez **/clear** pour réinitialiser la conversation.');
+      this._appendMsg('assistant', 'Hello 👋 I\'m your Influmatch AI assistant. I can help you analyze a company, find prospecting triggers, write outbound emails or sequences, create video scripts and creative briefs, or answer any question about your campaigns.\n\nUse the shortcuts above, or type your request directly. Type **/clear** to reset the conversation.');
     }
 
     this._scrollBottom();
@@ -48,7 +46,7 @@ const AgentController = {
   },
 
   // ================================================================
-  //  ENVOI
+  //  SEND
   // ================================================================
 
   async send() {
@@ -92,7 +90,7 @@ const AgentController = {
       }
     } catch (_) {
       this._hideLoading();
-      this._appendMsg('assistant', '⚠️ Erreur réseau. Vérifiez votre connexion et réessayez.');
+      this._appendMsg('assistant', '⚠️ Network error. Check your connection and try again.');
     }
 
     this._setLoading(false);
@@ -119,7 +117,7 @@ const AgentController = {
     this._history = [];
     const el = document.getElementById('agentMessages');
     if (el) el.innerHTML = '';
-    this._appendMsg('assistant', 'Conversation réinitialisée. Comment puis-je vous aider ?');
+    this._appendMsg('assistant', 'Conversation reset. How can I help you?');
   },
 
   // ================================================================
@@ -197,33 +195,26 @@ const AgentController = {
   },
 
   // ================================================================
-  //  MARKDOWN → HTML (basique)
+  //  MARKDOWN → HTML (basic)
   // ================================================================
 
   _renderMd(text) {
-    // Escape HTML d'abord
     let html = this._esc(text);
 
-    // Titres ## et ###
     html = html.replace(/^### (.+)$/gm, '<h4 class="agent-md-h">$1</h4>');
     html = html.replace(/^## (.+)$/gm,  '<h3 class="agent-md-h">$1</h3>');
 
-    // Gras et italique
     html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
     html = html.replace(/\*(.+?)\*/g,     '<em>$1</em>');
 
-    // Code inline
     html = html.replace(/`([^`]+)`/g, '<code class="agent-md-code">$1</code>');
 
-    // Listes (- item ou * item)
     html = html.replace(/^[*-] (.+)$/gm, '<li>$1</li>');
     html = html.replace(/(<li>.*<\/li>)/s, '<ul class="agent-md-list">$1</ul>');
 
-    // Paragraphes : double saut de ligne → séparateur
     html = html.replace(/\n\n/g, '</p><p class="agent-md-p">');
     html = '<p class="agent-md-p">' + html + '</p>';
 
-    // Sauts de ligne simples → <br> (sauf dans les blocs déjà structurés)
     html = html.replace(/([^>])\n([^<])/g, '$1<br>$2');
 
     return html;

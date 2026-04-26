@@ -26,7 +26,7 @@ const HomePage = {
           <span class="doodle doodle-spark doodle-spark--hero2" aria-hidden="true">✦</span>
 
           <div class="hero-video-bg">
-            <video autoplay muted loop playsinline poster="public/assets/images/hero-poster.jpg">
+            <video autoplay muted loop playsinline poster="public/assets/images/hero-video-poster.png">
               <source src="public/assets/videos/hero.mp4" type="video/mp4">
             </video>
             <div class="hero-visual-placeholder"></div>
@@ -78,11 +78,6 @@ const HomePage = {
               TikTok
             </div>
             <div class="trust-sep"></div>
-            <div class="trust-item trust-item--niche">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>
-              Skincare
-            </div>
-            <div class="trust-sep"></div>
             <div class="trust-item">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 010 1.972l-11.54 6.347a1.125 1.125 0 01-1.667-.986V5.653z"/></svg>
               YouTube
@@ -90,27 +85,12 @@ const HomePage = {
             <div class="trust-sep"></div>
             <div class="trust-item trust-item--niche">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>
-              Haircare
+              Skincare
             </div>
             <div class="trust-sep"></div>
             <div class="trust-item">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z"/></svg>
               Stripe
-            </div>
-            <div class="trust-sep"></div>
-            <div class="trust-item trust-item--niche">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>
-              Makeup
-            </div>
-            <div class="trust-sep"></div>
-            <div class="trust-item">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418"/></svg>
-              PayPal
-            </div>
-            <div class="trust-sep"></div>
-            <div class="trust-item trust-item--niche">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>
-              Lifestyle
             </div>
             <div class="trust-sep"></div>
             <div class="trust-item">
@@ -135,11 +115,6 @@ const HomePage = {
               TikTok
             </div>
             <div class="trust-sep" aria-hidden="true"></div>
-            <div class="trust-item trust-item--niche" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>
-              Skincare
-            </div>
-            <div class="trust-sep" aria-hidden="true"></div>
             <div class="trust-item" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 010 1.972l-11.54 6.347a1.125 1.125 0 01-1.667-.986V5.653z"/></svg>
               YouTube
@@ -147,27 +122,12 @@ const HomePage = {
             <div class="trust-sep" aria-hidden="true"></div>
             <div class="trust-item trust-item--niche" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>
-              Haircare
+              Skincare
             </div>
             <div class="trust-sep" aria-hidden="true"></div>
             <div class="trust-item" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z"/></svg>
               Stripe
-            </div>
-            <div class="trust-sep" aria-hidden="true"></div>
-            <div class="trust-item trust-item--niche" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>
-              Makeup
-            </div>
-            <div class="trust-sep" aria-hidden="true"></div>
-            <div class="trust-item" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418"/></svg>
-              PayPal
-            </div>
-            <div class="trust-sep" aria-hidden="true"></div>
-            <div class="trust-item trust-item--niche" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>
-              Lifestyle
             </div>
             <div class="trust-sep" aria-hidden="true"></div>
             <div class="trust-item" aria-hidden="true">
@@ -176,7 +136,7 @@ const HomePage = {
             </div>
             <div class="trust-sep" aria-hidden="true"></div>
 
-            <!-- Set 3 — third copy to eliminate gap on large screens -->
+            <!-- Set 3 — third copy for seamless loop -->
             <div class="trust-item" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z"/><path d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0z"/></svg>
               Instagram
@@ -192,11 +152,6 @@ const HomePage = {
               TikTok
             </div>
             <div class="trust-sep" aria-hidden="true"></div>
-            <div class="trust-item trust-item--niche" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>
-              Skincare
-            </div>
-            <div class="trust-sep" aria-hidden="true"></div>
             <div class="trust-item" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 010 1.972l-11.54 6.347a1.125 1.125 0 01-1.667-.986V5.653z"/></svg>
               YouTube
@@ -204,27 +159,12 @@ const HomePage = {
             <div class="trust-sep" aria-hidden="true"></div>
             <div class="trust-item trust-item--niche" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>
-              Haircare
+              Skincare
             </div>
             <div class="trust-sep" aria-hidden="true"></div>
             <div class="trust-item" aria-hidden="true">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3m-3.75 3h15a2.25 2.25 0 002.25-2.25V6.75A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25v10.5A2.25 2.25 0 004.5 19.5z"/></svg>
               Stripe
-            </div>
-            <div class="trust-sep" aria-hidden="true"></div>
-            <div class="trust-item trust-item--niche" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>
-              Makeup
-            </div>
-            <div class="trust-sep" aria-hidden="true"></div>
-            <div class="trust-item" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418"/></svg>
-              PayPal
-            </div>
-            <div class="trust-sep" aria-hidden="true"></div>
-            <div class="trust-item trust-item--niche" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg>
-              Lifestyle
             </div>
             <div class="trust-sep" aria-hidden="true"></div>
             <div class="trust-item" aria-hidden="true">
@@ -244,7 +184,7 @@ const HomePage = {
           <!-- Heading -->
           <div class="problem-heading-wrap reveal-left">
             <span class="section-label">The facts</span>
-            <h2 class="section-heading">A $33 billion market.<br>Still run in <em>chaos.</em></h2>
+            <h2 class="section-heading">A $33 billion market. Still run in <em>chaos.</em></h2>
             <p class="problem-intro-text">
               Influencer marketing has become a major growth lever. But the practices around collabs haven't kept up. Creators and brands have been dealing with the same friction for years — and nobody has really fixed the problem.
             </p>
@@ -310,31 +250,106 @@ const HomePage = {
             <div class="sol-img-wrap">
               <div class="sol-track">
                 <div class="sol-img active" data-step="0">
-                  <img src="public/assets/images/solution-matching.png" alt="Matching Influmatch">
+                  <img src="public/assets/images/solution-creator-matching.png" alt="Creator matching" loading="lazy">
                   // <div class="sol-placeholder">
                   //   <svg viewBox="0 0 40 40" fill="none"><rect x="4" y="4" width="32" height="32" rx="6" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 3"/><circle cx="15" cy="16" r="4" stroke="currentColor" stroke-width="1.5"/><path d="M6 34c2-5 5-8 9-8s7 3 9 8M26 20l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
                   //   <span>Photo / video — Matching</span>
                   // </div>
                 </div>
                 <div class="sol-img" data-step="1">
-                  <img src="public/assets/images/solution-contrat.png" alt="Contract Influmatch">
+                  <img src="public/assets/images/solution-contract-signing.png" alt="Contract signing" loading="lazy">
                   // <div class="sol-placeholder">
                   //   <svg viewBox="0 0 40 40" fill="none"><rect x="4" y="4" width="32" height="32" rx="6" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 3"/><circle cx="15" cy="16" r="4" stroke="currentColor" stroke-width="1.5"/><path d="M6 34c2-5 5-8 9-8s7 3 9 8M26 20l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
                   //   <span>Photo / video — Contract</span>
                   // </div>
                 </div>
                 <div class="sol-img" data-step="2">
-                  <img src="public/assets/images/solution-suivi.png" alt="Tracking Influmatch">
+                  <img src="public/assets/images/solution-deliverable-tracking.png" alt="Deliverable tracking" loading="lazy">
                   <div class="sol-placeholder">
                     <svg viewBox="0 0 40 40" fill="none"><rect x="4" y="4" width="32" height="32" rx="6" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 3"/><circle cx="15" cy="16" r="4" stroke="currentColor" stroke-width="1.5"/><path d="M6 34c2-5 5-8 9-8s7 3 9 8M26 20l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
                     <span>Photo / video — Tracking</span>
                   </div>
                 </div>
-                <div class="sol-img" data-step="3">
-                  <!-- <img src="public/assets/images/solution-outil.jpg" alt="Tool Influmatch"> -->
-                  <div class="sol-placeholder">
-                    <svg viewBox="0 0 40 40" fill="none"><rect x="4" y="4" width="32" height="32" rx="6" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 3"/><circle cx="15" cy="16" r="4" stroke="currentColor" stroke-width="1.5"/><path d="M6 34c2-5 5-8 9-8s7 3 9 8M26 20l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                    <span>Photo / video — Tool</span>
+                <div class="sol-img sol-img--mockup" data-step="3">
+                  <div class="sol-mockup-wrap">
+                    <div class="platform-mockup">
+                      <div class="pv-chrome">
+                        <div class="pv-chrome-dots">
+                          <span class="pv-chrome-dot"></span>
+                          <span class="pv-chrome-dot"></span>
+                          <span class="pv-chrome-dot"></span>
+                        </div>
+                        <div class="pv-chrome-url">
+                          <svg viewBox="0 0 12 12" fill="none"><path d="M9 5V4a3 3 0 00-6 0v1M3.5 5h5a1 1 0 011 1v4a1 1 0 01-1 1h-5a1 1 0 01-1-1V6a1 1 0 011-1z" stroke="currentColor" stroke-width="1"/></svg>
+                          app.influmatch.io/dashboard
+                        </div>
+                      </div>
+                      <div class="pm-ui">
+                        <div class="pm-sidebar">
+                          <div class="pm-sb-logo">IM</div>
+                          <div class="pm-sb-item pm-sb-item--active">
+                            <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="9" y="2" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="2" y="9" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="9" y="9" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/></svg>
+                            <span>Dashboard</span>
+                          </div>
+                          <div class="pm-sb-item">
+                            <svg viewBox="0 0 16 16" fill="none"><path d="M2 5h12M2 8h8M2 11h5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+                            <span>Campaigns</span>
+                          </div>
+                          <div class="pm-sb-item">
+                            <svg viewBox="0 0 16 16" fill="none"><path d="M13 4H3a1 1 0 00-1 1v6a1 1 0 001 1h2l2 2 2-2h3a1 1 0 001-1V5a1 1 0 00-1-1z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
+                            <span>Messages</span>
+                          </div>
+                          <div class="pm-sb-item">
+                            <svg viewBox="0 0 16 16" fill="none"><path d="M4 2h6l3 3v9a1 1 0 01-1 1H4a1 1 0 01-1-1V3a1 1 0 011-1z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M10 2v3h3M5.5 8.5h5M5.5 10.5h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+                            <span>Contracts</span>
+                          </div>
+                        </div>
+                        <div class="pm-main">
+                          <div class="pm-topbar">
+                            <span class="pm-tb-title">Dashboard</span>
+                            <div class="pm-spacer"></div>
+                            <span class="pm-tb-btn">+ New collab</span>
+                          </div>
+                          <div class="pm-stats">
+                            <div class="pm-stat"><span class="pm-stat-label">Active campaigns</span><span class="pm-stat-val">3</span></div>
+                            <div class="pm-stat"><span class="pm-stat-label">Budget committed</span><span class="pm-stat-val">$4,200</span></div>
+                            <div class="pm-stat"><span class="pm-stat-label">Active creators</span><span class="pm-stat-val">8</span></div>
+                          </div>
+                          <div class="pm-list">
+                            <div class="pm-list-head">
+                              <span>Creator · Brand</span><span>Status</span><span>Budget</span><span>Deadline</span>
+                            </div>
+                            <div class="pm-row">
+                              <div class="pm-row-creator"><span class="pm-av" style="background:linear-gradient(135deg,#e0b88a,#a87040)">L</span>Lea D. × NovaSkin</div>
+                              <span class="pm-status pm-status--green">In progress</span>
+                              <span class="pm-val">$850</span>
+                              <span class="pm-date">Apr 12</span>
+                            </div>
+                            <div class="pm-row">
+                              <div class="pm-row-creator"><span class="pm-av" style="background:linear-gradient(135deg,#9dcce4,#4a8aa8)">M</span>Marc T. × GlowLab</div>
+                              <span class="pm-status pm-status--violet">Brief sent</span>
+                              <span class="pm-val">$1,200</span>
+                              <span class="pm-date">Apr 28</span>
+                            </div>
+                            <div class="pm-row pm-row--dim">
+                              <div class="pm-row-creator"><span class="pm-av" style="background:linear-gradient(135deg,#c4aadc,#7a50a0)">S</span>Sofia R. × Lumière</div>
+                              <span class="pm-status pm-status--rose">Contract signed</span>
+                              <span class="pm-val">$2,150</span>
+                              <span class="pm-date">May 3</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <!-- Floating badges -->
+                    <div class="pv-annotation pv-annotation--1">
+                      <div class="pv-ann-dot pv-ann-dot--green"></div>
+                      <div><div class="pv-ann-val">D+3</div><div class="pv-ann-lbl">Automatic transfer</div></div>
+                    </div>
+                    <div class="pv-annotation pv-annotation--2">
+                      <div class="pv-ann-dot pv-ann-dot--violet"></div>
+                      <div><div class="pv-ann-val">100%</div><div class="pv-ann-lbl">Secured payments</div></div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -419,10 +434,7 @@ const HomePage = {
             <div class="cases-col cases-col--brand reveal-left">
 
               <div class="cases-col-image reveal-scale">
-                <!-- Replace with: <img src="public/assets/images/brand-team.jpg" alt="Beauty brand"> -->
-                <div class="cases-col-image-placeholder">
-                  <span class="cases-col-image-hint">Beauty brand photo</span>
-                </div>
+                <img src="public/assets/images/brand-client-usecase.png" alt="Beauty brand" class="cases-col-img">
                 <div class="cases-image-badge">
                   <div class="cases-image-badge-dot"></div>
                   <div>
@@ -477,10 +489,7 @@ const HomePage = {
             <div class="cases-col cases-col--creator reveal-right reveal-delay-1">
 
               <div class="cases-col-image reveal-scale reveal-delay-1">
-                <!-- Replace with: <img src="public/assets/images/creator-filming.jpg" alt="Content creator"> -->
-                <div class="cases-col-image-placeholder">
-                  <span class="cases-col-image-hint">Creator photo</span>
-                </div>
+                <img src="public/assets/images/content-creator-usecase.png" alt="Content creator" class="cases-col-img">
                 <div class="cases-image-badge">
                   <div class="cases-image-badge-dot"></div>
                   <div>
@@ -642,7 +651,7 @@ const HomePage = {
             <!-- Left: features -->
             <div class="platform-text reveal-left">
               <span class="section-label">Client space</span>
-              <h2 class="section-heading">One platform<br>to <em>manage everything.</em></h2>
+              <h2 class="section-heading">One platform to <em>manage everything.</em></h2>
               <p class="platform-intro">Available from your very first collab — your dashboard replaces scattered emails, Excel spreadsheets, and manual follow-ups.</p>
 
               <div class="platform-feat-list">
@@ -687,91 +696,26 @@ const HomePage = {
               <a href="#login" class="btn-primary">Access my space</a>
             </div>
 
-            <!-- Right: dashboard mockup -->
+            <!-- Right: dashboard preview -->
             <div class="platform-mockup-wrap reveal-right">
-              <div class="platform-mockup">
+              <img src="public/assets/images/dashboard-platform-preview.webp" alt="Influmatch dashboard preview" class="platform-preview-img" loading="lazy">
 
-                <!-- Browser chrome -->
-                <div class="pv-chrome">
-                  <div class="pv-chrome-dots">
-                    <span class="pv-chrome-dot"></span>
-                    <span class="pv-chrome-dot"></span>
-                    <span class="pv-chrome-dot"></span>
-                  </div>
-                  <div class="pv-chrome-url">
-                    <svg viewBox="0 0 12 12" fill="none"><path d="M9 5V4a3 3 0 00-6 0v1M3.5 5h5a1 1 0 011 1v4a1 1 0 01-1 1h-5a1 1 0 01-1-1V6a1 1 0 011-1z" stroke="currentColor" stroke-width="1"/></svg>
-                    app.influmatch.io/dashboard
-                  </div>
-                </div>
-
-                <!-- UI -->
-                <div class="pm-ui">
-                  <div class="pm-sidebar">
-                    <div class="pm-sb-logo">IM</div>
-                    <div class="pm-sb-item pm-sb-item--active">
-                      <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="2" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="9" y="2" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="2" y="9" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/><rect x="9" y="9" width="5" height="5" rx="1" stroke="currentColor" stroke-width="1.3"/></svg>
-                      <span>Dashboard</span>
-                    </div>
-                    <div class="pm-sb-item">
-                      <svg viewBox="0 0 16 16" fill="none"><path d="M2 5h12M2 8h8M2 11h5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-                      <span>Campaigns</span>
-                    </div>
-                    <div class="pm-sb-item">
-                      <svg viewBox="0 0 16 16" fill="none"><path d="M13 4H3a1 1 0 00-1 1v6a1 1 0 001 1h2l2 2 2-2h3a1 1 0 001-1V5a1 1 0 00-1-1z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/></svg>
-                      <span>Messages</span>
-                    </div>
-                    <div class="pm-sb-item">
-                      <svg viewBox="0 0 16 16" fill="none"><path d="M4 2h6l3 3v9a1 1 0 01-1 1H4a1 1 0 01-1-1V3a1 1 0 011-1z" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M10 2v3h3M5.5 8.5h5M5.5 10.5h3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-                      <span>Contracts</span>
-                    </div>
-                  </div>
-
-                  <div class="pm-main">
-                    <div class="pm-topbar">
-                      <span class="pm-tb-title">Dashboard</span>
-                      <div class="pm-spacer"></div>
-                      <span class="pm-tb-btn">+ New collab</span>
-                    </div>
-                    <div class="pm-stats">
-                      <div class="pm-stat"><span class="pm-stat-label">Active campaigns</span><span class="pm-stat-val">3</span></div>
-                      <div class="pm-stat"><span class="pm-stat-label">Budget committed</span><span class="pm-stat-val">$4,200</span></div>
-                      <div class="pm-stat"><span class="pm-stat-label">Active creators</span><span class="pm-stat-val">8</span></div>
-                    </div>
-                    <div class="pm-list">
-                      <div class="pm-list-head">
-                        <span>Creator · Brand</span><span>Status</span><span>Budget</span><span>Deadline</span>
-                      </div>
-                      <div class="pm-row">
-                        <div class="pm-row-creator"><span class="pm-av" style="background:linear-gradient(135deg,#e0b88a,#a87040)">L</span>Lea D. × NovaSkin</div>
-                        <span class="pm-status pm-status--green">In progress</span>
-                        <span class="pm-val">$850</span>
-                        <span class="pm-date">Apr 12</span>
-                      </div>
-                      <div class="pm-row">
-                        <div class="pm-row-creator"><span class="pm-av" style="background:linear-gradient(135deg,#9dcce4,#4a8aa8)">M</span>Marc T. × GlowLab</div>
-                        <span class="pm-status pm-status--violet">Brief sent</span>
-                        <span class="pm-val">$1,200</span>
-                        <span class="pm-date">Apr 28</span>
-                      </div>
-                      <div class="pm-row pm-row--dim">
-                        <div class="pm-row-creator"><span class="pm-av" style="background:linear-gradient(135deg,#c4aadc,#7a50a0)">S</span>Sofia R. × Lumière</div>
-                        <span class="pm-status pm-status--rose">Contract signed</span>
-                        <span class="pm-val">$2,150</span>
-                        <span class="pm-date">May 3</span>
-                      </div>
-                    </div>
-                  </div>
+              <!-- Floating badge — bottom left -->
+              <div class="pv-badge pv-badge--bl reveal reveal-delay-2">
+                <span class="pv-badge-dot pv-badge-dot--green"></span>
+                <div>
+                  <div class="pv-badge-val">D+3</div>
+                  <div class="pv-badge-lbl">Automatic transfer</div>
                 </div>
               </div>
 
-              <!-- Floating badges -->
-              <div class="pv-annotation pv-annotation--1 reveal reveal-delay-2">
-                <div class="pv-ann-dot pv-ann-dot--green"></div>
-                <div><div class="pv-ann-val">D+3</div><div class="pv-ann-lbl">Automatic transfer</div></div>
-              </div>
-              <div class="pv-annotation pv-annotation--2 reveal reveal-delay-3">
-                <div class="pv-ann-dot pv-ann-dot--violet"></div>
-                <div><div class="pv-ann-val">100%</div><div class="pv-ann-lbl">Secured payments</div></div>
+              <!-- Floating badge — top right -->
+              <div class="pv-badge pv-badge--tr reveal reveal-delay-3">
+                <span class="pv-badge-dot pv-badge-dot--purple"></span>
+                <div>
+                  <div class="pv-badge-val">100%</div>
+                  <div class="pv-badge-lbl">Secured payments</div>
+                </div>
               </div>
             </div>
 
@@ -796,8 +740,7 @@ const HomePage = {
 
                 <div class="about-portrait">
                   <div class="about-portrait-photo">
-                    <!-- Replace: <img src="public/assets/images/james.jpg" alt="James"> -->
-                    <div class="about-portrait-placeholder"></div>
+                    <img src="public/assets/images/founder-james-flogny.png" alt="James Flogny">
                   </div>
                   <div class="about-portrait-name">James</div>
                   <div class="about-portrait-role">Co-founder</div>
@@ -805,8 +748,7 @@ const HomePage = {
 
                 <div class="about-portrait">
                   <div class="about-portrait-photo">
-                    <!-- Replace: <img src="public/assets/images/lucas.jpg" alt="Lucas"> -->
-                    <div class="about-portrait-placeholder about-portrait-placeholder--alt"></div>
+                    <img src="public/assets/images/founder-lucas-coutard.jpg" alt="Lucas Coutard">
                   </div>
                   <div class="about-portrait-name">Lucas</div>
                   <div class="about-portrait-role">Co-founder</div>
@@ -844,36 +786,36 @@ const HomePage = {
             ${['', '', ''].map(() => `
             <div class="proof-card">
               <div class="proof-card-top">
-                <div class="proof-card-av" style="background:linear-gradient(135deg,#e0b88a,#a87040)">S</div>
+                <div class="proof-card-av"><img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Emma L." loading="lazy"></div>
                 <div class="proof-card-meta">
-                  <div class="proof-card-name">Sarah K.</div>
-                  <div class="proof-card-role">Founder · Glow Lab Skincare</div>
+                  <div class="proof-card-name">Emma L.</div>
+                  <div class="proof-card-role">Head of Marketing · NovaSkin US</div>
                 </div>
                 <span class="proof-card-tag proof-card-tag--brand">Brand</span>
               </div>
-              <blockquote class="proof-card-quote">"A creator disappeared after posting, with no recourse. With Influmatch everything was written, signed, tracked. Our first collab turned into an ongoing partnership."</blockquote>
+              <blockquote class="proof-card-quote">"We never did structured collabs before. The three-party contract made it easy to get internal sign-off. First campaign wrapped on time, on budget."</blockquote>
             </div>
             <div class="proof-card">
               <div class="proof-card-top">
-                <div class="proof-card-av" style="background:linear-gradient(135deg,#9dcce4,#4a8aa8)">M</div>
+                <div class="proof-card-av"><img src="https://randomuser.me/api/portraits/women/29.jpg" alt="Zoe H." loading="lazy"></div>
                 <div class="proof-card-meta">
-                  <div class="proof-card-name">Maya W.</div>
-                  <div class="proof-card-role">Beauty creator · Instagram 28K</div>
+                  <div class="proof-card-name">Zoe H. · @zoehbeauty</div>
+                  <div class="proof-card-role">Skincare creator · Instagram 19K</div>
                 </div>
                 <span class="proof-card-tag proof-card-tag--creator">Creator</span>
               </div>
-              <blockquote class="proof-card-quote">"For the first time, a brief that explained everything — goals, deliverables, usage rights. My payment arrived on D+3. I refuse any collab without this level of structure."</blockquote>
+              <blockquote class="proof-card-quote">"Signed the brief on Monday, got paid on Thursday. No chasing, no back-and-forth. Already referred two creator friends."</blockquote>
             </div>
             <div class="proof-card">
               <div class="proof-card-top">
-                <div class="proof-card-av" style="background:linear-gradient(135deg,#c4aadc,#7a50a0)">J</div>
+                <div class="proof-card-av"><img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Rachel M." loading="lazy"></div>
                 <div class="proof-card-meta">
-                  <div class="proof-card-name">Jessica T.</div>
-                  <div class="proof-card-role">Marketing Manager · Velvet Haircare</div>
+                  <div class="proof-card-name">Rachel M.</div>
+                  <div class="proof-card-role">Founder · Petite Glow</div>
                 </div>
                 <span class="proof-card-tag proof-card-tag--brand">Brand</span>
               </div>
-              <blockquote class="proof-card-quote">"3 creators urgently needed for a launch. Shortlist in 48h, contracts signed in 5 days. One became a recurring partner. Influmatch is part of every launch we do."</blockquote>
+              <blockquote class="proof-card-quote">"2 creators matched in 48h who actually fit our aesthetic — not just big numbers. That kind of curation is what we were looking for."</blockquote>
             </div>`).join('')}
           </div>
         </div>
@@ -884,36 +826,36 @@ const HomePage = {
             ${['', '', ''].map(() => `
             <div class="proof-card">
               <div class="proof-card-top">
-                <div class="proof-card-av" style="background:linear-gradient(135deg,#a8d8b0,#4a9a60)">T</div>
+                <div class="proof-card-av"><img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Alex N." loading="lazy"></div>
                 <div class="proof-card-meta">
-                  <div class="proof-card-name">Thomas L.</div>
-                  <div class="proof-card-role">Lifestyle creator · TikTok 45K</div>
+                  <div class="proof-card-name">Alex N. · @alexncreates</div>
+                  <div class="proof-card-role">Lifestyle creator · TikTok 34K</div>
                 </div>
                 <span class="proof-card-tag proof-card-tag--creator">Creator</span>
               </div>
-              <blockquote class="proof-card-quote">"No more dragging DMs and forgotten payments. Influmatch structures everything upfront — I sign, I create, I get paid. Exactly what we'd been waiting for."</blockquote>
+              <blockquote class="proof-card-quote">"I actually read the whole contract and understood every line. Usage rights, payment date, revision scope. This is how it should work everywhere."</blockquote>
             </div>
             <div class="proof-card">
               <div class="proof-card-top">
-                <div class="proof-card-av" style="background:linear-gradient(135deg,#f0b8c4,#c0607a)">A</div>
+                <div class="proof-card-av"><img src="https://randomuser.me/api/portraits/women/56.jpg" alt="Claire B." loading="lazy"></div>
                 <div class="proof-card-meta">
-                  <div class="proof-card-name">Amélie R.</div>
-                  <div class="proof-card-role">Marketing Director · Bloom Beauty</div>
+                  <div class="proof-card-name">Claire B.</div>
+                  <div class="proof-card-role">Brand Manager · Lumière Beauty</div>
                 </div>
                 <span class="proof-card-tag proof-card-tag--brand">Brand</span>
               </div>
-              <blockquote class="proof-card-quote">"We tried several agencies. Influmatch is the only one that offers a three-party contract from day one. The transparency makes all the difference."</blockquote>
+              <blockquote class="proof-card-quote">"Our legal team used to block every influencer collab. With Influmatch's contract framework, we got sign-off in a day. Game changer internally."</blockquote>
             </div>
             <div class="proof-card">
               <div class="proof-card-top">
-                <div class="proof-card-av" style="background:linear-gradient(135deg,#d4c090,#a08040)">K</div>
+                <div class="proof-card-av"><img src="https://randomuser.me/api/portraits/women/63.jpg" alt="Sam F." loading="lazy"></div>
                 <div class="proof-card-meta">
-                  <div class="proof-card-name">Karim D.</div>
-                  <div class="proof-card-role">Health creator · YouTube 62K</div>
+                  <div class="proof-card-name">Sam F. · @samfitzbeauty</div>
+                  <div class="proof-card-role">Beauty creator · Instagram 27K</div>
                 </div>
                 <span class="proof-card-tag proof-card-tag--creator">Creator</span>
               </div>
-              <blockquote class="proof-card-quote">"The brand knew what they wanted, I had the creative freedom to do it right. The contract protected both sides. That's rare — and you can feel it in the result."</blockquote>
+              <blockquote class="proof-card-quote">"The brief was clear, my creative direction was respected, and payment landed before the post even went live. Nothing like anything I'd experienced before."</blockquote>
             </div>`).join('')}
           </div>
         </div>
@@ -930,51 +872,61 @@ const HomePage = {
           <div class="faq-list">
             <div class="faq-item reveal" onclick="HomePage.toggleFaq(this)">
               <div class="faq-question">
-                <span>How much does Influmatch cost?</span>
+                <span>How does the matching process work?</span>
                 <div class="faq-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></div>
               </div>
               <div class="faq-answer">
-                <p>Our commission is 30%, displayed and explained upfront. It covers the full service: matching, brief, contract, coordination, tracking, and post-publication reporting. No hidden fees.</p>
+                <p>We start by analyzing your brand — your identity, values, aesthetic, and target audience. From there, we identify the creator profile that fits you best. We don't send a list for you to scroll through. We bring you the right person.</p>
               </div>
             </div>
 
             <div class="faq-item reveal reveal-delay-1" onclick="HomePage.toggleFaq(this)">
               <div class="faq-question">
-                <span>How do you select creators?</span>
+                <span>How long does it take to find the right creator?</span>
                 <div class="faq-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></div>
               </div>
               <div class="faq-answer">
-                <p>We verify real audience size, authentic engagement, and alignment with the brand's values. We focus on creators from 10k followers who are close to their community. No vanity metrics.</p>
+                <p>Most brands receive their creator proposal within 48 hours of their discovery call. We take the time to understand your brand first — because a well-matched creator from the start saves everyone time down the line.</p>
               </div>
             </div>
 
             <div class="faq-item reveal reveal-delay-1" onclick="HomePage.toggleFaq(this)">
               <div class="faq-question">
-                <span>What types of brands work with you?</span>
+                <span>I'm a creator — how do I join?</span>
                 <div class="faq-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></div>
               </div>
               <div class="faq-answer">
-                <p>We work with emerging beauty brands in the United States. Skincare, haircare, makeup — brands that want authentic collabs with creators who reflect their identity.</p>
+                <p>Reach out via the contact form. We review your profile — authenticity, engagement quality, niche — and get back to you within a few days. We work with creators from 10K followers who have a real relationship with their audience.</p>
               </div>
             </div>
 
             <div class="faq-item reveal reveal-delay-2" onclick="HomePage.toggleFaq(this)">
               <div class="faq-question">
-                <span>What is the three-party contract?</span>
+                <span>What does the contract cover?</span>
                 <div class="faq-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></div>
               </div>
               <div class="faq-answer">
-                <p>It's a contract signed by the brand, the creator, and Influmatch via DocuSign. It defines deliverables, usage rights, legal mentions, timeline, and payment. Everyone knows what to expect.</p>
+                <p>The three-party contract (brand + creator + Influmatch) is signed digitally via trusted platforms like DocuSign or equivalent. It covers deliverables, posting deadlines, usage rights, revision rounds, and payment terms. Everything is written before anything starts.</p>
               </div>
             </div>
 
             <div class="faq-item reveal reveal-delay-2" onclick="HomePage.toggleFaq(this)">
               <div class="faq-question">
-                <span>What happens after publication?</span>
+                <span>When do creators get paid?</span>
                 <div class="faq-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></div>
               </div>
               <div class="faq-answer">
-                <p>We don't disappear. We run a human debrief, share qualitative feedback, and suggest optimization ideas. If the brand and creator want to, we start planning the next collaboration.</p>
+                <p>Payment terms are defined in the contract before the collab begins. No chasing, no uncertainty — the timeline is agreed upfront and enforced by the contract.</p>
+              </div>
+            </div>
+
+            <div class="faq-item reveal reveal-delay-3" onclick="HomePage.toggleFaq(this)">
+              <div class="faq-question">
+                <span>What happens after the content goes live?</span>
+                <div class="faq-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg></div>
+              </div>
+              <div class="faq-answer">
+                <p>We debrief with both sides — reach, engagement, qualitative feedback. If the collab went well, we can facilitate a follow-up. We're not here for one-off transactions. We're here to build lasting partnerships.</p>
               </div>
             </div>
           </div>
@@ -1067,6 +1019,10 @@ const HomePage = {
 
   // ---- Constat stats : counters au scroll ----
   openVideoModal() {
+    // Supprimer un éventuel overlay résiduel
+    const existing = document.getElementById('heroVideoOverlay');
+    if (existing) existing.remove();
+
     const overlay = document.createElement('div');
     overlay.id        = 'heroVideoOverlay';
     overlay.className = 'hvm-overlay';
@@ -1078,9 +1034,14 @@ const HomePage = {
             <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
           </svg>
         </button>
-        <video class="hvm-video" controls autoplay playsinline
-               src="public/assets/videos/hero.mp4">
-        </video>
+        <div class="hvm-yt-wrap">
+          <iframe id="hvmIframe"
+            src="https://www.youtube.com/embed/CGSJTje4KvA?rel=0&modestbranding=1"
+            allow="autoplay; fullscreen"
+            allowfullscreen
+            frameborder="0">
+          </iframe>
+        </div>
       </div>
     `;
     document.body.appendChild(overlay);
@@ -1090,8 +1051,8 @@ const HomePage = {
     requestAnimationFrame(() => overlay.classList.add('hvm-overlay--in'));
 
     const close = () => {
-      const vid = overlay.querySelector('video');
-      if (vid) { vid.pause(); vid.src = ''; }
+      const iframe = document.getElementById('hvmIframe');
+      if (iframe) iframe.src = '';
       overlay.classList.remove('hvm-overlay--in');
       overlay.addEventListener('transitionend', () => {
         overlay.remove();
@@ -1150,6 +1111,12 @@ const HomePage = {
     const carousel = document.querySelector('.sol-carousel');
     if (!carousel) return;
 
+    // Kill ALL previous listeners + timer (SPA re-init guard)
+    clearInterval(HomePage._solTimer);
+    if (HomePage._solAbort) HomePage._solAbort.abort();
+    HomePage._solAbort = new AbortController();
+    const sig = HomePage._solAbort.signal;
+
     const track   = carousel.querySelector('.sol-track');
     const imgs    = carousel.querySelectorAll('.sol-img');
     const texts   = carousel.querySelectorAll('.sol-text');
@@ -1162,7 +1129,6 @@ const HomePage = {
 
     const GAP  = 20;
     const PEEK = 48;
-    // Slide height synced with CSS (420px desktop / 300px mobile)
     const slideH = () => window.innerWidth <= 820 ? 300 : 420;
 
     const activate = (idx) => {
@@ -1175,25 +1141,19 @@ const HomePage = {
       if (counter) counter.textContent = String(current + 1).padStart(2, '0');
     };
 
-    // Autoplay — clear any previous interval before starting
-    clearInterval(HomePage._solTimer);
     const startAuto = () => {
-      HomePage._solTimer = setInterval(() => activate(current + 1), 4500);
-    };
-    const resetAuto = () => {
       clearInterval(HomePage._solTimer);
-      startAuto();
+      HomePage._solTimer = setInterval(() => activate(current + 1), 3000);
     };
+    const resetAuto = () => { clearInterval(HomePage._solTimer); startAuto(); };
 
-    // Pause on hover
-    carousel.addEventListener('mouseenter', () => clearInterval(HomePage._solTimer));
-    carousel.addEventListener('mouseleave', startAuto);
+    // All listeners scoped to this init — aborted on next init
+    carousel.addEventListener('mouseenter', () => clearInterval(HomePage._solTimer), { signal: sig });
+    carousel.addEventListener('mouseleave', startAuto, { signal: sig });
 
-    // Click on dots
-    dots.forEach(d => d.addEventListener('click', () => { activate(+d.dataset.step); resetAuto(); }));
-
-    if (prev) prev.addEventListener('click', () => { activate(current - 1); resetAuto(); });
-    if (next) next.addEventListener('click', () => { activate(current + 1); resetAuto(); });
+    dots.forEach(d => d.addEventListener('click', () => { activate(+d.dataset.step); resetAuto(); }, { signal: sig }));
+    if (prev) prev.addEventListener('click', () => { activate(current - 1); resetAuto(); }, { signal: sig });
+    if (next) next.addEventListener('click', () => { activate(current + 1); resetAuto(); }, { signal: sig });
 
     activate(0);
     startAuto();

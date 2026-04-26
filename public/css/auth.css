@@ -25,12 +25,24 @@
 
 /* ---- Panneau visuel gauche ---- */
 .auth-visual {
-  background: linear-gradient(135deg, #2d2b3d 0%, #3a3554 30%, #4a4268 60%, #2d2b3d 100%);
+  background-image: url('../assets/images/auth-page-illustration.png');
+  background-color: #3a3554;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
   padding: 56px 44px;
   display: flex;
   align-items: center;
   position: relative;
   overflow: hidden;
+}
+
+.auth-visual::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(20, 20, 30, 0.45) 0%, rgba(20, 20, 30, 0.18) 45%, rgba(20, 20, 30, 0) 75%);
+  z-index: 0;
 }
 
 .auth-visual-content {
@@ -57,7 +69,7 @@
 .auth-visual-text {
   font-size: 0.92rem;
   line-height: 1.7;
-  color: rgba(255, 255, 255, 0.65);
+  color: rgba(255, 255, 255, 0.88);
   max-width: 320px;
 }
 

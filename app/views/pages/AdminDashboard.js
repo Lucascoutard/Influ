@@ -7,7 +7,8 @@
 
 const AdminDashboard = {
 
-  _page: 'overview',
+  _page:      'overview',
+  _compteTab: 'profil',
 
   render(page = null) {
     if (page) {
@@ -32,7 +33,8 @@ const AdminDashboard = {
         <aside class="dash-sidebar">
 
           <div class="dash-user-card">
-            <div class="dash-user-initial">${initial}</div>
+            <div class="dash-user-initial" id="dashSidebarAvatar"
+              ${user && user.avatar ? `style="background-image:url('${user.avatar}');background-size:cover;background-position:center;color:transparent"` : ''}>${user && user.avatar ? '' : initial}</div>
             <div class="dash-user-details">
               <div class="dash-user-name">${name}</div>
               <span class="dash-user-badge dash-user-badge--admin">Admin</span>
@@ -120,7 +122,8 @@ const AdminDashboard = {
                 <line x1="3" y1="18" x2="21" y2="18"/>
               </svg>
             </button>
-            <div class="dash-hdr-avatar" title="${name}">${initial}</div>
+            <div class="dash-hdr-avatar" title="${name}" id="dashHdrAvatar"
+              ${user && user.avatar ? `style="background-image:url('${user.avatar}');background-size:cover;background-position:center;color:transparent"` : ''}>${user && user.avatar ? '' : initial}</div>
           </div>
         </nav>
       </header>
@@ -232,7 +235,10 @@ const AdminDashboard = {
   async _loadOverview() {
     try {
       const res  = await fetch('api/stats.php');
-      const data = await res.json();
+      const raw  = await res.text();
+      let data   = null;
+      try { data = JSON.parse(raw); } catch (_) {}
+      if (!data) throw new Error(raw || `HTTP ${res.status}`);
       if (!data.success) return;
       const s = data.stats;
 
@@ -371,7 +377,10 @@ const AdminDashboard = {
   async _loadCollabs() {
     try {
       const res  = await fetch('api/collaborations.php?action=list');
-      const data = await res.json();
+      const raw  = await res.text();
+      let data   = null;
+      try { data = JSON.parse(raw); } catch (_) {}
+      if (!data) throw new Error(raw || `HTTP ${res.status}`);
       this._collabsCache  = data.collaborations || [];
       this._collabsFilter = 'all';
       this._renderCollabs();
@@ -1759,9 +1768,14 @@ const AdminDashboard = {
       this._usersCache.unshift(data.user);
       this._usersSort = { col: 'created_at', dir: 'desc' };
       this._applyFilters();
-      this._toast(`Invitation sent to ${payload.email}`);
-    } catch (_) {
-      errEl.textContent   = 'Network error. Please try again.';
+      if (data.email_sent === false && data.invite_url) {
+        this._toast('User created, but email failed. Invitation link copied.', 'error');
+        try { await navigator.clipboard.writeText(data.invite_url); } catch (_) {}
+      } else {
+        this._toast(`Invitation sent to ${payload.email}`);
+      }
+    } catch (err) {
+      errEl.textContent   = (err && err.message ? err.message : 'Network error. Please try again.').slice(0, 240);
       errEl.style.display = 'block';
       btn.disabled        = false;
       btn.textContent     = 'Send invitation';
@@ -1777,10 +1791,18 @@ const AdminDashboard = {
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify({ user_id: userId }),
       });
-      const data = await res.json();
+      const raw  = await res.text();
+      let data   = null;
+      try { data = JSON.parse(raw); } catch (_) {}
+      if (!data) throw new Error(raw || `HTTP ${res.status}`);
       if (data.success) {
         const u = this._usersCache.find(x => parseInt(x.id) === userId);
-        this._toast(`Invitation resent to ${u?.email || 'the user'}`);
+        if (data.email_sent === false && data.invite_url) {
+          this._toast('Invitation regenerated, but email failed. Link copied.', 'error');
+          try { await navigator.clipboard.writeText(data.invite_url); } catch (_) {}
+        } else {
+          this._toast(`Invitation resent to ${u?.email || 'the user'}`);
+        }
         btn.textContent = 'Sent ✓';
         setTimeout(() => { btn.textContent = 'Resend email'; btn.disabled = false; }, 3000);
       } else {
@@ -1788,8 +1810,8 @@ const AdminDashboard = {
         btn.textContent = 'Resend email';
         btn.disabled    = false;
       }
-    } catch (_) {
-      this._toast('Network error. Please try again.', 'error');
+    } catch (err) {
+      this._toast((err && err.message ? err.message : 'Network error. Please try again.').slice(0, 240), 'error');
       btn.textContent = 'Resend email';
       btn.disabled    = false;
     }
@@ -1861,7 +1883,7 @@ const AdminDashboard = {
     return `
       <div class="dash-page-header">
         <h1 class="dash-page-title">Marketing agent</h1>
-        <p class="dash-page-desc">Votre assistant IA interne — analyse de marques, prospection outbound, scripts créatifs et assistance quotidienne Influmatch. Tapez <code>/clear</code> pour réinitialiser.</p>
+        <p class="dash-page-desc">Your internal AI assistant - brand analysis, outbound prospecting, creative scripts, and daily Influmatch support. Type <code>/clear</code> to reset.</p>
       </div>
 
       <div class="agent-wrap">
@@ -1872,7 +1894,7 @@ const AdminDashboard = {
 
           <div class="agent-input-row">
             <textarea id="agentInput" class="agent-input"
-                      placeholder="Décrivez votre demande… ou tapez /clear pour réinitialiser" rows="1"
+                      placeholder="Describe your request... or type /clear to reset" rows="1"
                       onkeydown="AgentController.onKeyDown(event)"></textarea>
             <button id="agentSendBtn" class="agent-send-btn" onclick="AgentController.send()">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"
@@ -1894,97 +1916,332 @@ const AdminDashboard = {
   },
 
   // ---- My account ----
-  _compte() {
+  _compte(tab = 'profil') {
     const user = UserModel.getUser();
     if (!user) return '';
+    AdminDashboard._compteTab = tab;
+    setTimeout(() => AdminDashboard._loadCompteTab(tab), 0);
+
+    const initial    = (user.firstname || 'A').charAt(0).toUpperCase();
+    const avatarUrl  = user.avatar || null;
+    const avatarHtml = avatarUrl
+      ? `<img src="${avatarUrl}" alt="avatar" class="stt-avatar-img">`
+      : `<span class="stt-avatar-initial">${initial}</span>`;
+    const joinDate   = user.created_at
+      ? new Date(user.created_at).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })
+      : null;
+
+    const tabs = [
+      { id: 'profil',   label: 'Profile',  icon: `<path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>` },
+      { id: 'securite', label: 'Security', icon: `<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>` },
+    ];
 
     return `
       <div class="dash-page-header">
         <h1 class="dash-page-title">My account</h1>
-        <p class="dash-page-desc">Your personal information and account status.</p>
+        <p class="dash-page-desc">Manage your profile, security and preferences.</p>
       </div>
+      <div class="stt-layout">
 
-      <div class="dash-account-wrap">
-        <div class="dash-account-grid">
-
-          <div class="dash-field">
-            <span class="dash-field-label">First name</span>
-            <div class="dash-field-value">${user.firstname || '—'}</div>
+        <!-- ══ PROFILE HEADER ══ -->
+        <div class="stt-profile-header">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:5px">
+            <div class="stt-avatar-wrap" onclick="document.getElementById('adminAvatarInput').click()" title="Change photo">
+              ${avatarHtml}
+              <div class="stt-avatar-overlay">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/>
+                  <circle cx="12" cy="13" r="4"/>
+                </svg>
+              </div>
+            </div>
+            <span style="font-size:.7rem;color:var(--muted);cursor:pointer" onclick="document.getElementById('adminAvatarInput').click()">Change photo</span>
           </div>
-          <div class="dash-field">
-            <span class="dash-field-label">Last name</span>
-            <div class="dash-field-value">${user.lastname || '—'}</div>
+          <input type="file" id="adminAvatarInput" accept="image/*" style="display:none"
+                 onchange="AdminDashboard._uploadAvatar(this)">
+          <div class="stt-profile-info">
+            <div class="stt-profile-name">${user.firstname || ''} ${user.lastname || ''}</div>
+            <div class="stt-profile-email">${user.email || ''} · <span style="text-transform:capitalize">${user.role || ''}</span></div>
+            ${joinDate ? `<div class="stt-profile-join">Member since ${joinDate}</div>` : ''}
           </div>
-
-          <div class="dash-field dash-field--full">
-            <span class="dash-field-label">Email address</span>
-            <div class="dash-field-value">${user.email || '—'}</div>
-          </div>
-
-          <div class="dash-field">
-            <span class="dash-field-label">Role</span>
-            <div class="dash-field-value" style="text-transform:capitalize">${user.role || '—'}</div>
-          </div>
-          <div class="dash-field">
-            <span class="dash-field-label">Status</span>
-            <div style="margin-top:2px"><span class="dash-active-badge">Active account</span></div>
-          </div>
-
         </div>
 
-        <!-- Editable information -->
-        <div class="dash-account-edit-section" style="margin-top:24px">
-          <div class="dash-account-edit-title">Editable information</div>
-          <div class="dash-account-edit-grid">
-            <input class="dash-edit-input" id="adminEditPhone"   type="tel"  placeholder="Phone"   value="${this._escU(user.phone   || '')}">
-            <input class="dash-edit-input" id="adminEditCompany" type="text" placeholder="Company" value="${this._escU(user.company || '')}">
-          </div>
-          <div id="adminProfileMsg" style="font-size:.82rem;margin-bottom:10px;display:none"></div>
-          <button class="dash-save-btn" onclick="AdminDashboard._saveCompte(this)">Save</button>
-        </div>
+        <!-- ══ TABS HORIZONTAUX ══ -->
+        <nav class="stt-tabs">
+          ${tabs.map(t => `
+            <button class="stt-tab-btn ${tab === t.id ? 'active' : ''}"
+                    onclick="AdminDashboard._switchCompteTab('${t.id}')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"
+                   stroke-linecap="round" stroke-linejoin="round">
+                ${t.icon}
+              </svg>
+              ${t.label}
+            </button>
+          `).join('')}
+        </nav>
 
-        <!-- Change password -->
-        <div class="dash-account-edit-section" style="margin-top:16px">
-          <div class="dash-account-edit-title">Change password</div>
-          <div class="dash-account-edit-grid" style="grid-template-columns:1fr">
-            <input class="dash-edit-input" id="adminPwCurrent" type="password" placeholder="Current password">
-            <input class="dash-edit-input" id="adminPwNew"     type="password" placeholder="New password (min. 8 characters)">
-            <input class="dash-edit-input" id="adminPwConfirm" type="password" placeholder="Confirm new password">
-          </div>
-          <div id="adminPwMsg" style="font-size:.82rem;margin-bottom:10px;display:none"></div>
-          <button class="dash-save-btn" onclick="AdminDashboard._changePassword(this)">Update</button>
+        <!-- ══ TAB CONTENT ══ -->
+        <div class="stt-content" id="sttContent">
+          ${AdminDashboard._compteTabContent(tab, user)}
         </div>
       </div>
     `;
   },
 
+  _compteTabContent(tab, user) {
+    user = user || UserModel.getUser();
+    if (!user) return '';
+
+    if (tab === 'profil') return `
+      <div class="stt-card" style="margin-bottom:16px">
+        <div class="stt-section-title">Personal information</div>
+        <div class="stt-section-desc">Your identity as displayed across the platform.</div>
+        <div class="stt-form-grid">
+          <div class="stt-field">
+            <label class="stt-label">First name</label>
+            <input class="stt-input" id="adminEditFirst" type="text" value="${this._escU(user.firstname || '')}">
+          </div>
+          <div class="stt-field">
+            <label class="stt-label">Last name</label>
+            <input class="stt-input" id="adminEditLast"  type="text" value="${this._escU(user.lastname || '')}">
+          </div>
+          <div class="stt-field stt-field--full">
+            <label class="stt-label">Email address</label>
+            <input class="stt-input" id="adminEditEmail" type="email" value="${this._escU(user.email || '')}">
+          </div>
+          <div class="stt-field">
+            <label class="stt-label">Phone <span class="stt-optional">(optional)</span></label>
+            <input class="stt-input" id="adminEditPhone" type="tel" placeholder="+1 (555) 000-0000" value="${this._escU(user.phone || '')}">
+          </div>
+          <div class="stt-field">
+            <label class="stt-label">Role <span class="stt-optional">(read only)</span></label>
+            <input class="stt-input" type="text" value="${this._escU(user.role || '')}" disabled style="opacity:.6;cursor:not-allowed">
+          </div>
+        </div>
+        <div id="adminProfileMsg" class="stt-msg" style="display:none"></div>
+        <div class="stt-card-foot">
+          <button class="stt-save-btn" onclick="AdminDashboard._saveCompte(this)">Save changes</button>
+        </div>
+      </div>
+
+      <div class="stt-card" style="margin-bottom:16px">
+        <div class="stt-section-title">Business information</div>
+        <div class="stt-section-desc">Legal and company details used for contracts and billing.</div>
+        <div class="stt-form-grid">
+          <div class="stt-field stt-field--full">
+            <label class="stt-label">Company / Agency name <span class="stt-optional">(optional)</span></label>
+            <input class="stt-input" id="adminEditCompany" type="text" placeholder="Influmatch Agency LLC" value="${this._escU(user.company || '')}">
+          </div>
+          <div class="stt-field stt-field--full">
+            <label class="stt-label">Business address <span class="stt-optional">(optional)</span></label>
+            <input class="stt-input" id="adminEditAddress" type="text" placeholder="123 Main Street, Suite 100" value="${this._escU(user.address || '')}">
+          </div>
+          <div class="stt-field">
+            <label class="stt-label">City <span class="stt-optional">(optional)</span></label>
+            <input class="stt-input" id="adminEditCity" type="text" placeholder="New York" value="${this._escU(user.city || '')}">
+          </div>
+          <div class="stt-field">
+            <label class="stt-label">State / Province <span class="stt-optional">(optional)</span></label>
+            <input class="stt-input" id="adminEditState" type="text" placeholder="NY" value="${this._escU(user.state || '')}">
+          </div>
+          <div class="stt-field">
+            <label class="stt-label">ZIP / Postal code <span class="stt-optional">(optional)</span></label>
+            <input class="stt-input" id="adminEditZip" type="text" placeholder="10001" value="${this._escU(user.zip || '')}">
+          </div>
+          <div class="stt-field">
+            <label class="stt-label">Country <span class="stt-optional">(optional)</span></label>
+            <input class="stt-input" id="adminEditCountry" type="text" placeholder="United States" value="${this._escU(user.country || '')}">
+          </div>
+        </div>
+        <div id="adminBizMsg" class="stt-msg" style="display:none"></div>
+        <div class="stt-card-foot">
+          <button class="stt-save-btn" onclick="AdminDashboard._saveBiz(this)">Save changes</button>
+        </div>
+      </div>
+    `;
+
+    if (tab === 'securite') return `
+      <div class="stt-card">
+        <div class="stt-section-title">Passkeys</div>
+        <div class="stt-section-desc">Your registered passkeys for passwordless sign-in — no password needed.</div>
+        <div id="adminPasskeyList"><div class="stt-loading">Loading…</div></div>
+      </div>
+    `;
+
+    return '';
+  },
+
+  _switchCompteTab(tab) {
+    AdminDashboard._compteTab = tab;
+    document.querySelectorAll('.stt-tab-btn').forEach(b => b.classList.toggle('active', b.textContent.trim().toLowerCase().startsWith(tab.slice(0,4))));
+    const content = document.getElementById('sttContent');
+    if (!content) return;
+    content.style.opacity = '0';
+    content.style.transform = 'translateY(6px)';
+    setTimeout(() => {
+      content.innerHTML = AdminDashboard._compteTabContent(tab);
+      content.style.transition = 'opacity .18s ease, transform .18s ease';
+      content.style.opacity = '1';
+      content.style.transform = 'translateY(0)';
+      if (tab === 'securite') AdminDashboard._loadPasskeys();
+    }, 120);
+  },
+
+  _loadCompteTab(tab) {
+    if (tab === 'securite') AdminDashboard._loadPasskeys();
+  },
+
+  async _loadPasskeys() {
+    const el = document.getElementById('adminPasskeyList');
+    if (!el) return;
+    try {
+      const res  = await fetch('api/webauthn.php?action=list');
+      const data = await res.json();
+      const keys = data.passkeys || [];
+      if (!keys.length) { el.innerHTML = '<div class="stt-empty">No passkeys registered.</div>'; return; }
+      el.innerHTML = keys.map(k => `
+        <div class="stt-passkey-item">
+          <div class="stt-passkey-info">
+            <div class="stt-passkey-name">${k.device_name || 'Passkey'}</div>
+            <div class="stt-passkey-date">Added ${new Date(k.created_at).toLocaleDateString()}${k.last_used_at ? ' · Last used ' + new Date(k.last_used_at).toLocaleDateString() : ''}</div>
+          </div>
+          <button class="stt-passkey-del" onclick="AdminDashboard._deletePasskey(${k.id}, this)">Remove</button>
+        </div>
+      `).join('');
+    } catch (_) { el.innerHTML = '<div class="stt-empty">Error loading passkeys.</div>'; }
+  },
+
+  async _deletePasskey(id, btn) {
+    if (!confirm('Remove this passkey?')) return;
+    btn.disabled = true;
+    try {
+      const res  = await fetch('api/webauthn.php?action=remove', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ id }),
+      });
+      const data = await res.json();
+      if (data.success) AdminDashboard._loadPasskeys();
+      else btn.disabled = false;
+    } catch (_) { btn.disabled = false; }
+  },
+
+  async _addPasskey() {
+    // Redirect to passkey registration flow
+    alert('To add a new passkey, log out and use an invitation link, or use your browser passkey manager.');
+  },
+
+  async _uploadAvatar(input) {
+    const file = input.files?.[0];
+    if (!file) return;
+    const formData = new FormData();
+    formData.append('avatar', file);
+
+    const reader = new FileReader();
+    reader.onload = e => {
+      document.querySelectorAll('.stt-avatar-wrap').forEach(wrap => {
+        wrap.querySelector('.stt-avatar-initial')?.remove();
+        let img = wrap.querySelector('img.stt-avatar-img');
+        if (!img) {
+          img = document.createElement('img');
+          img.alt = 'avatar';
+          img.className = 'stt-avatar-img';
+          wrap.insertBefore(img, wrap.firstChild);
+        }
+        img.src = e.target.result;
+      });
+      ['.dash-hdr-avatar', '#dashSidebarAvatar'].forEach(sel => {
+        const el = document.querySelector(sel);
+        if (el) {
+          el.style.backgroundImage = `url(${e.target.result})`;
+          el.style.backgroundSize = 'cover';
+          el.style.backgroundPosition = 'center';
+          el.style.color = 'transparent';
+          el.textContent = '';
+        }
+      });
+    };
+    reader.readAsDataURL(file);
+
+    try {
+      const res  = await fetch('api/users.php?action=upload_avatar', { method: 'POST', body: formData });
+      const data = await res.json();
+      if (data.success) {
+        const u = UserModel.getUser();
+        if (u) u.avatar = data.avatar;
+      }
+    } catch (_) {}
+  },
+
   async _saveCompte(btn) {
-    const phone   = document.getElementById('adminEditPhone')?.value.trim()   || '';
-    const company = document.getElementById('adminEditCompany')?.value.trim() || '';
-    const msg     = document.getElementById('adminProfileMsg');
+    const firstname = document.getElementById('adminEditFirst')?.value.trim()   || '';
+    const lastname  = document.getElementById('adminEditLast')?.value.trim()    || '';
+    const email     = document.getElementById('adminEditEmail')?.value.trim()   || '';
+    const phone     = document.getElementById('adminEditPhone')?.value.trim()   || '';
+    const company   = document.getElementById('adminEditCompany')?.value.trim() || '';
+    const msg       = document.getElementById('adminProfileMsg');
 
     btn.disabled = true; btn.textContent = 'Saving…';
     try {
       const res  = await fetch('api/users.php?action=update_profile', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify({ phone, company }),
+        body:    JSON.stringify({ firstname, lastname, email, phone, company }),
       });
       const data = await res.json();
       if (msg) {
         msg.style.display = 'block';
-        msg.style.color   = data.success ? '#16a34a' : '#dc2626';
-        msg.textContent   = data.message || (data.success ? 'Profile updated.' : 'Error.');
+        msg.className = `stt-msg ${data.success ? 'stt-msg--success' : 'stt-msg--error'}`;
+        msg.textContent = data.message || (data.success ? 'Profile updated.' : 'Error.');
         setTimeout(() => { msg.style.display = 'none'; }, 3000);
       }
       if (data.success) {
         const u = UserModel.getUser();
-        if (u) { u.phone = phone; u.company = company; }
+        if (u) { u.firstname = firstname; u.lastname = lastname; u.email = email; u.phone = phone; u.company = company; }
+        // Update profile name in header
+        const nameEl = document.querySelector('.stt-profile-name');
+        if (nameEl) nameEl.textContent = `${firstname} ${lastname}`;
+        const emailEl = document.querySelector('.stt-profile-email');
+        if (emailEl) emailEl.firstChild.textContent = email + ' · ';
       }
     } catch (_) {
-      if (msg) { msg.style.display='block'; msg.style.color='#dc2626'; msg.textContent='Network error.'; }
+      if (msg) { msg.style.display='block'; msg.className='stt-msg stt-msg--error'; msg.textContent='Network error.'; }
     } finally {
-      btn.disabled = false; btn.textContent = 'Save';
+      btn.disabled = false; btn.textContent = 'Save changes';
+    }
+  },
+
+  async _saveBiz(btn) {
+    const company = document.getElementById('adminEditCompany')?.value.trim() || '';
+    const address = document.getElementById('adminEditAddress')?.value.trim() || '';
+    const city    = document.getElementById('adminEditCity')?.value.trim()    || '';
+    const state   = document.getElementById('adminEditState')?.value.trim()   || '';
+    const zip     = document.getElementById('adminEditZip')?.value.trim()     || '';
+    const country = document.getElementById('adminEditCountry')?.value.trim() || '';
+    const msg     = document.getElementById('adminBizMsg');
+
+    btn.disabled = true; btn.textContent = 'Saving…';
+    try {
+      const res  = await fetch('api/users.php?action=update_profile', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ company, address, city, state, zip, country }),
+      });
+      const data = await res.json();
+      if (msg) {
+        msg.style.display = 'block';
+        msg.className = `stt-msg ${data.success ? 'stt-msg--success' : 'stt-msg--error'}`;
+        msg.textContent = data.message || (data.success ? 'Business info updated.' : 'Error.');
+        setTimeout(() => { msg.style.display = 'none'; }, 3000);
+      }
+      if (data.success) {
+        const u = UserModel.getUser();
+        if (u) { u.company = company; u.address = address; u.city = city; u.state = state; u.zip = zip; u.country = country; }
+      }
+    } catch (_) {
+      if (msg) { msg.style.display='block'; msg.className='stt-msg stt-msg--error'; msg.textContent='Network error.'; }
+    } finally {
+      btn.disabled = false; btn.textContent = 'Save changes';
     }
   },
 

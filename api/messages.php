@@ -1,21 +1,24 @@
 <?php
 /* ===================================================
-   API/MESSAGES.PHP — Messagerie Influmatch
-   Actions : conversations · messages · send · upload
-             ensure_default · create_group · users
+   API/MESSAGES.PHP - Influmatch messaging API
+   Actions: conversations | messages | send | upload
+            ensure_default | create_group | users
    =================================================== */
 
 require_once '../config/database.php';
 session_start();
 
 header('Content-Type: application/json; charset=utf-8');
+header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+header('Pragma: no-cache');
+header('Expires: 0');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(204); exit; }
 
 // ---- Auth ----
 if (empty($_SESSION['user'])) {
     http_response_code(401);
-    echo json_encode(['error' => 'Non authentifié']);
+    echo json_encode(['error' => 'Unauthorized']);
     exit;
 }
 
@@ -35,13 +38,16 @@ try {
         case 'update_group':   updateGroup($pdo, $user);      break;
         case 'heartbeat':      heartbeat($pdo, $user);        break;
         case 'users':          getUsers($pdo, $user);         break;
+        case 'edit':           editMessage($pdo, $user);      break;
+        case 'delete':         deleteMessage($pdo, $user);    break;
+        case 'delete_group':   deleteGroup($pdo, $user);      break;
         default:
             http_response_code(400);
-            echo json_encode(['error' => 'Action invalide']);
+            echo json_encode(['error' => 'Invalid action']);
     }
 } catch (Exception $e) {
     http_response_code(500);
-    echo json_encode(['error' => 'Erreur serveur']);
+    echo json_encode(['error' => 'Server error']);
 }
 
 // ================================================================
@@ -72,7 +78,7 @@ function getConversations($pdo, $user) {
 
     foreach ($rows as &$row) {
         $ps = $pdo->prepare("
-            SELECT u.id, u.firstname, u.lastname, u.role, u.last_seen
+            SELECT u.id, u.firstname, u.lastname, u.role, u.last_seen, u.avatar
             FROM conversation_participants cp
             JOIN users u ON u.id = cp.user_id
             WHERE cp.conversation_id = ?
@@ -89,17 +95,17 @@ function getMessages($pdo, $user) {
     $convId = (int)($_GET['conversation_id'] ?? 0);
     $after  = (int)($_GET['after'] ?? 0);
 
-    if (!$convId) { http_response_code(400); echo json_encode(['error' => 'conversation_id requis']); return; }
+    if (!$convId) { http_response_code(400); echo json_encode(['error' => 'conversation_id required']); return; }
 
     $ok = $pdo->prepare("SELECT 1 FROM conversation_participants WHERE conversation_id=? AND user_id=?");
     $ok->execute([$convId, $user['id']]);
-    if (!$ok->fetch()) { http_response_code(403); echo json_encode(['error' => 'Accès refusé']); return; }
+    if (!$ok->fetch()) { http_response_code(403); echo json_encode(['error' => 'Access denied']); return; }
 
     if ($after > 0) {
         $stmt = $pdo->prepare("
             SELECT m.id, m.conversation_id, m.sender_id, m.content, m.type,
-                   m.file_name, m.file_path, m.file_size, m.created_at,
-                   u.firstname, u.lastname, u.role
+                   m.file_name, m.file_path, m.file_size, m.created_at, m.edited_at,
+                   u.firstname, u.lastname, u.role, u.avatar
             FROM messages m JOIN users u ON u.id = m.sender_id
             WHERE m.conversation_id = ? AND m.id > ?
             ORDER BY m.created_at ASC LIMIT 100
@@ -108,8 +114,8 @@ function getMessages($pdo, $user) {
     } else {
         $stmt = $pdo->prepare("
             SELECT m.id, m.conversation_id, m.sender_id, m.content, m.type,
-                   m.file_name, m.file_path, m.file_size, m.created_at,
-                   u.firstname, u.lastname, u.role
+                   m.file_name, m.file_path, m.file_size, m.created_at, m.edited_at,
+                   u.firstname, u.lastname, u.role, u.avatar
             FROM messages m JOIN users u ON u.id = m.sender_id
             WHERE m.conversation_id = ?
             ORDER BY m.created_at ASC LIMIT 100
@@ -119,7 +125,7 @@ function getMessages($pdo, $user) {
 
     $messages = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    // Read status of other participants (for "Vu" indicator)
+    // Read status of other participants (for Seen indicator)
     $rs = $pdo->prepare("
         SELECT user_id, COALESCE(last_read_msg_id, 0) AS last_read_msg_id
         FROM conversation_participants
@@ -140,11 +146,11 @@ function sendMessage($pdo, $user) {
     $convId  = (int)($body['conversation_id'] ?? 0);
     $content = trim($body['content'] ?? '');
 
-    if (!$convId || $content === '') { http_response_code(400); echo json_encode(['error' => 'Données manquantes']); return; }
+    if (!$convId || $content === '') { http_response_code(400); echo json_encode(['error' => 'Missing data']); return; }
 
     $ok = $pdo->prepare("SELECT 1 FROM conversation_participants WHERE conversation_id=? AND user_id=?");
     $ok->execute([$convId, $user['id']]);
-    if (!$ok->fetch()) { http_response_code(403); echo json_encode(['error' => 'Accès refusé']); return; }
+    if (!$ok->fetch()) { http_response_code(403); echo json_encode(['error' => 'Access denied']); return; }
 
     $pdo->prepare("INSERT INTO messages (conversation_id, sender_id, content, type) VALUES (?,?,?,'text')")
         ->execute([$convId, $user['id'], $content]);
@@ -163,15 +169,15 @@ function sendMessage($pdo, $user) {
 // ----------------------------------------------------------------
 function uploadFile($pdo, $user) {
     $convId = (int)($_POST['conversation_id'] ?? 0);
-    if (!$convId || !isset($_FILES['file'])) { http_response_code(400); echo json_encode(['error' => 'Données manquantes']); return; }
+    if (!$convId || !isset($_FILES['file'])) { http_response_code(400); echo json_encode(['error' => 'Missing data']); return; }
 
     $ok = $pdo->prepare("SELECT 1 FROM conversation_participants WHERE conversation_id=? AND user_id=?");
     $ok->execute([$convId, $user['id']]);
-    if (!$ok->fetch()) { http_response_code(403); echo json_encode(['error' => 'Accès refusé']); return; }
+    if (!$ok->fetch()) { http_response_code(403); echo json_encode(['error' => 'Access denied']); return; }
 
     $file = $_FILES['file'];
-    if ($file['error'] !== UPLOAD_ERR_OK)      { http_response_code(400); echo json_encode(['error' => 'Erreur upload']); return; }
-    if ($file['size'] > 50 * 1024 * 1024)      { http_response_code(400); echo json_encode(['error' => 'Max 50 Mo']); return; }
+    if ($file['error'] !== UPLOAD_ERR_OK)      { http_response_code(400); echo json_encode(['error' => 'Upload error']); return; }
+    if ($file['size'] > 50 * 1024 * 1024)      { http_response_code(400); echo json_encode(['error' => 'Max 50 MB']); return; }
 
     $imgTypes  = ['image/jpeg','image/png','image/gif','image/webp'];
     $videoTypes= ['video/mp4','video/webm','video/quicktime','video/x-msvideo','video/x-matroska'];
@@ -181,7 +187,7 @@ function uploadFile($pdo, $user) {
 
     $finfo = new finfo(FILEINFO_MIME_TYPE);
     $mime  = $finfo->file($file['tmp_name']);
-    if (!in_array($mime, $allowed)) { http_response_code(400); echo json_encode(['error' => 'Type non autorisé']); return; }
+    if (!in_array($mime, $allowed)) { http_response_code(400); echo json_encode(['error' => 'File type not allowed']); return; }
 
     $isImage = in_array($mime, $imgTypes);
     $type    = $isImage ? 'image' : 'file';
@@ -193,7 +199,7 @@ function uploadFile($pdo, $user) {
     $safeName = uniqid('msg_', true) . '.' . preg_replace('/[^a-z0-9]/', '', $ext);
 
     if (!move_uploaded_file($file['tmp_name'], $uploadDir . $safeName)) {
-        http_response_code(500); echo json_encode(['error' => 'Échec du déplacement']); return;
+        http_response_code(500); echo json_encode(['error' => 'Failed to move uploaded file']); return;
     }
 
     $publicPath = 'public/uploads/messages/' . $safeName;
@@ -216,7 +222,7 @@ function uploadFile($pdo, $user) {
 
 // ----------------------------------------------------------------
 function ensureDefault($pdo, $user) {
-    if (!in_array($user['role'], ['client', 'influencer'])) { echo json_encode(['status' => 'ok']); return; }
+    if (!in_array($user['role'], ['client', 'influencer', 'brand'])) { echo json_encode(['status' => 'ok']); return; }
 
     // Check if already has a convo with an admin
     $check = $pdo->prepare("
@@ -230,17 +236,37 @@ function ensureDefault($pdo, $user) {
     $check->execute([$user['id']]);
     $existing = $check->fetch(PDO::FETCH_ASSOC);
 
-    $admins = $pdo->query("SELECT id, firstname FROM users WHERE role='admin' ORDER BY id ASC")
+    $admins = $pdo->query("
+        SELECT id, firstname
+        FROM users
+        WHERE role='admin'
+        ORDER BY
+            CASE WHEN LOWER(firstname) = 'james' THEN 0 ELSE 1 END,
+            CASE WHEN LOWER(firstname) = 'lucas' THEN 0 ELSE 1 END,
+            id ASC
+    ")
                   ->fetchAll(PDO::FETCH_ASSOC);
 
     if (empty($admins)) { echo json_encode(['status' => 'no_admin']); return; }
 
     if ($existing) {
-        // Ajoute les admins créés après la conversation
+        // Add admins created after the conversation
         foreach ($admins as $admin) {
             $pdo->prepare("INSERT IGNORE INTO conversation_participants (conversation_id, user_id) VALUES (?,?)")
                 ->execute([$existing['id'], $admin['id']]);
         }
+
+        // Ensure there is at least one welcome message.
+        $msgCount = $pdo->prepare("SELECT COUNT(*) FROM messages WHERE conversation_id = ?");
+        $msgCount->execute([$existing['id']]);
+        if ((int)$msgCount->fetchColumn() === 0) {
+            [$senderId, $welcomeMsg] = buildWelcomeMessage($admins);
+            $pdo->prepare("
+                INSERT INTO messages (conversation_id, sender_id, content, type)
+                VALUES (?, ?, ?, 'text')
+            ")->execute([$existing['id'], $senderId, $welcomeMsg]);
+        }
+
         echo json_encode(['status' => 'exists', 'conversation_id' => $existing['id']]);
         return;
     }
@@ -254,28 +280,69 @@ function ensureDefault($pdo, $user) {
         $pdo->prepare("INSERT INTO conversation_participants (conversation_id, user_id) VALUES (?,?)")->execute([$convId, $admin['id']]);
     }
 
-    // Welcome message from first admin
-    $first = $admins[0];
-    $other = count($admins) > 1 ? $admins[1]['firstname'] : null;
-    $cofounder = $other ? ", co-fondateur avec {$other}" : ', co-fondateur';
-    $welcomeMsg = "Bienvenue sur Influmatch ! 🚀\n\nJe suis {$first['firstname']}{$cofounder}. On est ravis de vous avoir à bord.\n\nCe fil est votre ligne directe avec nous — brief de campagne, choix des créateurs, résultats, questions ou retours : tout passe ici.\n\nOn revient vers vous très vite pour démarrer. 💪";
+    // Welcome message from admin team (prioritizing James/Lucas when available).
+    [$senderId, $welcomeMsg] = buildWelcomeMessage($admins);
     $pdo->prepare("
         INSERT INTO messages (conversation_id, sender_id, content, type)
         VALUES (?, ?, ?, 'text')
-    ")->execute([$convId, $first['id'], $welcomeMsg]);
+    ")->execute([$convId, $senderId, $welcomeMsg]);
 
     echo json_encode(['status' => 'created', 'conversation_id' => $convId]);
 }
 
+function buildWelcomeMessage(array $admins): array {
+    $sender = $admins[0];
+    $hasJames = false;
+    $hasLucas = false;
+    $jamesId = null;
+
+    foreach ($admins as $a) {
+        $name = strtolower(trim((string)($a['firstname'] ?? '')));
+        if ($name === 'james') {
+            $hasJames = true;
+            $jamesId = (int)$a['id'];
+        }
+        if ($name === 'lucas') {
+            $hasLucas = true;
+        }
+    }
+
+    if ($jamesId) {
+        foreach ($admins as $a) {
+            if ((int)$a['id'] === $jamesId) {
+                $sender = $a;
+                break;
+            }
+        }
+    }
+
+    if ($hasJames && $hasLucas) {
+        $msg = "Welcome to Influmatch!\n\nWe are James & Lucas, co-founders of Influmatch. We are happy to have you on board.\n\nThis thread is your direct line to us - campaign brief, creator selection, results, questions, and feedback all happen here.\n\nWe will get back to you very soon to get started.";
+        return [(int)$sender['id'], $msg];
+    }
+
+    if ($hasJames || $hasLucas) {
+        $teamName = $hasJames ? 'James' : 'Lucas';
+        $msg = "Welcome to Influmatch!\n\nI am {$teamName}, co-founder of Influmatch. We are happy to have you on board.\n\nThis thread is your direct line to us - campaign brief, creator selection, results, questions, and feedback all happen here.\n\nWe will get back to you very soon to get started.";
+        return [(int)$sender['id'], $msg];
+    }
+
+    $first = $admins[0];
+    $other = count($admins) > 1 ? $admins[1]['firstname'] : null;
+    $cofounder = $other ? ", co-founder with {$other}" : ', co-founder';
+    $msg = "Welcome to Influmatch!\n\nI am {$first['firstname']}{$cofounder}. We are happy to have you on board.\n\nThis thread is your direct line to us - campaign brief, creator selection, results, questions, and feedback all happen here.\n\nWe will get back to you very soon to get started.";
+    return [(int)$first['id'], $msg];
+}
+
 // ----------------------------------------------------------------
 function createGroup($pdo, $user) {
-    if ($user['role'] !== 'admin') { http_response_code(403); echo json_encode(['error' => 'Accès refusé']); return; }
+    if ($user['role'] !== 'admin') { http_response_code(403); echo json_encode(['error' => 'Access denied']); return; }
 
     $body = json_decode(file_get_contents('php://input'), true) ?? [];
     $name = trim($body['name'] ?? '');
     $ids  = array_map('intval', $body['participants'] ?? []);
 
-    if (!$name || empty($ids)) { http_response_code(400); echo json_encode(['error' => 'Données manquantes']); return; }
+    if (!$name || empty($ids)) { http_response_code(400); echo json_encode(['error' => 'Missing data']); return; }
 
     $pdo->prepare("INSERT INTO conversations (name, type) VALUES (?, 'group')")->execute([$name]);
     $convId = (int)$pdo->lastInsertId();
@@ -296,12 +363,13 @@ function createGroup($pdo, $user) {
 
 // ----------------------------------------------------------------
 function markRead($pdo, $user) {
-    $convId = (int)($_GET['conversation_id'] ?? 0);
-    if (!$convId) { http_response_code(400); echo json_encode(['error' => 'conversation_id requis']); return; }
+    $body = json_decode(file_get_contents('php://input'), true) ?? [];
+    $convId = (int)($_GET['conversation_id'] ?? ($body['conversation_id'] ?? 0));
+    if (!$convId) { http_response_code(400); echo json_encode(['error' => 'conversation_id required']); return; }
 
     $ok = $pdo->prepare("SELECT 1 FROM conversation_participants WHERE conversation_id=? AND user_id=?");
     $ok->execute([$convId, $user['id']]);
-    if (!$ok->fetch()) { http_response_code(403); echo json_encode(['error' => 'Accès refusé']); return; }
+    if (!$ok->fetch()) { http_response_code(403); echo json_encode(['error' => 'Access denied']); return; }
 
     $last = $pdo->prepare("SELECT COALESCE(MAX(id), 0) AS last_id FROM messages WHERE conversation_id = ?");
     $last->execute([$convId]);
@@ -322,16 +390,16 @@ function heartbeat($pdo, $user) {
 
 // ----------------------------------------------------------------
 function updateGroup($pdo, $user) {
-    if ($user['role'] !== 'admin') { http_response_code(403); echo json_encode(['error' => 'Accès refusé']); return; }
+    if ($user['role'] !== 'admin') { http_response_code(403); echo json_encode(['error' => 'Access denied']); return; }
 
     $convId = (int)($_POST['conversation_id'] ?? 0);
     $name   = trim($_POST['name'] ?? '');
 
-    if (!$convId) { http_response_code(400); echo json_encode(['error' => 'conversation_id requis']); return; }
+    if (!$convId) { http_response_code(400); echo json_encode(['error' => 'conversation_id required']); return; }
 
     $check = $pdo->prepare("SELECT id FROM conversations WHERE id = ? AND type = 'group'");
     $check->execute([$convId]);
-    if (!$check->fetch()) { http_response_code(404); echo json_encode(['error' => 'Groupe introuvable']); return; }
+    if (!$check->fetch()) { http_response_code(404); echo json_encode(['error' => 'Group not found']); return; }
 
     $sets = [];
     $vals = [];
@@ -346,8 +414,8 @@ function updateGroup($pdo, $user) {
         $imgTypes = ['image/jpeg','image/png','image/gif','image/webp'];
         $finfo    = new finfo(FILEINFO_MIME_TYPE);
         $mime     = $finfo->file($file['tmp_name']);
-        if (!in_array($mime, $imgTypes)) { http_response_code(400); echo json_encode(['error' => "Type d'image non autorisé"]); return; }
-        if ($file['size'] > 5 * 1024 * 1024) { http_response_code(400); echo json_encode(['error' => 'Max 5 Mo']); return; }
+        if (!in_array($mime, $imgTypes)) { http_response_code(400); echo json_encode(['error' => "Image type not allowed"]); return; }
+        if ($file['size'] > 5 * 1024 * 1024) { http_response_code(400); echo json_encode(['error' => 'Max 5 MB']); return; }
 
         $uploadDir = __DIR__ . '/../public/uploads/avatars/';
         if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
@@ -361,7 +429,7 @@ function updateGroup($pdo, $user) {
         }
     }
 
-    if (empty($sets)) { http_response_code(400); echo json_encode(['error' => 'Rien à mettre à jour']); return; }
+    if (empty($sets)) { http_response_code(400); echo json_encode(['error' => 'Nothing to update']); return; }
 
     $vals[] = $convId;
     $pdo->prepare("UPDATE conversations SET " . implode(', ', $sets) . " WHERE id = ?")->execute($vals);
@@ -371,7 +439,67 @@ function updateGroup($pdo, $user) {
 
 // ----------------------------------------------------------------
 function getUsers($pdo, $user) {
-    if ($user['role'] !== 'admin') { http_response_code(403); echo json_encode(['error' => 'Accès refusé']); return; }
+    if ($user['role'] !== 'admin') { http_response_code(403); echo json_encode(['error' => 'Access denied']); return; }
     $stmt = $pdo->query("SELECT id, firstname, lastname, email, role FROM users ORDER BY firstname, lastname");
     echo json_encode(['users' => $stmt->fetchAll(PDO::FETCH_ASSOC)]);
 }
+
+// ----------------------------------------------------------------
+function editMessage($pdo, $user) {
+    $body    = json_decode(file_get_contents('php://input'), true) ?? [];
+    $msgId   = (int)($body['message_id'] ?? 0);
+    $content = trim($body['content'] ?? '');
+
+    if (!$msgId || $content === '') { http_response_code(400); echo json_encode(['error' => 'Missing data']); return; }
+
+    // Verify message owner and ensure message type is text
+    $stmt = $pdo->prepare("SELECT * FROM messages WHERE id = ? AND sender_id = ? AND type = 'text'");
+    $stmt->execute([$msgId, $user['id']]);
+    $msg = $stmt->fetch(PDO::FETCH_ASSOC);
+    if (!$msg) { http_response_code(403); echo json_encode(['error' => 'Access denied']); return; }
+
+    $pdo->prepare("UPDATE messages SET content = ?, edited_at = NOW() WHERE id = ?")
+        ->execute([$content, $msgId]);
+
+    echo json_encode(['ok' => true, 'message_id' => $msgId, 'content' => $content]);
+}
+
+// ----------------------------------------------------------------
+function deleteMessage($pdo, $user) {
+    $body  = json_decode(file_get_contents('php://input'), true) ?? [];
+    $msgId = (int)($body['message_id'] ?? 0);
+
+    if (!$msgId) { http_response_code(400); echo json_encode(['error' => 'Missing data']); return; }
+
+    // Owner or admin can delete
+    $stmt = $pdo->prepare("SELECT * FROM messages WHERE id = ?");
+    $stmt->execute([$msgId]);
+    $msg = $stmt->fetch(PDO::FETCH_ASSOC);
+    if (!$msg) { http_response_code(404); echo json_encode(['error' => 'Message not found']); return; }
+    if ((int)$msg['sender_id'] !== (int)$user['id'] && $user['role'] !== 'admin') {
+        http_response_code(403); echo json_encode(['error' => 'Access denied']); return;
+    }
+
+    $pdo->prepare("DELETE FROM messages WHERE id = ?")->execute([$msgId]);
+    echo json_encode(['ok' => true]);
+}
+
+// ----------------------------------------------------------------
+function deleteGroup($pdo, $user) {
+    if ($user['role'] !== 'admin') { http_response_code(403); echo json_encode(['error' => 'Access denied']); return; }
+    $body   = json_decode(file_get_contents('php://input'), true) ?? [];
+    $convId = (int)($body['conversation_id'] ?? 0);
+    if (!$convId) { http_response_code(400); echo json_encode(['error' => 'Missing data']); return; }
+
+    $stmt = $pdo->prepare("SELECT id, type FROM conversations WHERE id = ?");
+    $stmt->execute([$convId]);
+    $conv = $stmt->fetch(PDO::FETCH_ASSOC);
+    if (!$conv || $conv['type'] !== 'group') { http_response_code(404); echo json_encode(['error' => 'Group not found']); return; }
+
+    $pdo->prepare("DELETE FROM messages WHERE conversation_id = ?")->execute([$convId]);
+    $pdo->prepare("DELETE FROM conversation_participants WHERE conversation_id = ?")->execute([$convId]);
+    $pdo->prepare("DELETE FROM conversations WHERE id = ?")->execute([$convId]);
+    echo json_encode(['ok' => true]);
+}
+
+

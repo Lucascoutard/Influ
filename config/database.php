@@ -1,21 +1,11 @@
 <?php
 /* ===================================================
-   CONFIG/DATABASE.PHP — Connexion PDO (MySQL local)
-   
-   ⚠️  ADAPTE CES VALEURS À TON INSTALLATION :
-   - XAMPP  : user = "root", pass = ""
-   - WAMP   : user = "root", pass = ""
-   - MAMP   : user = "root", pass = "root"
+   CONFIG/DATABASE.PHP — Connexion PDO
+   APP_ENV, DB_HOST, DB_NAME, DB_USER, DB_PASS
+   sont définis dans config/secrets.php
    =================================================== */
 
-// ⚠️ Set to 'production' on Hostinger — controls SSL verification, error verbosity
-define('APP_ENV', 'development');  // 'development' | 'production'
-
-define('DB_HOST', 'localhost');
-define('DB_NAME', 'influmatch');   // Nom de la base créée via le SQL
-define('DB_USER', 'root');         // ← adapte si besoin
-define('DB_PASS', '');             // ← adapte si besoin (MAMP = "root")
-define('DB_CHARSET', 'utf8mb4');
+require_once __DIR__ . '/secrets.php';
 
 function getDB(): PDO {
     static $pdo = null;
@@ -29,7 +19,6 @@ function getDB(): PDO {
         try {
             $pdo = new PDO($dsn, DB_USER, DB_PASS, $options);
         } catch (PDOException $e) {
-            // Log real error server-side, never expose to client (OWASP A09)
             error_log('[Influmatch] DB connection error: ' . $e->getMessage());
             http_response_code(500);
             echo json_encode(['success' => false, 'message' => 'Service temporarily unavailable. Please try again later.']);

@@ -86,6 +86,11 @@ const AuthPage = {
         body:        JSON.stringify({ email }),
       }).then(r => r.json());
 
+      if (!opts.challenge) {
+        this._showMsg(opts.message || opts.error || 'No passkey found for this account.', 'error');
+        return;
+      }
+
       // 2. Biometric / PIN prompt
       const assertion = await navigator.credentials.get({
         publicKey: {

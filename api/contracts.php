@@ -1,19 +1,19 @@
 <?php
 /* ===================================================
-   API/CONTRACTS.PHP — Gestion des contrats
-   GET  ?action=list          → admin : tous les contrats
-   GET  ?action=my_contracts  → client : ses contrats
-   POST ?action=upload        → admin : upload PDF + notif email
-   POST ?action=sign          → client : upload PDF signé
+   API/CONTRACTS.PHP - Contract management
+   GET  ?action=list          -> admin: all contracts
+   GET  ?action=my_contracts  -> client: own contracts
+   POST ?action=upload        -> admin: upload PDF + email notification
+   POST ?action=sign          -> client: upload signed PDF
    GET  ?action=download&id=X&type=unsigned|signed
-   POST ?action=delete        → admin : suppression
+   POST ?action=delete        -> admin: delete contract
    =================================================== */
 
 require_once __DIR__ . '/helpers.php';
 
 $action = $_GET['action'] ?? '';
 
-/* ── Constante chemin uploads ── */
+/* Upload directory constant */
 define('CONTRACTS_DIR', __DIR__ . '/../public/uploads/contracts/');
 
 switch ($action) {
@@ -69,23 +69,23 @@ switch ($action) {
         $desc     = trim($_POST['description'] ?? '');
 
         if (!$title || !$clientId)
-            jsonResponse(['success' => false, 'message' => 'Titre et client requis.'], 422);
+            jsonResponse(['success' => false, 'message' => 'Title and client are required.'], 422);
 
         if (empty($_FILES['file']) || $_FILES['file']['error'] !== UPLOAD_ERR_OK)
-            jsonResponse(['success' => false, 'message' => 'Fichier PDF requis.'], 422);
+            jsonResponse(['success' => false, 'message' => 'PDF file is required.'], 422);
 
         $file = $_FILES['file'];
         $ext  = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
         if ($ext !== 'pdf')
-            jsonResponse(['success' => false, 'message' => 'Seuls les fichiers PDF sont acceptés.'], 422);
+            jsonResponse(['success' => false, 'message' => 'Only PDF files are accepted.'], 422);
         if ($file['size'] > 15 * 1024 * 1024)
-            jsonResponse(['success' => false, 'message' => 'Fichier trop lourd (max 15 Mo).'], 422);
+            jsonResponse(['success' => false, 'message' => 'File too large (max 15 MB).'], 422);
 
         // Validate MIME type
         $finfo = new finfo(FILEINFO_MIME_TYPE);
         $mime  = $finfo->file($file['tmp_name']);
         if ($mime !== 'application/pdf')
-            jsonResponse(['success' => false, 'message' => 'Le fichier n\'est pas un PDF valide.'], 422);
+            jsonResponse(['success' => false, 'message' => 'The file is not a valid PDF.'], 422);
 
         $dir = CONTRACTS_DIR . 'unsigned/';
         if (!is_dir($dir)) mkdir($dir, 0755, true);
@@ -95,7 +95,7 @@ switch ($action) {
         $relativePath = 'contracts/unsigned/' . $filename;
 
         if (!move_uploaded_file($file['tmp_name'], $dest))
-            jsonResponse(['success' => false, 'message' => 'Erreur lors de l\'enregistrement du fichier.'], 500);
+            jsonResponse(['success' => false, 'message' => 'Error while saving file.'], 500);
 
         $db = getDB();
         $db->prepare("
@@ -124,7 +124,7 @@ switch ($action) {
 
         jsonResponse([
             'success'    => true,
-            'message'    => 'Contrat envoyé' . ($emailSent ? ' avec notification email.' : '.'),
+            'message'    => 'Contract sent' . ($emailSent ? ' with email notification.' : '.'),
             'id'         => (int)$id,
             'email_sent' => $emailSent,
         ], 201);
@@ -135,26 +135,26 @@ switch ($action) {
         $user = requireAuth();
         $uid  = (int)$user['id'];
         $id   = (int)($_POST['id'] ?? 0);
-        if (!$id) jsonResponse(['success' => false, 'message' => 'ID requis.'], 422);
+        if (!$id) jsonResponse(['success' => false, 'message' => 'ID required.'], 422);
 
         $db       = getDB();
         $contract = $db->prepare('SELECT * FROM contracts WHERE id = ? AND client_id = ?');
         $contract->execute([$id, $uid]);
         $contract = $contract->fetch();
         if (!$contract)
-            jsonResponse(['success' => false, 'message' => 'Contrat introuvable ou accès refusé.'], 404);
+            jsonResponse(['success' => false, 'message' => 'Contract not found or access denied.'], 404);
         if ($contract['status'] === 'signed')
-            jsonResponse(['success' => false, 'message' => 'Ce contrat est déjà signé.'], 409);
+            jsonResponse(['success' => false, 'message' => 'This contract is already signed.'], 409);
 
         if (empty($_FILES['file']) || $_FILES['file']['error'] !== UPLOAD_ERR_OK)
-            jsonResponse(['success' => false, 'message' => 'Fichier PDF requis.'], 422);
+            jsonResponse(['success' => false, 'message' => 'PDF file is required.'], 422);
 
         $file = $_FILES['file'];
         $ext  = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
         if ($ext !== 'pdf')
-            jsonResponse(['success' => false, 'message' => 'Seuls les fichiers PDF sont acceptés.'], 422);
+            jsonResponse(['success' => false, 'message' => 'Only PDF files are accepted.'], 422);
         if ($file['size'] > 15 * 1024 * 1024)
-            jsonResponse(['success' => false, 'message' => 'Fichier trop lourd (max 15 Mo).'], 422);
+            jsonResponse(['success' => false, 'message' => 'File too large (max 15 MB).'], 422);
 
         $dir = CONTRACTS_DIR . 'signed/';
         if (!is_dir($dir)) mkdir($dir, 0755, true);
@@ -164,7 +164,7 @@ switch ($action) {
         $relativePath = 'contracts/signed/' . $filename;
 
         if (!move_uploaded_file($file['tmp_name'], $dest))
-            jsonResponse(['success' => false, 'message' => 'Erreur lors de l\'enregistrement.'], 500);
+            jsonResponse(['success' => false, 'message' => 'Error while saving.'], 500);
 
         $db->prepare("
             UPDATE contracts SET signed_path = ?, status = 'signed', signed_at = NOW() WHERE id = ?
@@ -183,7 +183,7 @@ switch ($action) {
             );
         }
 
-        jsonResponse(['success' => true, 'message' => 'Contrat signé et envoyé avec succès.']);
+        jsonResponse(['success' => true, 'message' => 'Contract signed and sent successfully.']);
         break;
 
     // ======================== DOWNLOAD ========================
@@ -191,34 +191,34 @@ switch ($action) {
         $user = requireAuth();
         $id   = (int)($_GET['id']   ?? 0);
         $type = $_GET['type'] === 'signed' ? 'signed' : 'unsigned';
-        if (!$id) jsonResponse(['success' => false, 'message' => 'ID requis.'], 422);
+        if (!$id) jsonResponse(['success' => false, 'message' => 'ID required.'], 422);
 
         $db  = getDB();
         $row = $db->prepare('SELECT * FROM contracts WHERE id = ?');
         $row->execute([$id]);
         $row = $row->fetch();
-        if (!$row) jsonResponse(['success' => false, 'message' => 'Contrat introuvable.'], 404);
+        if (!$row) jsonResponse(['success' => false, 'message' => 'Contract not found.'], 404);
 
         // Check access
         if ($user['role'] !== 'admin' && (int)$row['client_id'] !== (int)$user['id'])
-            jsonResponse(['success' => false, 'message' => 'Accès refusé.'], 403);
+            jsonResponse(['success' => false, 'message' => 'Access denied.'], 403);
 
         $col     = $type === 'signed' ? 'signed_path' : 'unsigned_path';
         $rawPath = $row[$col] ?? null;
         if (!$rawPath)
-            jsonResponse(['success' => false, 'message' => 'Fichier introuvable.'], 404);
+            jsonResponse(['success' => false, 'message' => 'File not found.'], 404);
 
-        // Prevent path traversal — resolve real path and verify it stays inside contracts dir (OWASP A01)
+        // Prevent path traversal: resolve real path and ensure it stays inside contracts dir (OWASP A01)
         $baseDir = realpath(__DIR__ . '/../public/uploads/contracts');
         $path    = realpath(__DIR__ . '/../' . $rawPath);
         if (!$path || !$baseDir || strncmp($path, $baseDir, strlen($baseDir)) !== 0)
-            jsonResponse(['success' => false, 'message' => 'Accès refusé.'], 403);
+            jsonResponse(['success' => false, 'message' => 'Access denied.'], 403);
         if (!file_exists($path))
-            jsonResponse(['success' => false, 'message' => 'Fichier introuvable.'], 404);
+            jsonResponse(['success' => false, 'message' => 'File not found.'], 404);
 
         // Send file (override JSON Content-Type)
         $safeName = preg_replace('/[^a-zA-Z0-9_\-]/', '_', $row['title'])
-                    . ($type === 'signed' ? '_signe' : '') . '.pdf';
+                    . ($type === 'signed' ? '_signed' : '') . '.pdf';
         header('Content-Type: application/pdf');
         header('Content-Disposition: attachment; filename="' . $safeName . '"');
         header('Content-Length: ' . filesize($path));
@@ -231,7 +231,7 @@ switch ($action) {
         requireRole('admin');
         $data = getJsonBody();
         $id   = (int)($data['id'] ?? 0);
-        if (!$id) jsonResponse(['success' => false, 'message' => 'ID invalide.'], 422);
+        if (!$id) jsonResponse(['success' => false, 'message' => 'Invalid ID.'], 422);
 
         $db  = getDB();
         $row = $db->prepare('SELECT unsigned_path, signed_path FROM contracts WHERE id = ?');
@@ -249,9 +249,10 @@ switch ($action) {
         }
 
         $db->prepare('DELETE FROM contracts WHERE id = ?')->execute([$id]);
-        jsonResponse(['success' => true, 'message' => 'Contrat supprimé.']);
+        jsonResponse(['success' => true, 'message' => 'Contract deleted.']);
         break;
 
     default:
-        jsonResponse(['success' => false, 'message' => 'Action inconnue.'], 400);
+        jsonResponse(['success' => false, 'message' => 'Unknown action.'], 400);
 }
+

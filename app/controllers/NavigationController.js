@@ -182,7 +182,7 @@ const NavigationController = {
           }
         });
       } else if (child.nodeType === Node.ELEMENT_NODE) {
-        const clone = child.cloneNode(false);
+        const clone = child.cloneNode(true);
         node.appendChild(clone);
         this._splitNode(clone, nextIdx, staggerMs);
       }

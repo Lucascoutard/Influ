@@ -13,7 +13,7 @@
   border-radius: var(--radius-lg);
   overflow: clip;
   position: relative;
-  min-height: 580px;
+  aspect-ratio: 16/9;
   display: flex;
   align-items: center;
   background: #2a2a3a;
@@ -31,6 +31,7 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center center;
   z-index: 1;
 }
 .hero-visual-placeholder {
@@ -147,7 +148,20 @@
   box-shadow: 0 32px 80px rgba(0,0,0,.6);
 }
 .hvm-overlay--in .hvm-modal { transform: scale(1); opacity: 1; }
-.hvm-video { display: block; width: 100%; height: auto; max-height: 80vh; background: #000; }
+.hvm-yt-wrap {
+  position: relative;
+  width: 100%;
+  padding-top: 56.25%;
+  background: #000;
+  border-radius: 0 0 12px 12px;
+}
+.hvm-yt-wrap iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: none;
+}
 .hvm-close {
   position: absolute; top: 14px; right: 14px; z-index: 10;
   width: 38px; height: 38px; border-radius: 50%;

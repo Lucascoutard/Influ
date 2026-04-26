@@ -98,7 +98,10 @@ switch ($action) {
         // Send invitation email
         $inviteUrl = rtrim(APP_URL, '/') . '/?invite=' . urlencode($token) . '#setup-passkey';
         $html      = mailTemplateInvitation($firstname, $inviteUrl);
-        sendMail($email, $firstname . ' ' . $lastname, 'You\'re invited to Influmatch', $html);
+        $mailSent  = sendMail($email, $firstname . ' ' . $lastname, 'You\'re invited to Influmatch', $html);
+        if (!$mailSent) {
+            error_log('[Influmatch] Invitation email failed for ' . $email);
+        }
 
         $stmt = $db->prepare(
             'SELECT id, firstname, lastname, email, role, phone, company,
@@ -107,7 +110,13 @@ switch ($action) {
              FROM users WHERE id = ?'
         );
         $stmt->execute([$newId]);
-        jsonResponse(['success' => true, 'message' => 'Invitation sent.', 'user' => $stmt->fetch()], 201);
+        jsonResponse([
+            'success'    => true,
+            'message'    => $mailSent ? 'Invitation sent.' : 'User created, but invitation email failed.',
+            'email_sent' => $mailSent,
+            'invite_url' => $mailSent ? null : $inviteUrl,
+            'user'       => $stmt->fetch(),
+        ], 201);
         break;
 
     // ======================== RESEND INVITE ========================
@@ -131,10 +140,18 @@ switch ($action) {
 
         $inviteUrl = rtrim(APP_URL, '/') . '/?invite=' . urlencode($token) . '#setup-passkey';
         $html      = mailTemplateInvitation($user['firstname'], $inviteUrl);
-        sendMail($user['email'], $user['firstname'] . ' ' . $user['lastname'],
-                 'You\'re invited to Influmatch', $html);
+        $mailSent = sendMail($user['email'], $user['firstname'] . ' ' . $user['lastname'],
+                             'You\'re invited to Influmatch', $html);
+        if (!$mailSent) {
+            error_log('[Influmatch] Resend invitation email failed for user_id=' . $uid);
+        }
 
-        jsonResponse(['success' => true, 'message' => 'Invitation resent.']);
+        jsonResponse([
+            'success'    => true,
+            'message'    => $mailSent ? 'Invitation resent.' : 'Invitation link regenerated, but email failed.',
+            'email_sent' => $mailSent,
+            'invite_url' => $mailSent ? null : $inviteUrl,
+        ]);
         break;
 
     // ======================== DELETE (admin) ========================
@@ -156,14 +173,25 @@ switch ($action) {
         $data = getJsonBody();
         $db   = getDB();
 
-        $firstname = trim($data['firstname'] ?? '');
-        $lastname  = trim($data['lastname']  ?? '');
-        $email     = strtolower(trim($data['email'] ?? ''));
-        $phone     = trim($data['phone']     ?? '');
-        $company   = trim($data['company']   ?? '');
-        $instagram = trim($data['instagram'] ?? '');
-        $tiktok    = trim($data['tiktok']    ?? '');
-        $youtube   = trim($data['youtube']   ?? '');
+        $uid       = (int)$user['id'];
+        // Fetch current values to use as defaults for partial updates
+        $cur = $db->prepare('SELECT firstname, lastname, email, phone, company, instagram, tiktok, youtube, address, city, state, zip, country FROM users WHERE id = ?');
+        $cur->execute([$uid]);
+        $curr = $cur->fetch(PDO::FETCH_ASSOC) ?: [];
+
+        $firstname = trim($data['firstname'] ?? $curr['firstname'] ?? '');
+        $lastname  = trim($data['lastname']  ?? $curr['lastname']  ?? '');
+        $email     = strtolower(trim($data['email'] ?? $curr['email'] ?? ''));
+        $phone     = trim($data['phone']     ?? $curr['phone']     ?? '');
+        $company   = trim($data['company']   ?? $curr['company']   ?? '');
+        $instagram = trim($data['instagram'] ?? $curr['instagram'] ?? '');
+        $tiktok    = trim($data['tiktok']    ?? $curr['tiktok']    ?? '');
+        $youtube   = trim($data['youtube']   ?? $curr['youtube']   ?? '');
+        $address   = trim($data['address']   ?? $curr['address']   ?? '');
+        $city      = trim($data['city']      ?? $curr['city']      ?? '');
+        $state     = trim($data['state']     ?? $curr['state']     ?? '');
+        $zip       = trim($data['zip']       ?? $curr['zip']       ?? '');
+        $country   = trim($data['country']   ?? $curr['country']   ?? '');
 
         if (!$firstname || !$lastname)
             jsonResponse(['success' => false, 'message' => 'First and last name required.'], 422);
@@ -175,15 +203,17 @@ switch ($action) {
             jsonResponse(['success' => false, 'message' => 'Field too long.'], 422);
         if (!maxLength($instagram, 100) || !maxLength($tiktok, 100) || !maxLength($youtube, 200))
             jsonResponse(['success' => false, 'message' => 'Social handle too long.'], 422);
+        if (!maxLength($address, 255) || !maxLength($city, 100) || !maxLength($state, 100) || !maxLength($zip, 20) || !maxLength($country, 100))
+            jsonResponse(['success' => false, 'message' => 'Address field too long.'], 422);
 
         $check = $db->prepare('SELECT id FROM users WHERE email = ? AND id != ?');
-        $check->execute([$email, (int)$user['id']]);
+        $check->execute([$email, $uid]);
         if ($check->fetch())
             jsonResponse(['success' => false, 'message' => 'Email already in use by another account.'], 409);
 
         $db->prepare(
-            'UPDATE users SET firstname=?, lastname=?, email=?, phone=?, company=?, instagram=?, tiktok=?, youtube=? WHERE id=?'
-        )->execute([$firstname, $lastname, $email, $phone, $company, $instagram, $tiktok, $youtube, (int)$user['id']]);
+            'UPDATE users SET firstname=?, lastname=?, email=?, phone=?, company=?, instagram=?, tiktok=?, youtube=?, address=?, city=?, state=?, zip=?, country=? WHERE id=?'
+        )->execute([$firstname, $lastname, $email, $phone, $company, $instagram, $tiktok, $youtube, $address, $city, $state, $zip, $country, $uid]);
 
         $_SESSION['user']['firstname'] = $firstname;
         $_SESSION['user']['lastname']  = $lastname;
@@ -193,12 +223,20 @@ switch ($action) {
         $_SESSION['user']['instagram'] = $instagram;
         $_SESSION['user']['tiktok']    = $tiktok;
         $_SESSION['user']['youtube']   = $youtube;
+        $_SESSION['user']['address']   = $address;
+        $_SESSION['user']['city']      = $city;
+        $_SESSION['user']['state']     = $state;
+        $_SESSION['user']['zip']       = $zip;
+        $_SESSION['user']['country']   = $country;
 
         jsonResponse(['success' => true, 'message' => 'Profile updated.', 'user' => [
             'firstname' => $firstname, 'lastname'  => $lastname,
             'email'     => $email,    'phone'     => $phone,
             'company'   => $company,  'instagram' => $instagram,
             'tiktok'    => $tiktok,   'youtube'   => $youtube,
+            'address'   => $address,  'city'      => $city,
+            'state'     => $state,    'zip'       => $zip,
+            'country'   => $country,
         ]]);
         break;
 

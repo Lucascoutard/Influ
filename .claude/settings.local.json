@@ -18,7 +18,13 @@
       "Bash(python -c \":*)",
       "Bash(powershell -Command \":*)",
       "Bash(wc -l /c/wamp64/www/Influmatch/app/views/pages/*.js /c/wamp64/www/Influmatch/app/controllers/*.js)",
-      "Bash(xargs wc:*)"
+      "Bash(xargs wc:*)",
+      "Bash(php -r \":*)",
+      "Bash(php -r \"require_once ''api/mailer.php''; echo ''OK'';\")",
+      "Bash(sort -k5 -rh)",
+      "Bash(where mysqldump:*)",
+      "Read(//c/wamp64/bin/mysql/**)",
+      "Bash(grep -E \"\\\\.\\(js|php\\)$\")"
     ]
   }
 }

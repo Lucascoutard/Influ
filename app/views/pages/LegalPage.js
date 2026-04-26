@@ -66,7 +66,7 @@ const LegalPage = {
 
     <h2>1. Data Controller</h2>
     <p>Influmatch — sole proprietorship co-founded by Lucas Coutard and James Flogny.<br>
-    Email: <a href="mailto:info@contactinflumatch.com">info@contactinflumatch.com</a> ·
+    Email: <a href="mailto:contact@influmatchagency.com">contact@influmatchagency.com</a> ·
     LinkedIn: <a href="https://www.linkedin.com/in/lucas-coutard-0b7210332/" target="_blank" rel="noopener">Lucas Coutard</a> ·
     <a href="https://www.linkedin.com/in/james-flogny-674555328/" target="_blank" rel="noopener">James Flogny</a></p>
 
@@ -104,7 +104,7 @@ const LegalPage = {
         <div class="legal-right" style="background:#fff"><div class="legal-right-icon">⏸</div><div class="legal-right-title">Restriction</div><div class="legal-right-desc">Limit processing (Art. 18)</div></div>
         <div class="legal-right" style="background:#fff"><div class="legal-right-icon">🚫</div><div class="legal-right-title">Objection</div><div class="legal-right-desc">Object to processing (Art. 21)</div></div>
       </div>
-      <p>Contact: <a href="mailto:info@contactinflumatch.com">info@contactinflumatch.com</a> — response within <strong>30 days</strong>.<br>
+      <p>Contact: <a href="mailto:contact@influmatchagency.com">contact@influmatchagency.com</a> — response within <strong>30 days</strong>.<br>
       Complaints: <a href="https://www.cnil.fr" target="_blank" rel="noopener">CNIL (France)</a> ·
       EU ODR: <a href="https://ec.europa.eu/consumers/odr" target="_blank" rel="noopener">Online Dispute Resolution</a></p>
     </div>
@@ -121,7 +121,7 @@ const LegalPage = {
         <li><strong>Right to Limit Sensitive Data Use —</strong> We only use sensitive data to provide our services.</li>
       </ul>
       <p><strong>Other US states</strong> (Virginia VCDPA, Colorado CPA, Connecticut CTDPA, Texas TDPSA…) — similar rights apply. Contact us to submit any privacy request.<br>
-      📧 <a href="mailto:info@contactinflumatch.com">info@contactinflumatch.com</a> — Response within <strong>45 days</strong> as required by California law.</p>
+      📧 <a href="mailto:contact@influmatchagency.com">contact@influmatchagency.com</a> — Response within <strong>45 days</strong> as required by California law.</p>
     </div>
 
     <h2>5. Security</h2>
@@ -144,7 +144,7 @@ const LegalPage = {
     <p>Influmatch does not use tracking or analytics cookies. Only strictly necessary session cookies are set. Cal.com may set third-party cookies on the Contact page — manageable via the cookie banner.</p>
 
     <h2>8. Contact</h2>
-    <p>📧 <a href="mailto:info@contactinflumatch.com">info@contactinflumatch.com</a><br>
+    <p>📧 <a href="mailto:contact@influmatchagency.com">contact@influmatchagency.com</a><br>
     CNIL (France): <a href="https://www.cnil.fr" target="_blank" rel="noopener">cnil.fr</a> ·
     FTC (USA): <a href="https://www.ftc.gov" target="_blank" rel="noopener">ftc.gov</a></p>
   `; },
@@ -161,7 +161,7 @@ const LegalPage = {
     <div class="legal-alert">By creating an account or using Influmatch, you agree to these Terms of Use in their entirety.</div>
 
     <h2>1. About Influmatch</h2>
-    <p>Influmatch is a platform connecting <strong>brands</strong> with <strong>content creators</strong>. It facilitates the creation, management, and tracking of marketing collaborations, accessible at <strong>influmatch.fr</strong>.</p>
+    <p>Influmatch is a platform connecting <strong>brands</strong> with <strong>content creators</strong>. It facilitates the creation, management, and tracking of marketing collaborations, accessible at <strong>influmatchagency.com</strong>.</p>
 
     <h2>2. Eligibility</h2>
     <ul>
@@ -217,7 +217,7 @@ const LegalPage = {
       <div class="legal-zone-header"><span class="legal-zone-flag">🇺🇸</span><span class="legal-zone-label">United States</span><span class="legal-zone-badge">Arbitration</span></div>
       <p>For users located in the United States, any dispute arising from these Terms shall be resolved through <strong>binding individual arbitration</strong> administered by the American Arbitration Association (AAA).<br><br>
       <strong>CLASS ACTION WAIVER:</strong> You agree to resolve disputes on an individual basis only. You waive any right to bring or participate in any class action, collective, or representative proceeding.<br><br>
-      Before initiating arbitration, both parties must attempt informal resolution by contacting <a href="mailto:info@contactinflumatch.com">info@contactinflumatch.com</a> for a period of <strong>30 days</strong>.</p>
+      Before initiating arbitration, both parties must attempt informal resolution by contacting <a href="mailto:contact@influmatchagency.com">contact@influmatchagency.com</a> for a period of <strong>30 days</strong>.</p>
     </div>
     <div class="legal-zone legal-zone--eu">
       <div class="legal-zone-header"><span class="legal-zone-flag">🇫🇷 🇪🇺</span><span class="legal-zone-label">France &amp; EU</span><span class="legal-zone-badge">French Law</span></div>
@@ -225,7 +225,7 @@ const LegalPage = {
     </div>
 
     <h2>10. Contact</h2>
-    <p>📧 <a href="mailto:info@contactinflumatch.com">info@contactinflumatch.com</a></p>
+    <p>📧 <a href="mailto:contact@influmatchagency.com">contact@influmatchagency.com</a></p>
   `; },
 
   // ================================================================
@@ -245,7 +245,7 @@ const LegalPage = {
     <h2>2. Designated Agent</h2>
     <div class="legal-info-block">
       <p><strong>DMCA Designated Agent:</strong> Influmatch — Lucas Coutard &amp; James Flogny</p>
-      <p><strong>Email:</strong> <a href="mailto:info@contactinflumatch.com">info@contactinflumatch.com</a></p>
+      <p><strong>Email:</strong> <a href="mailto:contact@influmatchagency.com">contact@influmatchagency.com</a></p>
       <p><strong>Subject line:</strong> "DMCA Takedown Notice"</p>
       <p><em>Note: This contact is solely for DMCA notices. Other inquiries sent to this address will not be acted upon.</em></p>
     </div>
@@ -289,7 +289,7 @@ const LegalPage = {
     <h2>7. For France & EU Users</h2>
     <div class="legal-zone legal-zone--eu">
       <div class="legal-zone-header"><span class="legal-zone-flag">🇫🇷 🇪🇺</span><span class="legal-zone-label">France &amp; EU</span><span class="legal-zone-badge">Droit d'auteur</span></div>
-      <p>Pour les utilisateurs en France et dans l'UE, les droits d'auteur sont régis par le <strong>Code de la propriété intellectuelle</strong> et la <strong>Directive (UE) 2019/790</strong>. Signalez toute violation à <a href="mailto:info@contactinflumatch.com">info@contactinflumatch.com</a> avec l'objet "Signalement droits d'auteur". Nous traiterons votre demande dans les <strong>72 heures</strong>.</p>
+      <p>For users in France and the EU, copyright is governed by the <strong>French Intellectual Property Code</strong> and <strong>Directive (EU) 2019/790</strong>. Report any infringement to <a href="mailto:contact@influmatchagency.com">contact@influmatchagency.com</a> with the subject line "Copyright report". We process requests within <strong>72 hours</strong>.</p>
     </div>
   `; },
 
@@ -312,7 +312,7 @@ const LegalPage = {
       <p><strong>SIRET:</strong> 989 360 490 00019</p>
       <p><strong>Business code (NAF):</strong> 7022Z — Business and management consultancy</p>
       <p><strong>Registration date:</strong> July 17, 2025</p>
-      <p><strong>Email:</strong> <a href="mailto:info@contactinflumatch.com">info@contactinflumatch.com</a></p>
+      <p><strong>Email:</strong> <a href="mailto:contact@influmatchagency.com">contact@influmatchagency.com</a></p>
       <p><strong>LinkedIn:</strong>
         <a href="https://www.linkedin.com/in/lucas-coutard-0b7210332/" target="_blank" rel="noopener">Lucas Coutard</a> ·
         <a href="https://www.linkedin.com/in/james-flogny-674555328/" target="_blank" rel="noopener">James Flogny</a>
@@ -336,6 +336,6 @@ const LegalPage = {
     <p>These legal notices are governed by French law. French courts have exclusive jurisdiction in case of dispute.</p>
 
     <h2>6. Contact</h2>
-    <p>📧 <a href="mailto:info@contactinflumatch.com">info@contactinflumatch.com</a></p>
+    <p>📧 <a href="mailto:contact@influmatchagency.com">contact@influmatchagency.com</a></p>
   `; },
 };

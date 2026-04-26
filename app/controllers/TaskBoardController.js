@@ -1,7 +1,7 @@
 /* ===================================================
    APP/CONTROLLERS/TASKBOARDCONTROLLER.JS
-   Tableau de suivi de campagne — style Monday.com
-   Rôles : admin (full), influencer (édition), brand (validation)
+   Campaign task board — Monday.com style
+   Roles: admin (full), influencer (edit), brand (validate)
    =================================================== */
 
 const TaskBoardController = {
@@ -15,14 +15,14 @@ const TaskBoardController = {
   _dragTaskId:  null,
 
   COLUMNS: [
-    { key: 'todo',        label: 'À faire',     color: '#64748b', bg: '#f8fafc' },
-    { key: 'in_progress', label: 'En cours',    color: '#f59e0b', bg: '#fffbeb' },
-    { key: 'done',        label: 'Terminé',     color: '#22c55e', bg: '#f0fdf4' },
-    { key: 'validated',   label: 'Validé ✓',   color: '#6366f1', bg: '#eef2ff' },
+    { key: 'todo',        label: 'To do',       color: '#64748b', bg: '#f8fafc' },
+    { key: 'in_progress', label: 'In progress',  color: '#f59e0b', bg: '#fffbeb' },
+    { key: 'done',        label: 'Done',         color: '#22c55e', bg: '#f0fdf4' },
+    { key: 'validated',   label: 'Validated ✓',  color: '#6366f1', bg: '#eef2ff' },
   ],
 
-  PLATFORMS:     ['Instagram', 'TikTok', 'YouTube', 'LinkedIn', 'Twitter/X', 'Podcast', 'Blog', 'Autre'],
-  CONTENT_TYPES: ['Reel', 'Photo', 'Story', 'Vidéo', 'Post', 'Short', 'Article', 'Autre'],
+  PLATFORMS:     ['Instagram', 'TikTok', 'YouTube', 'LinkedIn', 'Twitter/X', 'Podcast', 'Blog', 'Other'],
+  CONTENT_TYPES: ['Reel', 'Photo', 'Story', 'Video', 'Post', 'Short', 'Article', 'Other'],
 
   // ── Permissions ─────────────────────────────────
   _detectRole(collab) {
@@ -47,13 +47,12 @@ const TaskBoardController = {
     return false;
   },
 
-  // Alias for drag/status-select visibility (influencer can move but not edit)
   _showStatusControls() { return this._canMove(); },
 
   _esc: s => String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'),
 
   // ================================================================
-  //  OUVERTURE
+  //  OPEN
   // ================================================================
 
   open(collabId, collabData) {
@@ -85,12 +84,12 @@ const TaskBoardController = {
   // ================================================================
 
   _renderShell() {
-    const roleLabel = { admin: 'Admin', influencer: 'Influenceur', brand: 'Marque', readonly: 'Lecture seule' };
+    const roleLabel = { admin: 'Admin', influencer: 'Influencer', brand: 'Brand', readonly: 'Read only' };
     const roleColor = { admin: '#6366f1', influencer: '#22c55e', brand: '#f59e0b', readonly: '#94a3b8' };
     const r = this._userRole;
 
     const platforms = ['', ...this.PLATFORMS].map(p =>
-      `<option value="${p}">${p || 'Toutes les plateformes'}</option>`
+      `<option value="${p}">${p || 'All platforms'}</option>`
     ).join('');
 
     return `
@@ -107,7 +106,7 @@ const TaskBoardController = {
             </div>
             <div>
               <div class="tb-header-title">${this._esc(this._collabTitle)}</div>
-              <div class="tb-header-sub">Suivi de campagne</div>
+              <div class="tb-header-sub">Campaign tracker</div>
             </div>
           </div>
           <div class="tb-header-right">
@@ -120,7 +119,7 @@ const TaskBoardController = {
                      stroke-linecap="round" stroke-linejoin="round" style="width:14px;height:14px">
                   <path d="M12 5v14M5 12h14"/>
                 </svg>
-                Nouvelle tâche
+                New task
               </button>
             ` : ''}
             <button class="tb-close-btn" onclick="TaskBoardController.close()">✕</button>
@@ -134,7 +133,7 @@ const TaskBoardController = {
                  stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
             </svg>
-            <input class="tb-search" id="tbSearch" placeholder="Rechercher une tâche…"
+            <input class="tb-search" id="tbSearch" placeholder="Search tasks…"
                    oninput="TaskBoardController._onFilter()">
           </div>
           <select class="tb-filter-select" id="tbPlatformFilter"
@@ -148,7 +147,7 @@ const TaskBoardController = {
         <div class="tb-body" id="tbBody">
           <div class="tb-loading">
             <div class="tb-loading-dots"><span></span><span></span><span></span></div>
-            Chargement du tableau…
+            Loading board…
           </div>
         </div>
       </div>
@@ -156,7 +155,7 @@ const TaskBoardController = {
   },
 
   // ================================================================
-  //  CHARGEMENT
+  //  LOAD
   // ================================================================
 
   async _loadTasks() {
@@ -165,19 +164,19 @@ const TaskBoardController = {
       const data = await res.json();
       if (!data.success) {
         const b = document.getElementById('tbBody');
-        if (b) b.innerHTML = `<div class="tb-error">⚠ ${this._esc(data.message || 'Erreur inconnue')}</div>`;
+        if (b) b.innerHTML = `<div class="tb-error">⚠ ${this._esc(data.message || 'Unknown error')}</div>`;
         return;
       }
       this._tasks = data.tasks || [];
       this._renderBoard();
     } catch (_) {
       const b = document.getElementById('tbBody');
-      if (b) b.innerHTML = `<div class="tb-error">⚠ Erreur réseau.</div>`;
+      if (b) b.innerHTML = `<div class="tb-error">⚠ Network error.</div>`;
     }
   },
 
   // ================================================================
-  //  FILTRE
+  //  FILTER
   // ================================================================
 
   _onFilter() {
@@ -198,7 +197,7 @@ const TaskBoardController = {
   },
 
   // ================================================================
-  //  RENDU DU BOARD
+  //  BOARD RENDER
   // ================================================================
 
   _renderBoard() {
@@ -208,7 +207,7 @@ const TaskBoardController = {
     const all     = this._tasks;
     const visible = this._filteredTasks();
 
-    // Barre de progression
+    // Progress bar
     const total = all.length;
     const done  = all.filter(t => t.status === 'done' || t.status === 'validated').length;
     const pct   = total > 0 ? Math.round((done / total) * 100) : 0;
@@ -218,11 +217,11 @@ const TaskBoardController = {
         <div class="tb-progress-inline-bar">
           <div class="tb-progress-inline-fill" style="width:${pct}%"></div>
         </div>
-        <span class="tb-progress-inline-label">${done}/${total} terminées (${pct}%)</span>
-      ` : `<span class="tb-progress-inline-label" style="color:var(--text-muted)">Aucune tâche</span>`;
+        <span class="tb-progress-inline-label">${done}/${total} completed (${pct}%)</span>
+      ` : `<span class="tb-progress-inline-label" style="color:var(--text-muted)">No tasks</span>`;
     }
 
-    // Colonnes
+    // Columns
     const cols = this.COLUMNS.map(col => {
       const tasks = visible.filter(t => t.status === col.key);
       const allN  = all.filter(t => t.status === col.key).length;
@@ -232,7 +231,7 @@ const TaskBoardController = {
                   stroke-linecap="round" stroke-linejoin="round" style="width:24px;height:24px;opacity:.3">
                <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
              </svg>
-             <span>${this._filter.search || this._filter.platform ? 'Aucun résultat' : 'Vide'}</span>
+             <span>${this._filter.search || this._filter.platform ? 'No results' : 'Empty'}</span>
            </div>`
         : tasks.map(t => this._renderCard(t)).join('');
 
@@ -245,7 +244,7 @@ const TaskBoardController = {
               <span class="tb-col-count">${allN}</span>
             </div>
             ${this._canCreate() ? `
-              <button class="tb-col-add-btn" title="Ajouter dans cette colonne"
+              <button class="tb-col-add-btn" title="Add to this column"
                       onclick="TaskBoardController._openTaskForm(null, '${col.key}')">+</button>
             ` : ''}
           </div>
@@ -263,14 +262,14 @@ const TaskBoardController = {
   },
 
   // ================================================================
-  //  CARTE
+  //  CARD
   // ================================================================
 
   _renderCard(t) {
     const today   = new Date(); today.setHours(0,0,0,0);
     const due     = t.due_date ? new Date(t.due_date) : null;
     const overdue = due && due < today && t.status !== 'done' && t.status !== 'validated';
-    const dueFmt  = due ? due.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' }) : null;
+    const dueFmt  = due ? due.toLocaleDateString('en-US', { day: 'numeric', month: 'short' }) : null;
 
     const platformColors = {
       Instagram: { bg: '#fce7f3', text: '#be185d' },
@@ -283,19 +282,17 @@ const TaskBoardController = {
     };
     const pc = platformColors[t.platform] || { bg: '#f1f5f9', text: '#475569' };
 
-    // Bouton de validation spécial pour la marque
     const validateBtn = this._userRole === 'brand' && t.status === 'done' ? `
       <button class="tb-validate-btn" onclick="TaskBoardController._moveTask(${t.id}, 'validated')">
-        ✓ Valider
+        ✓ Approve
       </button>
     ` : '';
     const unvalidateBtn = this._userRole === 'brand' && t.status === 'validated' ? `
       <button class="tb-unvalidate-btn" onclick="TaskBoardController._moveTask(${t.id}, 'done')">
-        ↩ Invalider
+        ↩ Unapprove
       </button>
     ` : '';
 
-    // Sélecteur de statut (admin / influencer) — drag + select
     let actionHtml = '';
     if (this._canMove()) {
       const opts = this.COLUMNS.map(c => `
@@ -327,7 +324,7 @@ const TaskBoardController = {
           <div class="tb-card-title" onclick="TaskBoardController._openTaskDetail(${t.id})">${this._esc(t.title)}</div>
           <div class="tb-card-actions">
             ${this._canEdit() ? `
-              <button class="tb-card-btn" title="Modifier" onclick="TaskBoardController._openTaskForm(${t.id})">
+              <button class="tb-card-btn" title="Edit" onclick="TaskBoardController._openTaskForm(${t.id})">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                      stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px">
                   <path d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
@@ -335,7 +332,7 @@ const TaskBoardController = {
               </button>
             ` : ''}
             ${this._canDelete() ? `
-              <button class="tb-card-btn tb-card-btn--del" title="Supprimer"
+              <button class="tb-card-btn tb-card-btn--del" title="Delete"
                       onclick="TaskBoardController._deleteTask(${t.id})">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                      stroke-linecap="round" stroke-linejoin="round" style="width:13px;height:13px">
@@ -346,7 +343,7 @@ const TaskBoardController = {
           </div>
         </div>
 
-        <!-- Chips plateforme + type -->
+        <!-- Platform + type chips -->
         ${t.platform || t.content_type ? `
           <div class="tb-card-chips">
             ${t.platform ? `<span class="tb-chip-platform" style="background:${pc.bg};color:${pc.text}">${this._esc(t.platform)}</span>` : ''}
@@ -354,7 +351,7 @@ const TaskBoardController = {
           </div>
         ` : ''}
 
-        <!-- Notes (2 lignes max) -->
+        <!-- Notes (2 lines max) -->
         ${t.notes ? `<div class="tb-card-notes">${this._esc(t.notes)}</div>` : ''}
 
         <!-- Footer: due date + url -->
@@ -368,7 +365,7 @@ const TaskBoardController = {
                   <line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/>
                   <line x1="3" y1="10" x2="21" y2="10"/>
                 </svg>
-                ${dueFmt}${overdue ? ' · En retard' : ''}
+                ${dueFmt}${overdue ? ' · Overdue' : ''}
               </span>` : ''}
             ${t.published_url ? `
               <a class="tb-card-url" href="${this._esc(t.published_url)}" target="_blank" rel="noopener">
@@ -377,7 +374,7 @@ const TaskBoardController = {
                   <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/>
                   <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
                 </svg>
-                Voir le contenu
+                View content
               </a>` : ''}
           </div>
         ` : ''}
@@ -429,17 +426,16 @@ const TaskBoardController = {
   },
 
   // ================================================================
-  //  DÉTAIL (lecture seule pour la marque)
+  //  DETAIL (read-only for brand)
   // ================================================================
 
   _openTaskDetail(taskId) {
     const t = this._tasks.find(x => parseInt(x.id) === taskId);
     if (!t) return;
 
-    // Si peut éditer → ouvre le formulaire d'édition
     if (this._canEdit()) { this._openTaskForm(taskId); return; }
 
-    const due    = t.due_date ? new Date(t.due_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' }) : null;
+    const due    = t.due_date ? new Date(t.due_date).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' }) : null;
     const colCfg = this.COLUMNS.find(c => c.key === t.status) || this.COLUMNS[0];
 
     document.getElementById('tbDetailOverlay')?.remove();
@@ -452,26 +448,26 @@ const TaskBoardController = {
           <button class="tb-close-btn" onclick="document.getElementById('tbDetailOverlay').remove()">✕</button>
         </div>
         <div class="tb-form-body" style="gap:10px">
-          <div class="tb-detail-row"><span class="tb-detail-label">Statut</span>
+          <div class="tb-detail-row"><span class="tb-detail-label">Status</span>
             <span class="tb-detail-badge" style="background:${colCfg.color}20;color:${colCfg.color}">${colCfg.label}</span></div>
-          ${t.platform ? `<div class="tb-detail-row"><span class="tb-detail-label">Plateforme</span><span>${this._esc(t.platform)}</span></div>` : ''}
+          ${t.platform ? `<div class="tb-detail-row"><span class="tb-detail-label">Platform</span><span>${this._esc(t.platform)}</span></div>` : ''}
           ${t.content_type ? `<div class="tb-detail-row"><span class="tb-detail-label">Type</span><span>${this._esc(t.content_type)}</span></div>` : ''}
-          ${due ? `<div class="tb-detail-row"><span class="tb-detail-label">Date limite</span><span>${due}</span></div>` : ''}
-          ${t.published_url ? `<div class="tb-detail-row"><span class="tb-detail-label">Contenu publié</span>
+          ${due ? `<div class="tb-detail-row"><span class="tb-detail-label">Due date</span><span>${due}</span></div>` : ''}
+          ${t.published_url ? `<div class="tb-detail-row"><span class="tb-detail-label">Published content</span>
             <a href="${this._esc(t.published_url)}" target="_blank" rel="noopener" class="tb-card-url" style="font-size:.85rem">${this._esc(t.published_url)}</a></div>` : ''}
           ${t.notes ? `<div class="tb-detail-notes">${this._esc(t.notes)}</div>` : ''}
         </div>
         ${this._userRole === 'brand' && t.status === 'done' ? `
           <div class="tb-form-footer">
-            <button class="tb-form-cancel" onclick="document.getElementById('tbDetailOverlay').remove()">Fermer</button>
+            <button class="tb-form-cancel" onclick="document.getElementById('tbDetailOverlay').remove()">Close</button>
             <button class="tb-validate-btn-lg"
                     onclick="document.getElementById('tbDetailOverlay').remove(); TaskBoardController._moveTask(${t.id}, 'validated')">
-              ✓ Valider cette tâche
+              ✓ Approve this task
             </button>
           </div>
         ` : `
           <div class="tb-form-footer">
-            <button class="tb-form-cancel" onclick="document.getElementById('tbDetailOverlay').remove()">Fermer</button>
+            <button class="tb-form-cancel" onclick="document.getElementById('tbDetailOverlay').remove()">Close</button>
           </div>
         `}
       </div>
@@ -481,7 +477,7 @@ const TaskBoardController = {
   },
 
   // ================================================================
-  //  FORMULAIRE AJOUT / ÉDITION
+  //  ADD / EDIT FORM
   // ================================================================
 
   _openTaskForm(taskIdOrNull, defaultStatus = 'todo') {
@@ -497,11 +493,11 @@ const TaskBoardController = {
       .join('');
 
     const platformOpts = ['', ...this.PLATFORMS].map(p =>
-      `<option value="${p}" ${(t?.platform || '') === p ? 'selected' : ''}>${p || '— Plateforme —'}</option>`
+      `<option value="${p}" ${(t?.platform || '') === p ? 'selected' : ''}>${p || '— Platform —'}</option>`
     ).join('');
 
     const typeOpts = ['', ...this.CONTENT_TYPES].map(p =>
-      `<option value="${p}" ${(t?.content_type || '') === p ? 'selected' : ''}>${p || '— Type de contenu —'}</option>`
+      `<option value="${p}" ${(t?.content_type || '') === p ? 'selected' : ''}>${p || '— Content type —'}</option>`
     ).join('');
 
     const ov = document.createElement('div');
@@ -509,53 +505,53 @@ const TaskBoardController = {
     ov.innerHTML = `
       <div class="tb-form-modal">
         <div class="tb-form-header">
-          <h3 class="tb-form-title">${isEdit ? 'Modifier la tâche' : 'Nouvelle tâche'}</h3>
+          <h3 class="tb-form-title">${isEdit ? 'Edit task' : 'New task'}</h3>
           <button class="tb-close-btn" onclick="document.getElementById('tbFormOverlay').remove()">✕</button>
         </div>
         <div class="tb-form-body">
           <div class="tb-form-field tb-form-field--full">
-            <label class="tb-form-label">Titre *</label>
-            <input class="tb-form-input" id="tbfTitle" placeholder="Ex : Reel unboxing produit X"
+            <label class="tb-form-label">Title *</label>
+            <input class="tb-form-input" id="tbfTitle" placeholder="e.g. Unboxing reel for product X"
                    value="${this._esc(t?.title || '')}">
           </div>
           <div class="tb-form-row">
             <div class="tb-form-field">
-              <label class="tb-form-label">Plateforme</label>
+              <label class="tb-form-label">Platform</label>
               <select class="tb-form-input" id="tbfPlatform">${platformOpts}</select>
             </div>
             <div class="tb-form-field">
-              <label class="tb-form-label">Type de contenu</label>
+              <label class="tb-form-label">Content type</label>
               <select class="tb-form-input" id="tbfType">${typeOpts}</select>
             </div>
           </div>
           <div class="tb-form-row">
             <div class="tb-form-field">
-              <label class="tb-form-label">Colonne</label>
+              <label class="tb-form-label">Column</label>
               <select class="tb-form-input" id="tbfStatus">${statusOpts}</select>
             </div>
             <div class="tb-form-field">
-              <label class="tb-form-label">Date limite</label>
+              <label class="tb-form-label">Due date</label>
               <input class="tb-form-input" id="tbfDue" type="date" value="${this._esc(t?.due_date || '')}">
             </div>
           </div>
           <div class="tb-form-field tb-form-field--full">
-            <label class="tb-form-label">URL du contenu publié</label>
+            <label class="tb-form-label">Published content URL</label>
             <input class="tb-form-input" id="tbfUrl" type="url"
                    placeholder="https://www.instagram.com/p/…"
                    value="${this._esc(t?.published_url || '')}">
           </div>
           <div class="tb-form-field tb-form-field--full">
-            <label class="tb-form-label">Notes / Briefing</label>
+            <label class="tb-form-label">Notes / Brief</label>
             <textarea class="tb-form-input" id="tbfNotes" rows="3"
-                      placeholder="Consignes, contraintes, remarques…">${this._esc(t?.notes || '')}</textarea>
+                      placeholder="Instructions, constraints, remarks…">${this._esc(t?.notes || '')}</textarea>
           </div>
           <div id="tbfError" class="tb-form-error" style="display:none"></div>
         </div>
         <div class="tb-form-footer">
-          <button class="tb-form-cancel" onclick="document.getElementById('tbFormOverlay').remove()">Annuler</button>
+          <button class="tb-form-cancel" onclick="document.getElementById('tbFormOverlay').remove()">Cancel</button>
           <button class="tb-form-submit" id="tbfSubmit"
                   onclick="TaskBoardController._submitForm(${isEdit ? taskIdOrNull : 'null'}, this)">
-            ${isEdit ? 'Enregistrer' : 'Créer la tâche'}
+            ${isEdit ? 'Save' : 'Create task'}
           </button>
         </div>
       </div>
@@ -571,10 +567,10 @@ const TaskBoardController = {
     const title  = get('tbfTitle');
 
     if (!title) {
-      errEl.textContent = 'Le titre est requis.'; errEl.style.display = 'block'; return;
+      errEl.textContent = 'Title is required.'; errEl.style.display = 'block'; return;
     }
     errEl.style.display = 'none';
-    btn.disabled = true; btn.textContent = 'Enregistrement…';
+    btn.disabled = true; btn.textContent = 'Saving…';
 
     const isEdit = taskId !== null;
     const body   = {
@@ -597,8 +593,8 @@ const TaskBoardController = {
       const data = await res.json();
 
       if (!data.success) {
-        errEl.textContent = data.message || 'Erreur.'; errEl.style.display = 'block';
-        btn.disabled = false; btn.textContent = isEdit ? 'Enregistrer' : 'Créer la tâche';
+        errEl.textContent = data.message || 'Error.'; errEl.style.display = 'block';
+        btn.disabled = false; btn.textContent = isEdit ? 'Save' : 'Create task';
         return;
       }
 
@@ -617,13 +613,13 @@ const TaskBoardController = {
       }
       this._renderBoard();
     } catch (_) {
-      errEl.textContent = 'Erreur réseau.'; errEl.style.display = 'block';
-      btn.disabled = false; btn.textContent = isEdit ? 'Enregistrer' : 'Créer la tâche';
+      errEl.textContent = 'Network error.'; errEl.style.display = 'block';
+      btn.disabled = false; btn.textContent = isEdit ? 'Save' : 'Create task';
     }
   },
 
   // ================================================================
-  //  DÉPLACEMENT
+  //  MOVE
   // ================================================================
 
   async _moveTask(taskId, newStatus) {
@@ -646,11 +642,11 @@ const TaskBoardController = {
   },
 
   // ================================================================
-  //  SUPPRESSION
+  //  DELETE
   // ================================================================
 
   async _deleteTask(taskId) {
-    if (!confirm('Supprimer cette tâche définitivement ?')) return;
+    if (!confirm('Permanently delete this task?')) return;
     try {
       const res  = await fetch('api/tasks.php?action=delete', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },

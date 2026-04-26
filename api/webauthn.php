@@ -10,6 +10,7 @@
    =================================================== */
 
 require_once __DIR__ . '/helpers.php';
+require_once __DIR__ . '/mailer.php';
 
 // ── Relying Party config ─────────────────────────────────────
 $scheme   = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
@@ -255,6 +256,19 @@ switch ($action) {
                 $_SESSION['user'] = sanitizeUser($freshUser);
                 $db->prepare('UPDATE users SET last_login = NOW() WHERE id = ?')->execute([$inviteUid]);
 
+                // Send registration confirmation email (non-blocking).
+                $fullName = trim(($freshUser['firstname'] ?? '') . ' ' . ($freshUser['lastname'] ?? ''));
+                $mailHtml = mailTemplateRegistrationConfirmation($freshUser['firstname'] ?? 'there');
+                $mailSent = sendMail(
+                    $freshUser['email'] ?? '',
+                    $fullName !== '' ? $fullName : ($freshUser['firstname'] ?? 'User'),
+                    'Your Influmatch account registration confirmation',
+                    $mailHtml
+                );
+                if (!$mailSent) {
+                    error_log('[Influmatch] Registration confirmation email failed for user_id=' . $inviteUid);
+                }
+
                 jsonResponse([
                     'success'   => true,
                     'autologin' => true,
@@ -313,7 +327,7 @@ switch ($action) {
         try {
             $credId = $data['id'] ?? '';
             $db     = getDB();
-            $stmt   = $db->prepare('SELECT pc.*, u.id AS uid, u.firstname, u.lastname, u.email, u.role, u.avatar, u.phone, u.company, u.is_active FROM passkey_credentials pc JOIN users u ON u.id = pc.user_id WHERE pc.credential_id = ?');
+            $stmt   = $db->prepare('SELECT pc.*, u.id AS uid, u.firstname, u.lastname, u.email, u.role, u.avatar, u.phone, u.company, u.address, u.city, u.state, u.zip, u.country, u.is_active FROM passkey_credentials pc JOIN users u ON u.id = pc.user_id WHERE pc.credential_id = ?');
             $stmt->execute([$credId]);
             $row = $stmt->fetch();
             if (!$row || !$row['is_active']) throw new Exception('Unknown credential.');
@@ -358,6 +372,11 @@ switch ($action) {
                 'avatar'    => $row['avatar'],
                 'phone'     => $row['phone'],
                 'company'   => $row['company'],
+                'address'   => $row['address']   ?? null,
+                'city'      => $row['city']       ?? null,
+                'state'     => $row['state']      ?? null,
+                'zip'       => $row['zip']        ?? null,
+                'country'   => $row['country']    ?? null,
             ];
             $_SESSION['user'] = $userArr;
             $db->prepare('UPDATE users SET last_login=NOW() WHERE id=?')->execute([$row['uid']]);

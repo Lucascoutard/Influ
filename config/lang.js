@@ -7,8 +7,8 @@
 const LangManager = {
 
   STORAGE_KEY: 'influmatch_lang',
-  SUPPORTED:   ['fr', 'en'],
-  _lang:       'fr',
+  SUPPORTED:   ['en'],
+  _lang:       'en',
 
   init() {
     const stored  = localStorage.getItem(this.STORAGE_KEY);
@@ -17,8 +17,8 @@ const LangManager = {
       return;
     }
     // Détection navigateur
-    const browser = (navigator.language || navigator.userLanguage || 'fr').toLowerCase();
-    this._lang = browser.startsWith('fr') ? 'fr' : 'en';
+    const browser = (navigator.language || navigator.userLanguage || 'en').toLowerCase();
+    this._lang = 'en';
     localStorage.setItem(this.STORAGE_KEY, this._lang);
   },
 
@@ -33,5 +33,5 @@ const LangManager = {
   },
 
   // Shorthand: t('Texte FR', 'English text')
-  t(fr, en) { return this._lang === 'fr' ? fr : en; },
+  t(fr, en) { return en || fr; },
 };

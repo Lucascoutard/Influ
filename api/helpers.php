@@ -16,11 +16,8 @@ header('Permissions-Policy: geolocation=(), microphone=(), camera=()');
 // ── CORS — restrict to same origin, no wildcard (OWASP A05) ──
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 $allowedOrigins = [
-    'http://localhost',
-    'http://localhost:80',
-    'http://127.0.0.1',
-    'https://influmatch.fr',
-    'https://www.influmatch.fr',
+    'https://influmatchagency.com',
+    'https://www.influmatchagency.com',
 ];
 if (in_array($origin, $allowedOrigins, true)) {
     header('Access-Control-Allow-Origin: ' . $origin);

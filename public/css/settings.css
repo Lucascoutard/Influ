@@ -3,32 +3,47 @@
    ============================================ */
 
 .stt-layout {
-  display: grid;
-  grid-template-columns: 220px 1fr;
+  display: flex;
+  flex-direction: column;
   gap: 0;
   min-height: calc(100vh - 72px - 48px);
-  align-items: start;
 }
 
-/* Sidebar gauche */
-.stt-sidebar {
-  position: sticky;
-  top: calc(72px + 24px);
-  padding-right: 28px;
+/* Profile header horizontal */
+.stt-profile-header {
   display: flex;
-  flex-direction: column;
-  gap: 28px;
-}
-
-.stt-profile-block {
-  display: flex;
-  flex-direction: column;
   align-items: center;
-  text-align: center;
-  gap: 6px;
-  padding-bottom: 24px;
+  gap: 20px;
+  padding: 20px 0 20px;
   border-bottom: 1px solid var(--border);
+  margin-bottom: 4px;
 }
+.stt-profile-info { display: flex; flex-direction: column; gap: 3px; }
+
+/* Tabs horizontaux */
+.stt-tabs {
+  display: flex;
+  gap: 2px;
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 24px;
+}
+.stt-tab-btn {
+  display: flex; align-items: center; gap: 7px;
+  padding: 10px 16px;
+  border: none; background: transparent;
+  color: var(--muted); font-size: .88rem; font-weight: 500;
+  cursor: pointer; border-bottom: 2px solid transparent;
+  margin-bottom: -1px; transition: color .13s, border-color .13s;
+}
+.stt-tab-btn svg { width: 15px; height: 15px; flex-shrink: 0; }
+.stt-tab-btn:hover { color: var(--text); }
+.stt-tab-btn.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 600; }
+
+/* Ancien sidebar (conservé pour rétrocompatibilité) */
+.stt-sidebar {
+  display: none;
+}
+.stt-profile-block { display: none; }
 
 /* Avatar cliquable */
 .stt-avatar-wrap {
@@ -230,16 +245,62 @@
   width: 100%;
 }
 
-/* Empty */
-.stt-empty              { text-align: center; padding: 40px 24px; color: var(--muted); font-size: .88rem; }
+/* Empty / loading */
+.stt-empty   { text-align: center; padding: 40px 24px; color: var(--muted); font-size: .88rem; }
+.stt-loading { padding: 24px; color: var(--muted); font-size: .88rem; }
+
+/* Alias classes used by admin compte */
+.stt-label { font-size: .78rem; font-weight: 600; color: var(--text); display: block; margin-bottom: 5px; }
+.stt-input {
+  width: 100%; padding: 9px 13px;
+  border: 1.5px solid var(--border); border-radius: 8px;
+  font-size: .9rem; color: var(--text); background: var(--bg);
+  transition: border-color .15s, box-shadow .15s; outline: none;
+  font-family: inherit;
+}
+.stt-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(94,74,208,.1); }
+
+.stt-save-btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 10px 24px; border-radius: 10px;
+  background: var(--primary); color: #fff;
+  font-size: .88rem; font-weight: 600; border: none; cursor: pointer;
+  transition: opacity .15s, transform .1s;
+  margin-top: 8px;
+}
+.stt-save-btn:hover:not(:disabled) { opacity: .88; }
+.stt-save-btn:active { transform: scale(.97); }
+.stt-save-btn:disabled { opacity: .5; cursor: not-allowed; }
+
+.stt-msg {
+  padding: 9px 14px; border-radius: 8px;
+  font-size: .82rem; font-weight: 500; margin-top: 10px;
+}
+.stt-msg--success { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+.stt-msg--error   { background: #fef2f2; color: #991b1b; border: 1px solid #fecaca; }
+
+/* Passkey rows */
+.stt-passkey-item {
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 0; border-bottom: 1px solid var(--border);
+}
+.stt-passkey-item:last-child { border-bottom: none; }
+.stt-passkey-info  { flex: 1; }
+.stt-passkey-name  { font-size: .88rem; font-weight: 600; color: var(--text); }
+.stt-passkey-date  { font-size: .76rem; color: var(--muted); margin-top: 2px; }
+.stt-passkey-del {
+  padding: 5px 12px; border-radius: 8px; border: 1.5px solid #fca5a5;
+  background: transparent; color: #dc2626;
+  font-size: .78rem; font-weight: 600; cursor: pointer;
+  transition: background .13s;
+}
+.stt-passkey-del:hover { background: #fef2f2; }
 
 /* Responsive */
-@media (max-width: 860px) {
-  .stt-layout            { grid-template-columns: 1fr; }
-  .stt-sidebar           { position: static; padding-right: 0; flex-direction: row; flex-wrap: wrap; align-items: flex-start; gap: 16px; margin-bottom: 24px; padding-bottom: 20px; border-bottom: 1px solid var(--border); }
-  .stt-profile-block     { flex-direction: row; text-align: left; border-bottom: none; padding-bottom: 0; gap: 14px; }
-  .stt-nav               { flex-direction: row; flex-wrap: wrap; gap: 4px; width: 100%; }
-  .stt-nav-item          { width: auto; }
+@media (max-width: 600px) {
+  .stt-profile-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .stt-tabs           { overflow-x: auto; }
+  .stt-tab-btn        { padding: 8px 12px; font-size: .82rem; white-space: nowrap; }
 }
 @media (max-width: 560px) {
   .stt-form-grid         { grid-template-columns: 1fr; }
